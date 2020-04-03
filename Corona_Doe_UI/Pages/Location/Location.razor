@@ -1,0 +1,105 @@
+﻿@page "/location/entry/{LocationId:int}"
+
+<h4 class="header">Location form</h4>
+
+@if (location == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<EditForm Model="@location" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+
+    <div class="form-group">
+        <label for="myanname">Myanmar name</label>
+        <InputText class="form-control" id="name_mm" @bind-Value="location.name_mm" />
+    </div>
+
+    <div class="form-group">
+        <label for="engname">English name</label>
+        <InputText class="form-control" id="name_en" @bind-Value="location.name_en" />
+    </div>
+
+    <div class="row my-row">
+        <div class="action-button ml-auto">
+            <a href="location/list"> Cancel </a>
+
+            @if (location.location_id > 0)
+            {
+                <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+            }
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+
+
+</EditForm>
+}
+
+<MessageModal @ref="modal" />
+
+
+@code {
+
+    [Parameter]
+    public int LocationId { get; set; }
+
+    en.location location;
+    private string msg;
+    private MessageModal modal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (LocationId > 0)
+            location = await da.location.Get(LocationId);
+
+        location ??= new en.location();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            es.ActionResult result;
+
+            if (location.location_id > 0)
+                result = await da.location.Update(location);
+            else
+                result = await da.location.Insert(location);
+
+            if (result.Status != es.Status.Success)
+            {
+                modal.Show("Message", result.Msg);
+                return;
+            }
+
+            NavigationManager.NavigateTo("location/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
+
+        try
+        {
+            await da.location.Delete(LocationId);
+
+            NavigationManager.NavigateTo("location/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+}

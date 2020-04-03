@@ -1,0 +1,73 @@
+﻿@page "/entrypoint/list"
+
+@inject NavigationManager navMgr
+
+<h4 class="header">Entry Points</h4>
+
+@if (points == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="float-right mb-2">
+        <button class="btn btn-info"
+                @onclick="@(() => navMgr.NavigateTo("entrypoint/0"))">
+            + Add new
+        </button>
+    </div>
+    @if (points != null)
+    {
+        <CustomGrid Entity="en.entry_points" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="5" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                    ItemList="@points" GridRowClick="ShowModel" PagerClick="PagerClick" RowsCount="5" TablePaging="@(va.IsMobile? "true": "false")">
+            <GridHeader>
+                <th>Myanmar Name</th>
+                <th>English Name</th>
+                <th>Remark</th>
+            </GridHeader>
+            <GridRow>
+                <td class="w-75-pixel">
+                    <span>@context.name_mm</span>
+                </td>
+                <td>
+                    <span>@context.name_en</span>
+                </td>
+                <td>
+                    <span>@context.remark</span>
+                </td>
+            </GridRow>
+        </CustomGrid>
+    }
+
+}
+
+@code {
+    private en.entry_points[] points;
+
+    private bool isCustomPagingNone;
+
+    protected override async Task OnInitializedAsync()
+    { 
+        string con_strng = da.shared.Variables.ConnString;
+        var list = await da.entry_points.Get();
+        points = list.ToArray();
+    }
+
+    private Task HandleRowClick(int point_id)
+    {
+        navMgr.NavigateTo("entrypoint/" + point_id);
+
+        return Task.FromResult<object>(null);
+    }
+    
+    private Task ShowModel(en.entry_points obj)     // open entry modal
+    {
+        navMgr.NavigateTo("entrypoint/" + obj.entrypoint_id);
+
+        return Task.FromResult<object>(null);
+    }
+
+    private async Task PagerClick(int curpage)      // paging clicked event
+    {
+    }
+}

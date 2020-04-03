@@ -1,0 +1,85 @@
+﻿@page "/quaratinerecord/list"
+
+<h4 class="header">Quarantine Record</h4>
+
+@if (quarantineRecords == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="float-right mb-2">
+        <button class="btn btn-info"
+                @onclick="@(() => NavigationManager.NavigateTo("quarantinerecord/entry/0"))">
+            + Add new
+        </button>
+    </div>
+
+    <CustomGrid Entity="en.quarantine_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="5" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                ItemList="@quarantineRecords" GridRowClick="ShowModel" PagerClick="PagerClick" RowsCount="5" TablePaging="@(va.IsMobile? "true": "false")">
+        <GridHeader>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Name</th>
+            <th>NRC</th>
+            <th>Ph</th>
+            <th>Age</th>
+            <th>Date of Birth</th>
+            <th>Gender</th>
+        </GridHeader>
+        <GridRow>
+            <td>
+                <span>@context.start_date</span>
+            </td>
+            <td>
+                <span>@context.end_date</span>
+            </td>
+            <td>
+                <span>@context.person_name</span>
+            </td>
+            <td>
+                <span>@context.person_nrc</span>
+            </td>
+            <td>
+                <span>@context.person_ph</span>
+            </td>
+            <td>
+                <span>@context.person_age</span>
+            </td>
+            <td>
+                <span>@context.person_dob</span>
+            </td>
+            <td>
+                <span>@context.gender</span>
+            </td>
+        </GridRow>
+    </CustomGrid>
+}
+
+@code {
+    private en.quarantine_record[] quarantineRecords;
+
+    private bool isCustomPagingNone;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string con_strng = da.shared.Variables.ConnString;
+        var list = await da.quarantine_record.Get();
+        quarantineRecords = list.ToArray();
+    }
+
+    private Task HandleRowClick(int quarantine_id)
+    {
+        NavigationManager.NavigateTo("quarantinerecord/entry/" + quarantine_id);
+
+        return Task.FromResult<object>(null);
+    }
+
+    private async void ShowModel(en.quarantine_record obj)     // open entry modal
+    {
+    }
+
+    private async Task PagerClick(int curpage)      // paging clicked event
+    {
+    }
+}

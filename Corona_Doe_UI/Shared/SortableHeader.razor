@@ -1,0 +1,34 @@
+﻿<th class="@CssClass pointer" @onclick="OnClick">
+    @Label
+    @if (CurOrderBy == OrderBy)
+    {
+        <i class="arrow-pad fa @(CurOrder == es.SortOrder.Ascending ? "fa-long-arrow-up" : "fa-long-arrow-down")" />
+        
+    }
+</th>
+
+@code {
+
+    [Parameter]
+    public string Label { get; set; }//for column name
+
+    [Parameter]
+    public string CssClass { get; set; }//  width for mobile
+
+    [Parameter]
+    public string OrderBy { get; set; }
+
+    [Parameter]
+    public string CurOrderBy { get; set; }// CurrentOrderby
+
+    [Parameter]
+    public es.SortOrder CurOrder { get; set; }//CurrentOrder
+
+    [Parameter]
+    public EventCallback<string> OnHeaderClick { get; set; }
+
+    private async void OnClick()
+    {
+        await OnHeaderClick.InvokeAsync(OrderBy);
+    }
+}

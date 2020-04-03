@@ -1,0 +1,147 @@
+﻿@page "/entryrecord/{EntryRecordId:int}"
+
+@inject NavigationManager navMgr
+
+<h4 class="header">Entry Record Form</h4>
+
+@if (entryRecord == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@entryRecord" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="row my-row">
+            <div class="col-sm-6 coll-12">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <InputText class="form-control" id="name" @bind-Value="entryRecord.person_name" />
+                </div>
+                <div class="form-group">
+                    <label for="nrc">NRC</label>
+                    <InputText class="form-control" id="nrc" @bind-Value="entryRecord.person_nrc" />
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <InputText class="form-control" id="phone" @bind-Value="entryRecord.person_ph" />
+                </div>
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <InputText class="form-control" id="age" @bind-Value="entryRecord.person_age" />
+                </div>
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <InputText class="form-control" id="gender" @bind-Value="entryRecord.gender" />
+                </div>
+                <div class="form-group">
+                    <label for="curraddress">Current Address</label>
+                    <InputText class="form-control" id="curraddress" @bind-Value="entryRecord.current_address" />
+                </div>
+            </div>
+            <div class="col-sm-6 col-12">
+                <div class="form-group">
+                    <label for="residenceaddr">Residence Address</label>
+                    <InputText class="form-control" id="residenceaddr" @bind-Value="entryRecord.residence_address" />
+                </div>
+                <div class="form-group">
+                    <label for="hometown">HomeTown</label>
+                    <InputText class="form-control" id="hometown" @bind-Value="entryRecord.hometown" />
+                </div>
+                <div class="form-group">
+                    <label for="history">Travel History</label>
+                    <InputText class="form-control" id="history" @bind-Value="entryRecord.travel_history" />
+                </div>
+                <div class="form-group">
+                    <label for="travelfrom">Travel From</label>
+                    <InputText class="form-control" id="travelfrom" @bind-Value="entryRecord.traveled_from" />
+                </div>
+                <div class="form-group">
+                    <label for="endate">Entrance Date</label>
+                    <input type="datetime-local" @bind="entryRecord.entrance_date" @bind:format="yyyy-MM-ddTHH:mm" class="full form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="remark">Remark</label>
+                    <InputText class="form-control" id="remark" @bind-Value="entryRecord.remark" />
+                </div>
+            </div>
+        </div>
+        <div class="row my-row">
+            <div class="action-button ml-auto">
+                <a href="/entryrecord/list"> Cancel </a>
+
+                @if (entryRecord.id > 0)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+                }
+
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </EditForm>
+}
+
+<MessageModal @ref="modal" />
+
+@code {
+    [Parameter]
+    public int EntryRecordId { get; set; }
+
+    private en.entry_record entryRecord;
+    private string msg;
+    private Modal errModal; 
+    private MessageModal modal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (EntryRecordId > 0)
+            entryRecord = await da.entry_record.Get(EntryRecordId);
+
+        entryRecord ??= new en.entry_record();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            es.ActionResult result;
+
+            if (entryRecord.id > 0)
+                result = await da.entry_record.Update(entryRecord);
+            else
+                result = await da.entry_record.Insert(entryRecord);
+
+            if (result.Status != es.Status.Success)
+            {
+                modal.Show("Message", result.Msg);
+                return;
+            }
+
+            navMgr.NavigateTo("entryrecord/list");
+        }
+        catch (Exception ex)
+        {
+              modal.Show("Message", ex.Message);
+        }
+    }
+
+   private async Task HandleDelete()
+    {
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
+
+        try
+        {
+            await da.entry_record.Delete(EntryRecordId);
+
+            navMgr.NavigateTo("entryrecord/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+    
+}

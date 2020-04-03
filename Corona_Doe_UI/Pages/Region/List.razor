@@ -11,39 +11,33 @@
 else
 {
     <div class="float-right mb-2">
-        <button class="btn btn-info" 
+        <button class="btn btn-info"
                 @onclick="@(() => navMgr.NavigateTo("region/entry/0"))">
             + Add new
         </button>
     </div>
-    
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>Myanmar name</th>
-                <th>English name</th>
 
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var region in regions)
-            {
-                <tr @onclick="(() => HandleRowClick(region.region_id))">
-                    <td>
-                        @region.name_mm
-                    </td>
-                    <td>
-                        @region.name_en
-                    </td>
-
-                </tr>
-            }
-        </tbody>
-    </table>
+    <CustomGrid Entity="en.region" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="5" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                ItemList="@regions" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="5" TablePaging="@(va.IsMobile? "true": "false")">
+        <GridHeader>
+            <th>Myanmar name</th>
+            <th>English name</th>
+        </GridHeader>
+        <GridRow>
+            <td class="w-75-pixel">
+                <span>@context.name_mm</span>
+            </td>
+            <td>
+                <span>@context.name_en</span>
+            </td>
+        </GridRow>
+    </CustomGrid>
 }
 
 @code {
     private en.region[] regions;
+
+    private bool isCustomPagingNone;
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,10 +46,15 @@ else
         regions = list.ToArray();
     }
 
-    private Task HandleRowClick(int region_id)
+    private Task HandleRowClick(en.region obj)
     {
-        navMgr.NavigateTo("region/entry/" + region_id);
+        navMgr.NavigateTo("region/entry/" + obj.region_id);
 
         return Task.FromResult<object>(null);
+    }
+
+    private async Task PagerClick(int curpage)      // paging clicked event
+    {
+
     }
 }

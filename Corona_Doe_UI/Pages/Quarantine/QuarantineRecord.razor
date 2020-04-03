@@ -1,0 +1,249 @@
+﻿@page "/quarantinerecord/entry/{QuarantineId:int}"
+
+<h4  class="header">Quarantime form</h4>
+
+@if (quarantineRecord == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@quarantineRecord" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="row my-row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Station</label>
+                    <select class="full h-35-pixel" value="@quarantineRecord.station_id">
+                        @foreach (var station in stationList)
+                        {
+                            <option value="@station.station_id">@station.name_en</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="datetime-local" @bind="quarantineRecord.start_date" @bind:format="@va.datetimeformat" class="full form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="datetime-local" @bind="quarantineRecord.end_date" @bind:format="@va.datetimeformat" class="full form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Name</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_name" />
+                    <ValidationMessage For="@(() => quarantineRecord.person_name)" />
+                </div>
+
+                <div class="form-group">
+                    <label>NRC</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_nrc" />
+                    <ValidationMessage For="@(() => quarantineRecord.person_nrc)" />
+                </div>
+
+                <div class="form-group">
+                    <label>Ph</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_ph" />
+                    <ValidationMessage For="@(() => quarantineRecord.person_ph)" />
+                </div>
+
+                <div class="form-group">
+                    <label>Age</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_age" />
+                    <ValidationMessage For="@(() => quarantineRecord.person_age)" />
+                </div>
+
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="datetime-local" @bind="quarantineRecord.person_dob" @bind:format="@va.datetimeformat" class="full form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Gender</label>
+                    <div>
+                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck("M"))" checked="@quarantineRecord.gender == 'M'" />
+                        <label for="radio1" class="text-color">Male</label>
+                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck("F"))" checked="@quarantineRecord.gender == 'F'" />
+                        <label for="radio2" class="text-color">Female</label>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label>Home Town</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.hometown" />
+                    <ValidationMessage For="@(() => quarantineRecord.hometown)" />
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Reason</label>
+                    <select class="full h-35-pixel" value="@quarantineRecord.reason_id">
+                        @foreach (var reason in reasonList)
+                        {
+                            <option value="@reason.reason_id">@reason.name_en</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Travel History</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.travel_history" />
+                    <ValidationMessage For="@(() => quarantineRecord.travel_history)" />
+                </div>
+
+                <div class="form-group">
+                    <label>Residence Address</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.residence_address" />
+                </div>
+
+                <div class="form-group">
+                    <label>Current Address</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.current_address" />
+                </div>
+
+                <div class="form-group">
+                    <label>Traveled From</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.traveled_from" />
+                    <ValidationMessage For="@(() => quarantineRecord.traveled_from)" />
+                </div>
+
+                <div class="form-group">
+                    <label>Fever History</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.fever_history" />
+                </div>
+
+                <div class="form-group">
+                    <label>Remark</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.remark" />
+                </div>
+
+                <div class="form-group">
+                    <label>Check Out Date</label>
+                    <input type="datetime-local" @bind="quarantineRecord.checkout_date" @bind:format="@va.datetimeformat" class="full form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Result</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.result" />
+                </div>
+
+                <div class="form-group">
+                    <div class="mycheck form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="checkedout" value="@quarantineRecord.checkedout" @bind="quarantineRecord.checkedout">
+                        <label class="form-check-label" for="checkedout">Checked Out</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row my-row">
+            <div class="action-button ml-auto">
+                <a href="quaratinerecord/list"> Cancel </a>
+
+                @if (quarantineRecord.quarantine_id > 0)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+                }
+
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+        
+
+    </EditForm>
+}
+
+<MessageModal @ref="modal" />
+
+@code {
+    [Parameter]
+    public int QuarantineId { get; set; }
+
+    private IEnumerable<en.quarantine_station> stationList;
+    private IEnumerable<en.entry_reason> reasonList;
+    private en.quarantine_record quarantineRecord;
+    private string msg;
+    private MessageModal modal;
+
+    protected override void OnInitialized()
+    {
+        stationList = new en.quarantine_station[0];
+        reasonList = new en.entry_reason[0];
+
+        quarantineRecord = new en.quarantine_record();
+    }
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            stationList = await da.quarantine_station.Get();
+            reasonList = await da.entry_reason.Get();
+            if (QuarantineId > 0)
+            {
+                quarantineRecord = await da.quarantine_record.Get(QuarantineId);
+            }
+
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            es.ActionResult result;
+
+            if (quarantineRecord.quarantine_id > 0)
+                result = await da.quarantine_record.Update(quarantineRecord);
+            else
+                result = await da.quarantine_record.Insert(quarantineRecord);
+
+            if (result.Status != es.Status.Success)
+            {
+                modal.Show("Message", result.Msg);
+                return;
+            }
+
+            NavigationManager.NavigateTo("quaratinerecord/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
+
+        try
+        {
+            await da.quarantine_record.Delete(QuarantineId);
+
+            NavigationManager.NavigateTo("quaratinerecord/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private void IsCheck(string gender)
+    {
+        quarantineRecord.gender = gender;
+    }
+}

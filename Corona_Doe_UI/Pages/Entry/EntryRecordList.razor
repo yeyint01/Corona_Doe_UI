@@ -1,0 +1,119 @@
+﻿@page "/entryrecord/list"
+
+@inject NavigationManager navMgr
+
+<h4 class="header">Entry Records</h4>
+
+@if (records == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="float-right mb-2">
+        <button class="btn btn-info"
+                @onclick="@(() => navMgr.NavigateTo("entryrecord/0"))">
+            + Add new
+        </button>
+    </div>
+
+
+
+    @if (records != null)
+    {
+        <CustomGrid Entity="en.entry_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="5" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                    ItemList="@records" GridRowClick="ShowModel" PagerClick="PagerClick" RowsCount="5" TablePaging="@(va.IsMobile? "true": "false")">
+            <GridHeader>
+                
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="person_name" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Age*" OnHeaderClick="OnHeaderClick" OrderBy="person_age" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Current Address*" OnHeaderClick="OnHeaderClick" OrderBy="current_address" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Tavel History*" OnHeaderClick="OnHeaderClick" OrderBy="travel_history" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Entrance Date*" OnHeaderClick="OnHeaderClick" OrderBy="entrance_date" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark*" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
+            </GridHeader>
+            <GridRow>
+                <td class="w-75-pixel">
+                    <span>@context.person_name</span>
+                </td>
+                <td>
+                    <span>@context.person_age</span>
+                </td>
+                <td>
+                    <span>@context.current_address</span>
+                </td>
+                <td>
+                    <span>@context.travel_history</span>
+                </td>
+                <td>
+                    <span>@context.entrance_date</span>
+                </td>
+                <td>
+                    <span>@context.remark</span>
+                </td>
+            </GridRow>
+        </CustomGrid>
+    }
+}
+<MessageModal @ref="modal" />
+
+
+@code {
+    private en.entry_record[] records;
+    private en.entry_recordResult recordResult;
+    private bool isCustomPagingNone;
+    private int currentPage;
+    private MessageModal modal;
+    private (string OrderBy, es.SortOrder Order) CurSortInfo;
+   
+
+    protected override async Task OnInitializedAsync()
+    {
+        string con_strng = da.shared.Variables.ConnString;
+        recordResult = new en.entry_recordResult();
+        var list = await da.entry_record.Get();
+        records = list.ToArray();
+        currentPage = 1;
+
+    }
+    private async Task GetData()
+    {
+        try
+        {
+           
+        }
+        catch (Exception ex)
+        {
+              modal.Show("Message", ex.Message);
+        }
+
+    }
+
+    private Task HandleRowClick(int record_id)
+    {
+        navMgr.NavigateTo("entryrecord/" + record_id);
+
+        return Task.FromResult<object>(null);
+    }
+
+    private Task ShowModel(en.entry_record obj)     // open entry modal
+    {
+        navMgr.NavigateTo("entryrecord/" + obj.id);
+
+        return Task.FromResult<object>(null);
+    }
+
+    private async Task PagerClick(int curpage)
+    {
+        currentPage = curpage;
+        await GetData();
+    }
+    private async Task OnHeaderClick(string orderBy)
+    {
+        CurSortInfo = fn.CurrentSortInfo(orderBy);
+        isCustomPagingNone = true;
+        await GetData();
+        isCustomPagingNone = false;
+    }
+
+}

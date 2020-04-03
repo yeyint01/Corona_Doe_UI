@@ -1,0 +1,115 @@
+﻿@page "/entrypoint/{PointID:int}"
+
+@inject NavigationManager navMgr
+
+<h4 class="header">Entry Point Form</h4>
+
+@if (points == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@points" OnValidSubmit="HandleValidSubmit" autocomplete="false">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="usr">Myanmar name</label>
+            <InputText class="form-control" id="name_mm" @bind-Value="points.name_mm" />
+        </div>
+        <div class="form-group">
+            <label for="pwd">English name</label>
+            <InputText class="form-control" id="name_en" @bind-Value="points.name_en" />
+        </div>
+        <div class="form-group">
+            <label for="pwd">Remark</label>
+            <InputText class="form-control" id="name_en" @bind-Value="points.remark" />
+        </div>
+        <div class="row my-row">
+            <div class="action-button ml-auto">
+                <a href="/entrypoint/list"> Cancel </a>
+
+                @if (points.entrypoint_id > 0)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+                }
+
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </EditForm>
+}
+
+<MessageModal @ref="modal" />
+
+@code {
+    [Parameter]
+    public int PointID { get; set; }
+
+    private en.entry_points points;
+    private Modal errModal;
+    private MessageModal modal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (PointID > 0)
+            points = await da.entry_points.Get(PointID);
+
+        points ??= new en.entry_points();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            es.ActionResult result;
+
+            if (points.entrypoint_id > 0)
+            {
+                points.lat = "38.8951";
+                points.lon = "-77.0364";
+                result = await da.entry_points.Update(points);
+            }
+            else
+            {
+                points.lat = "38.8951";
+                points.lon = "-77.0364";
+                result = await da.entry_points.Insert(points);
+            }
+
+
+            if (result.Status != es.Status.Success)
+            {
+                modal.Show("Message", result.Msg);
+                return;
+            }
+
+            navMgr.NavigateTo("entrypoint/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
+
+        try
+        {
+            await da.entry_points.Delete(PointID);
+
+            navMgr.NavigateTo("entrypoint/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    
+}

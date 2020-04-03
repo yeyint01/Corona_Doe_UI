@@ -1,0 +1,63 @@
+﻿@page "/location/list"
+
+<h4 class="header">Location</h4>
+
+@if (locations == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="float-right mb-2">
+        <button class="btn btn-info"
+                @onclick="@(() => NavigationManager.NavigateTo("location/entry/0"))">
+            + Add new
+        </button>
+    </div>
+
+    @if (locations != null)
+    {
+        <CustomGrid Entity="en.location" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="5" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                    ItemList="@locations" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="5" TablePaging="@(va.IsMobile? "true": "false")">
+            <GridHeader>
+                <th>Myanmar name</th>
+                <th>English name</th>                
+            </GridHeader>
+            <GridRow>
+                <td class="w-75-pixel">
+                    <span>@context.name_mm</span>
+                </td>
+                <td>
+                    <span>@context.name_en</span>
+                </td>               
+            </GridRow>
+        </CustomGrid>
+    }
+
+}
+
+@code {
+
+    private IEnumerable<en.location> locations;
+    private bool isCustomPagingNone;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string con_strng = da.shared.Variables.ConnString;
+        var list = await da.location.Get();
+        locations = list.ToArray();
+    }
+
+    private Task HandleRowClick(en.location obj)
+    {
+        NavigationManager.NavigateTo("location/entry/" + obj.location_id);
+
+        return Task.FromResult<object>(null);
+    }
+
+    private async Task PagerClick(int curpage)      // paging clicked event
+    {
+
+    }
+
+}

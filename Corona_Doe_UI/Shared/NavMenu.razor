@@ -1,4 +1,4 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿<div class="top-row pl-3 navbar navbar-dark">
     <a class="navbar-brand" href="">Corona Doe</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -7,19 +7,59 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
-        <li class="nav-item px-3">
+        <li class="nav-item px-1">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
-        <li class="nav-item px-3">
+        <li class="nav-item px-1">
             <NavLink class="nav-link" href="region/list">
-                <span class="oi oi-list" aria-hidden="true"></span> Region
+                <span class="fa fa-globe" aria-hidden="true"></span> Region
             </NavLink>
         </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="region/list">
-                <span class="oi oi-list" aria-hidden="true"></span> Region
+        <li class="nav-item px-1">
+            <NavLink class="nav-link" href="confirmrecord/list">
+                <span class="oi oi-list" aria-hidden="true"></span> Confirm Record
+            </NavLink>
+        </li>
+        <li class="nav-item px-1">
+            <NavLink class="nav-link" href="entrypoint/list">
+                <span class="fa fa-area-chart" aria-hidden="true"></span> Entry Points
+            </NavLink>
+        </li>
+        <li class="nav-item px-1">
+            <NavLink class="nav-link" href="entrypointtype/list">
+                <span class="oi oi-list" aria-hidden="true"></span> Entry Point Type
+            </NavLink>
+        </li>
+        <li class="nav-item px-1">
+            <NavLink class="nav-link" href="entryreason/list">
+                <span class="oi oi-list" aria-hidden="true"></span> Entry Reason
+            </NavLink>
+        </li>
+        <li class="nav-item px-1">
+            <NavLink class="nav-link" href="entryrecord/list">
+                <span class="oi oi-list" aria-hidden="true"></span> Entry Record
+            </NavLink>
+        </li>
+        <li class="nav-item px-1">
+            <NavLink class="nav-link" href="location/list">
+                <span class="fa fa-map-marker" aria-hidden="true"></span> Location
+            </NavLink>
+        </li>
+        <li class="nav-item px-1">
+            <NavLink class="nav-link" href="locationtype/list">
+                <span class="fa fa-map" aria-hidden="true"></span> Location Type
+            </NavLink>
+        </li>
+        <li class="nav-item px-1">
+            <NavLink class="nav-link" href="quaratinerecord/list">
+                <span class="fa fa-hospital-o" aria-hidden="true"></span> Quarantine Record
+            </NavLink>
+        </li>
+        <li class="nav-item px-1">
+            <NavLink class="nav-link" href="quaratinestation/list">
+                <span class="fa fa-university" aria-hidden="true"></span> Quarantine Station
             </NavLink>
         </li>
     </ul>

@@ -1,0 +1,67 @@
+﻿@page "/entryreason/list"
+
+<h4 class="header">Entry Reason</h4>
+
+@if (entryreasons == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="float-right mb-2">
+        <button class="btn btn-info"
+                @onclick="@(() => NavigationManager.NavigateTo("entryreason/entry/0"))">
+            + Add new
+        </button>
+    </div>
+
+    @if (entryreasons != null)
+    {
+        <CustomGrid Entity="en.entry_reason" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="5" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                    ItemList="@entryreasons" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="5" TablePaging="@(va.IsMobile? "true": "false")">
+            <GridHeader>
+                <th>Myanmar name</th>
+                <th>English name</th>
+                <th>Description</th>
+            </GridHeader>
+            <GridRow>
+                <td class="w-75-pixel">
+                    <span>@context.name_mm</span>
+                </td>
+                <td>
+                    <span>@context.name_en</span>
+                </td>
+                <td>
+                    <span>@context.description</span>
+                </td>
+            </GridRow>
+        </CustomGrid>
+    }
+
+}
+
+@code {
+
+    private IEnumerable<en.entry_reason> entryreasons;
+    private bool isCustomPagingNone;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string con_strng = da.shared.Variables.ConnString;
+        var list = await da.entry_reason.Get();
+        entryreasons = list.ToArray();
+    }
+
+    private Task HandleRowClick(en.entry_reason obj)
+    {
+        NavigationManager.NavigateTo("entryreason/entry/" + obj.reason_id);
+
+        return Task.FromResult<object>(null);
+    }
+        
+    private async Task PagerClick(int curpage)      // paging clicked event
+    {
+
+    }
+
+}

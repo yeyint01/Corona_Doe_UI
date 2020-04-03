@@ -7,7 +7,24 @@
 @using Microsoft.JSInterop
 @using Corona_Doe_UI
 @using Corona_Doe_UI.Shared
-@using Corona_Doe_UI.Components 
+@using Corona_Doe_UI.Components
+@using Corona_Doe_UI.Extensions
 @using en = Entity
 @using da = DataAccess
 @using es = Entity.shared
+
+@using Corona_Doe_UI.Services
+
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq;
+@using System
+@using System.IO
+@using System.Linq.Expressions
+
+@inject IJSRuntime JSRuntime
+
+@inject ScopeVariables va
+@inject BrowserResize Resize
+@inject JSRuntimeService JsService
+@inject NavigationManager NavigationManager
+@inject Functions fn

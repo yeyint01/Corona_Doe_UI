@@ -5,11 +5,51 @@
 </div>
 
 <div class="main">
-    <div class="top-row px-4">
+    <div class="top-row">
         <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
     </div>
 
-    <div class="content px-4">
+    <div class="content">
         @Body
     </div>
 </div>
+
+@code {
+    int InnerHeight = 0;
+    int InnerWidth = 0;
+
+    protected override void OnInitialized()
+    {
+        BrowserResize.OnResize += BrowserHasResized;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            (InnerWidth, InnerHeight) = await Resize.GetResize();
+            va.IsMobile = InnerWidth < 768;
+            va.IsTablet = InnerWidth < 992;
+            await JSRuntime.InvokeAsync<object>("CustomJsFunctions.registerResizeCallback");
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        BrowserResize.OnResize -= BrowserHasResized;
+    }
+
+    #region Function
+
+    private async Task BrowserHasResized()
+    {
+        (InnerWidth, InnerHeight) = await Resize.GetResize();
+        va.IsMobile = InnerWidth < 768;
+        va.IsTablet = InnerWidth < 992;
+        //ToggleWindowWidth();
+        StateHasChanged();
+    }
+
+    #endregion
+}

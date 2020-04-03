@@ -1,0 +1,111 @@
+﻿@page "/entryreason/entry/{EntryReasonId:int}"
+
+<h4 class="header">Entry Reason form</h4>
+
+@if (entry_Reason == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<EditForm Model="@entry_Reason" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+
+    <div class="form-group">
+        <label for="myanname">Myanmar name</label>
+        <InputText class="form-control" id="name_mm" @bind-Value="entry_Reason.name_mm" />
+    </div>
+
+    <div class="form-group">
+        <label for="engname">English name</label>
+        <InputText class="form-control" id="name_en" @bind-Value="entry_Reason.name_en" />
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <InputText class="form-control" id="name_des" @bind-Value="entry_Reason.description" />
+    </div>
+
+    <div class="row my-row">
+        <div class="action-button ml-auto">
+            <a href="entryreason/list"> Cancel </a>
+
+            @if (entry_Reason.reason_id > 0)
+            {
+                <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+            }
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+
+
+</EditForm>
+}
+
+<MessageModal @ref="modal" />
+
+
+@code {
+
+
+    [Parameter]
+    public int EntryReasonId { get; set; }
+
+    en.entry_reason entry_Reason;
+    private string msg;
+    private MessageModal modal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (EntryReasonId > 0)
+            entry_Reason = await da.entry_reason.Get(EntryReasonId);
+
+        entry_Reason ??= new en.entry_reason();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            es.ActionResult result;
+
+            if (entry_Reason.reason_id > 0)
+                result = await da.entry_reason.Update(entry_Reason);
+            else
+                result = await da.entry_reason.Insert(entry_Reason);
+
+            if (result.Status != es.Status.Success)
+            {
+                modal.Show("Message", result.Msg);
+                return;
+            }
+
+            NavigationManager.NavigateTo("entryreason/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
+
+        try
+        {
+            await da.entry_reason.Delete(EntryReasonId);
+
+            NavigationManager.NavigateTo("entryreason/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }  
+
+}

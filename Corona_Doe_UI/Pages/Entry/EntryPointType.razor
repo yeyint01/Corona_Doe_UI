@@ -1,0 +1,109 @@
+﻿@page "/entrypointtype/entry/{EntryPointTypeId:int}"
+
+<h4 class="header">Entry Point Type form</h4>
+
+@if (entrypoint_Type == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<EditForm Model="@entrypoint_Type" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+
+    <div class="form-group">
+        <label for="myanname">Myanmar name</label>
+        <InputText class="form-control" id="name_mm" @bind-Value="entrypoint_Type.name_mm" />
+    </div>
+
+    <div class="form-group">
+        <label for="engname">English name</label>
+        <InputText class="form-control" id="name_en" @bind-Value="entrypoint_Type.name_en" />
+    </div>
+    <div class="form-group">
+        <label for="remark">Remark</label>
+        <InputText class="form-control" id="name_remark" @bind-Value="entrypoint_Type.remark" />
+    </div>
+
+    <div class="row my-row">
+        <div class="action-button ml-auto">
+            <a href="entrypointtype/list"> Cancel </a>
+
+            @if (entrypoint_Type.entrypoint_type_id > 0)
+            {
+                <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+            }
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+
+
+</EditForm>
+}
+
+<MessageModal @ref="modal" />
+
+@code {
+
+    [Parameter]
+    public int EntryPointTypeId { get; set; }
+
+    en.entrypoint_type entrypoint_Type;
+    private string msg;
+    private MessageModal modal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (EntryPointTypeId > 0)
+            entrypoint_Type = await da.entrypoint_type.Get(EntryPointTypeId);
+
+        entrypoint_Type ??= new en.entrypoint_type();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            es.ActionResult result;
+
+            if (entrypoint_Type.entrypoint_type_id > 0)
+                result = await da.entrypoint_type.Update(entrypoint_Type);
+            else
+                result = await da.entrypoint_type.Insert(entrypoint_Type);
+
+            if (result.Status != es.Status.Success)
+            {
+                modal.Show("Message", result.Msg);
+                return;
+            }
+
+            NavigationManager.NavigateTo("entrypointtype/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
+
+        try
+        {
+            await da.entrypoint_type.Delete(EntryPointTypeId);
+
+            NavigationManager.NavigateTo("entrypointtype/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+}

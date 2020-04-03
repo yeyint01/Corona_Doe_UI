@@ -1,0 +1,61 @@
+﻿<Modal Title="@title" @ref="modal">
+    <ModalBody>
+        @message
+    </ModalBody>
+    <ModalFooter>
+        @if (btn1 != null)
+        {
+            <button class="btn btn-primary" @onclick="HandlNegativeClick">@btn2</button>
+        }
+        <button class="btn btn-primary" @onclick="HandlPostiveClick">@btn1</button>
+    </ModalFooter>
+</Modal>
+
+@code {
+    private string message { get; set; }
+    private Modal modal;
+    private TaskCompletionSource<bool> tcs;
+    private string title, btn1, btn2;
+
+    public void Show(string title, string message)
+    {
+        this.title = title;
+        this.message = message;
+        btn1 = "Close";
+        btn2 = null;
+    }
+
+    public Task<bool> Show(string title, string message, string postive, string negative)
+    {
+        tcs = new TaskCompletionSource<bool>();
+
+        this.title = title;
+        this.message = message;
+        btn1 = postive;
+        btn2 = negative;
+
+        modal.Open();
+
+        StateHasChanged();
+
+        return tcs.Task;
+    }
+
+    private Task HandlPostiveClick()
+    {
+        modal.Close();
+
+        tcs?.TrySetResult(true);
+
+        return Task.FromResult<object>(null);
+    }
+
+    private Task HandlNegativeClick()
+    {
+        modal.Close();
+
+        tcs?.TrySetResult(false);
+
+        return Task.FromResult<object>(null);
+    }
+}

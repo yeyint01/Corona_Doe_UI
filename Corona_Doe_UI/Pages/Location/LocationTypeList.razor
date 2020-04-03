@@ -1,0 +1,64 @@
+﻿@page "/locationtype/list"
+
+<h4 class="header">Location Type</h4>
+
+@if (locationtypes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="float-right mb-2">
+        <button class="btn btn-info"
+                @onclick="@(() => NavigationManager.NavigateTo("locationtype/entry/0"))">
+            + Add new
+        </button>
+    </div>
+
+    @if (locationtypes != null)
+    {
+        <CustomGrid Entity="en.location_type" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="5" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                    ItemList="@locationtypes" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="5" TablePaging="@(va.IsMobile? "true": "false")">
+            <GridHeader>
+                <th>Myanmar name</th>
+                <th>English name</th>
+            </GridHeader>
+            <GridRow>
+                <td class="w-75-pixel">
+                    <span>@context.name_mm</span>
+                </td>
+                <td>
+                    <span>@context.name_en</span>
+                </td>
+            </GridRow>
+        </CustomGrid>
+    }
+
+}
+
+
+@code {
+
+    private IEnumerable<en.location_type> locationtypes;
+    private bool isCustomPagingNone;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string con_strng = da.shared.Variables.ConnString;
+        var list = await da.location_type.Get();
+        locationtypes = list.ToArray();
+    }
+
+    private Task HandleRowClick(en.location_type obj)
+    {
+        NavigationManager.NavigateTo("locationtype/entry/" + obj.locationtype_id);
+
+        return Task.FromResult<object>(null);
+    }
+
+    private async Task PagerClick(int curpage)      // paging clicked event
+    {
+
+    }
+
+}

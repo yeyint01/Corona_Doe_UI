@@ -2,7 +2,7 @@
 
 @inject NavigationManager navMgr
 
-<h3 class="header">Region form</h3>
+<h4 class="header">Region form</h4>
 
 @if (region == null)
 {
@@ -23,16 +23,19 @@ else
             <InputText class="form-control" id="name_en" @bind-Value="region.name_en" />
         </div>
 
-        <div class="action-button float-right">
-            <a href="region/list"> Cancel </a>
+        <div class="row my-row">
+            <div class="action-button ml-auto">
+                <a href="region/list"> Cancel </a>
 
-            @if (region.region_id > 0)
-            {
-                <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
-            }
+                @if (region.region_id > 0)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+                }
 
-            <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
         </div>
+        
 
     </EditForm>
 }

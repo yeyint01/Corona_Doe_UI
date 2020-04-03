@@ -7,13 +7,11 @@
   <ItemGroup>
     <Folder Include="Data\" />
     <Folder Include="Library\" />
-    <Folder Include="Pages\Location\" />
-    <Folder Include="Pages\Entry\" />
-    <Folder Include="Pages\Quarantine\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.30" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
   </ItemGroup>
 

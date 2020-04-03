@@ -1,0 +1,168 @@
+﻿@page "/quarantinestation/entry/{StationId:int}"
+
+<h3 class="header">Quarantime form</h3>
+
+@if (quarantineStation == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<EditForm Model="@quarantineStation" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="row my-row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label>English Name</label>
+                <InputText class="full form-control" @bind-Value="quarantineStation.name_en" />
+                <ValidationMessage For="@(() => quarantineStation.name_en)" />
+            </div>
+            <div class="form-group">
+                <label>Myanmar Name</label>
+                <InputText class="full form-control" @bind-Value="quarantineStation.name_mm" />
+                <ValidationMessage For="@(() => quarantineStation.name_mm)" />
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <InputText class="full form-control" @bind-Value="quarantineStation.description" />
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <select class="full h-35-pixel" value="@quarantineStation.location_id">
+                    @foreach (var location in locationList)
+                    {
+                        <option value="@location.location_id">@location.name_en</option>
+                    }
+                </select>
+            </div>
+
+        </div>
+
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label>Capacity</label>
+                <input type="number" class="full form-control" @bind-value="quarantineStation.capacity" />
+            </div>
+            <div class="form-group">
+                <div class="mycheck form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="checkedout" value="@quarantineStation.discontinued" @bind="quarantineStation.discontinued">
+                    <label class="form-check-label" for="checkedout">Discontinued</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Discontinued Date</label>
+                <input type="datetime-local" @bind="quarantineStation.discontinued_date" @bind:format="@va.datetimeformat" class="full form-control" />
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row my-row">
+        <div class="action-button ml-auto">
+            <a href="quaratinestation/list"> Cancel </a>
+
+            @if (quarantineStation.station_id > 0)
+            {
+                <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+            }
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </div>
+
+</EditForm>
+}
+
+<MessageModal @ref="modal" />
+
+@code {
+    [Parameter]
+    public int StationId { get; set; }
+
+    private IEnumerable<en.location> locationList;
+
+    private en.quarantine_station quarantineStation;
+    private string msg;
+    private MessageModal modal;
+
+    protected override void OnInitialized()
+    {
+        locationList = new en.location[0];
+        quarantineStation = new en.quarantine_station();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            StateHasChanged();
+        }
+    }
+
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            locationList = await da.location.Get();
+            if (StationId > 0)
+            {
+                quarantineStation = await da.quarantine_station.Get(StationId);
+            }
+
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            es.ActionResult result;
+
+            if (quarantineStation.station_id > 0)
+                result = await da.quarantine_station.Update(quarantineStation);
+            else
+                result = await da.quarantine_station.Insert(quarantineStation);
+
+            if (result.Status != es.Status.Success)
+            {
+                modal.Show("Message", result.Msg);
+                return;
+            }
+
+            NavigationManager.NavigateTo("quaratinestation/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
+
+        try
+        {
+            await da.quarantine_station.Delete(StationId);
+
+            NavigationManager.NavigateTo("quaratinestation/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+}

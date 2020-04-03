@@ -1,0 +1,68 @@
+﻿@page "/entrypointtype/list"
+
+<h4 class="header">Entry Point Type</h4>
+
+@if (entrypointtypes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="float-right mb-2">
+        <button class="btn btn-info"
+                @onclick="@(() => NavigationManager.NavigateTo("entrypointtype/entry/0"))">
+            + Add new
+        </button>
+    </div>
+
+    @if (entrypointtypes != null)
+    {
+        <CustomGrid Entity="en.entrypoint_type" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="5" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                    ItemList="@entrypointtypes" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="5" TablePaging="@(va.IsMobile? "true": "false")">
+            <GridHeader>
+                <th>Myanmar name</th>
+                <th>English name</th>
+                <th>Remark</th>
+            </GridHeader>
+            <GridRow>
+                <td class="w-75-pixel">
+                    <span>@context.name_mm</span>
+                </td>
+                <td>
+                    <span>@context.name_en</span>
+                </td>
+                <td>
+                    <span>@context.remark</span>
+                </td>
+            </GridRow>
+        </CustomGrid>
+    }
+
+}
+
+@code {
+
+    private IEnumerable<en.entrypoint_type> entrypointtypes;
+    private bool isCustomPagingNone; 
+
+    protected override async Task OnInitializedAsync()
+    {
+        string con_strng = da.shared.Variables.ConnString;
+        var list = await da.entrypoint_type.Get();
+        entrypointtypes = list.ToArray();
+    }
+
+    private Task HandleRowClick(en.entrypoint_type obj)
+    {
+        NavigationManager.NavigateTo("entrypointtype/entry/" + obj.entrypoint_type_id);
+
+        return Task.FromResult<object>(null);
+    }
+
+    
+    private async Task PagerClick(int curpage)      // paging clicked event
+    {
+
+    }
+
+}
