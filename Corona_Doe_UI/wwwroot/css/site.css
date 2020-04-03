@@ -8,6 +8,14 @@ a, .btn-link {
     color: #0366d6;
 }
 
+.header{
+    padding-bottom: 10px;
+}
+
+.action-button{
+    padding-top: 10px;
+}
+
 .btn-primary {
     color: #fff;
     background-color: #1b6ec2;

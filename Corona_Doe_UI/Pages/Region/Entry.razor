@@ -1,0 +1,133 @@
+﻿@page "/region/entry/{RegionId:int}"
+
+@inject NavigationManager navMgr
+
+<h3 class="header">Region form</h3>
+
+@if (region == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@region" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="usr">Myanmar name</label>
+            <InputText class="form-control" id="name_mm" @bind-Value="region.name_mm" />
+        </div>
+        <div class="form-group">
+            <label for="pwd">English name</label>
+            <InputText class="form-control" id="name_en" @bind-Value="region.name_en" />
+        </div>
+
+        <div class="action-button float-right">
+            <a href="region/list"> Cancel </a>
+
+            @if (region.region_id > 0)
+            {
+                <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+            }
+
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+
+    </EditForm>
+}
+
+<Modal Title="Message" @ref="errModal">
+    <ModalBody>
+        @msg
+    </ModalBody>
+    <ModalFooter>
+        <button class="btn btn-danger"
+                @onclick="(() => errModal.Close())">
+            Close
+        </button>
+    </ModalFooter>
+</Modal>
+
+<Modal Title="Message" @ref="modal">
+    <ModalBody>
+        @msg
+    </ModalBody>
+    <ModalFooter>
+        <button class="btn btn-danger"
+                @onclick="(() => modal.Close())">
+            No
+        </button>
+        <button class="btn btn-primary"
+                @onclick="DeleteRegion">
+            Yes
+        </button>
+    </ModalFooter>
+</Modal>
+
+@code {
+    [Parameter]
+    public int RegionId { get; set; }
+
+    private en.region region;
+    private string msg;
+    private Modal errModal;
+    private Modal modal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (RegionId > 0)
+            region = await da.region.Get(RegionId);
+
+        region ??= new en.region();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            es.ActionResult result;
+
+            if (region.region_id > 0)
+                result = await da.region.Update(region);
+            else
+                result = await da.region.Insert(region);
+
+            if (result.Status != es.Status.Success)
+            {
+                msg = result.Msg;
+                errModal.Open();
+                return;
+            }
+
+            navMgr.NavigateTo("region/list");
+        }
+        catch (Exception ex)
+        {
+            msg = ex.Message;
+            errModal.Open();
+        }
+    }
+
+    private Task HandleDelete()
+    {
+        msg = "Are you sure want to delete ?";
+        modal.Open();
+
+        return Task.FromResult<object>(null);
+    }
+
+    private async Task DeleteRegion()
+    {
+        try
+        {
+            await da.region.Delete(RegionId);
+
+            navMgr.NavigateTo("region/list");
+        }
+        catch (Exception ex)
+        {
+            msg = ex.Message;
+        }
+    }
+}

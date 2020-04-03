@@ -4,4 +4,26 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+    <Folder Include="Library\" />
+    <Folder Include="Pages\Location\" />
+    <Folder Include="Pages\Entry\" />
+    <Folder Include="Pages\Quarantine\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.30" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="DataAccess">
+      <HintPath>Library\DataAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="Entity">
+      <HintPath>Library\Entity.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
