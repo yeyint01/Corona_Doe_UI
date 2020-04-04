@@ -1,4 +1,4 @@
-﻿<Modal Title="@title" @ref="modal">
+﻿<Modal Title="@title" @ref="modal" OnModalClose="HandleModalClose">
     <ModalBody>
         @message
     </ModalBody>
@@ -12,7 +12,7 @@
 </Modal>
 
 @code {
-    private string message { get; set; }
+    private string message;
     private Modal modal;
     private TaskCompletionSource<bool> tcs;
     private string title, btn1, btn2;
@@ -26,6 +26,7 @@
 
         modal.Open();
 
+        // to affect changes on this.title and this.message
         StateHasChanged();
     }
 
@@ -40,26 +41,30 @@
 
         modal.Open();
 
+        // to affect changes on this.title and this.message
         StateHasChanged();
 
         return tcs.Task;
     }
 
-    private Task HandlPostiveClick()
+    private void HandlPostiveClick()
     {
         modal.Close();
 
         tcs?.TrySetResult(true);
-
-        return Task.FromResult<object>(null);
     }
 
-    private Task HandlNegativeClick()
+    private void HandlNegativeClick()
     {
         modal.Close();
 
         tcs?.TrySetResult(false);
+    }
 
-        return Task.FromResult<object>(null);
+    private Task HandleModalClose()
+    {
+        tcs?.TrySetResult(false);
+
+        return Task.FromResult(0);
     }
 }

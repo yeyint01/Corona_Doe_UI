@@ -1,43 +1,36 @@
 ﻿@page "/locationtype/entry/{LocationTypeId:int}"
 
-<h4 class="header">Location Type form</h4>
+<h4 class="header">Location Type Form</h4>
 
-@if (locationtype == null)
+@if (locationtype != null)
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-<EditForm Model="@locationtype" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <EditForm Model="@locationtype" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-
-    <div class="form-group">
-        <label for="myanname">Myanmar name</label>
-        <InputText class="form-control" id="name_mm" @bind-Value="locationtype.name_mm" />
-    </div>
-
-    <div class="form-group">
-        <label for="engname">English name</label>
-        <InputText class="form-control" id="name_en" @bind-Value="locationtype.name_en" />
-    </div>
-
-    <div class="row my-row">
-        <div class="action-button ml-auto">
-            <a href="locationtype/list"> Cancel </a>
-
-            @if (locationtype.locationtype_id > 0)
-            {
-                <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
-            }
-
-            <button type="submit" class="btn btn-primary"><span>Save</span></button>
+        <div class="form-group">
+            <label for="myanname">Myanmar Name*</label>
+            <InputText class="form-control" id="name_mm" @bind-Value="locationtype.name_mm" autocomplete="off"/>
         </div>
-    </div>
 
+        <div class="form-group">
+            <label for="engname">English Name*</label>
+            <InputText class="form-control" id="name_en" @bind-Value="locationtype.name_en" autocomplete="off"/>
+        </div>
 
-</EditForm>
+        <div class="row my-row">
+            <div class="action-button">
+                <button type="submit" class="btn btn-info"><span>Save</span></button>
+                @if (locationtype.locationtype_id > 0)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
+                }
+
+                <a href="locationtype/list"> Cancel </a>
+            </div>
+        </div>
+
+    </EditForm>
 }
 
 <MessageModal @ref="modal" />
@@ -47,17 +40,21 @@ else
     [Parameter]
     public int LocationTypeId { get; set; }
 
-    en.location_type locationtype;
     private string msg;
+    en.location_type locationtype;
     private MessageModal modal;
 
     protected override async Task OnInitializedAsync()
     {
+        va.IsLoading = true;
         if (LocationTypeId > 0)
             locationtype = await da.location_type.Get(LocationTypeId);
 
         locationtype ??= new en.location_type();
+        va.IsLoading = false;
     }
+
+    #region Fuunctions
 
     private async Task HandleValidSubmit()
     {
@@ -102,4 +99,5 @@ else
         }
     }
 
+    #endregion
 }

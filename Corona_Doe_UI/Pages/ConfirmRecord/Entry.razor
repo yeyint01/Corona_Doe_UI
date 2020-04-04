@@ -1,56 +1,76 @@
 ﻿@page "/confirmrecord/entry/{PatientId:int}"
 
-<h4 class="header">Quarantime form</h4>
+<h4 class="header">Confirm Record Form</h4>
 
-@if (confirmrecord == null)
+@if (confirmrecord != null)
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <EditForm Model="@confirmrecord" OnValidSubmit="HandleValidSubmit">
+    <EditForm Model="@confirmrecord" OnValidSubmit="HandleValidSubmit" >
         <DataAnnotationsValidator />
         <ValidationSummary />
 
-        <div class="row my-row">
+        <div class="row">
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>Quarantine</label>
-                    <select class="full h-35-pixel" value="@confirmrecord.quarantine_id">
-                        @foreach (var record in qRecords)
-                        {
-                            <option value="@record.quarantine_id">@record.person_name</option>
-                        }
-                    </select>
+                    @if (qRecordList != null && qRecordList?.Count() > 0)
+                    {
+                        <Typeahead SearchMethod="GetQuaRecord"
+                                   Placeholder="Search..."
+                                   Items="qRecordList"
+                                   @bind-Value="selectedQuaRecord">
+                            <SelectedTemplate Context="name">
+                                @name.person_name
+                            </SelectedTemplate>
+                            <ResultTemplate Context="name">
+                                @name.person_name
+                            </ResultTemplate>
+                        </Typeahead>
+                    }
+                    else
+                    {
+                        <div class="full form-control h-35-pixel"></div>
+                    }
                 </div>
                 <div class="form-group">
                     <label>Station</label>
-                    <select class="full h-35-pixel" value="@confirmrecord.station_id">
-                        @foreach (var station in qStations)
-                        {
-                            <option value="@station.station_id">@station.name_en</option>
-                        }
-                    </select>
+                    @if (qStationList != null && qStationList?.Count() > 0)
+                    {
+                        <Typeahead SearchMethod="GetQuaStation"
+                                   Placeholder="Search..."
+                                   Items="qStationList"
+                                   @bind-Value="selectedQuaStation">
+                            <SelectedTemplate Context="name">
+                                @name.name_en
+                            </SelectedTemplate>
+                            <ResultTemplate Context="name">
+                                @name.name_en
+                            </ResultTemplate>
+                        </Typeahead>
+                    }
+                    else
+                    {
+                        <div class="full form-control h-35-pixel"> </div>                       
+                    }
                 </div>
                 <div class="form-group">
-                    <label>Name</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_name" />
+                    <label>Name*</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_name" autocomplete="off"/>
                 </div>
                 <div class="form-group">
                     <label>NRC</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_nrc" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_nrc" autocomplete="off"/>
                 </div>
                 <div class="form-group">
-                    <label>Ph</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_ph" />
+                    <label>Phone Number*</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_ph" autocomplete="off"/>
                 </div>
                 <div class="form-group">
                     <label>Age</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_age" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_age" autocomplete="off"/>
                 </div>
                 <div class="form-group">
                     <label>Date of Birth</label>
-                    <input type="datetime-local" @bind="confirmrecord.patient_dob" @bind:format="@va.datetimeformat" class="full form-control" />
+                    <input type="datetime-local" @bind="confirmrecord.patient_dob" @bind:format="@va.datetimeformat" class="full form-control"/>
                 </div>
                 <div class="form-group">
                     <label>Gender</label>
@@ -64,43 +84,56 @@ else
                 </div>
                 <div class="form-group">
                     <label>Home Town</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.hometown" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.hometown" autocomplete="off"/>
                 </div>
                 <div class="form-group">
                     <label>Reason</label>
-                    <select class="full h-35-pixel" value="@confirmrecord.reason_id">
-                        @foreach (var reason in eReasons)
-                        {
-                            <option value="@reason.reason_id">@reason.name_en</option>
-                        }
-                    </select>
+
+                    @if (eReasonList != null && eReasonList?.Count() > 0)
+                    {
+                        <Typeahead SearchMethod="GetReson"
+                                   Placeholder="Search..."
+                                   Items="eReasonList"
+                                   @bind-Value="selectedReson">
+                            <SelectedTemplate Context="name">
+                                @name.name_en
+                            </SelectedTemplate>
+                            <ResultTemplate Context="name">
+                                @name.name_en
+                            </ResultTemplate>
+                        </Typeahead>
+                    }
+                    else
+                    {
+                        <div class="full form-control h-35-pixel"> </div>
+                    }
                 </div>
             </div>
 
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>Travel History</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.travel_history" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.travel_history" autocomplete="off"/>
                 </div>
                 <div class="form-group">
                     <label>Residence Address</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.residence_address" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.residence_address" autocomplete="off"/>
                 </div>
                 <div class="form-group">
                     <label>Current Address</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.current_address" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.current_address" autocomplete="off"/>
                 </div>
                 <div class="form-group">
                     <label>Traveled From</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.traveled_from" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.traveled_from" autocomplete="off"/>
                 </div>
                 <div class="form-group">
                     <label>Fever History</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.fever_history" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.fever_history" autocomplete="off"/>
                 </div>
                 <div class="form-group">
                     <label>Remark</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.remark" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.remark" autocomplete="off"/>
                 </div>
                 <div class="form-group">
                     <label>Check Out Date</label>
@@ -108,24 +141,23 @@ else
                 </div>
                 <div class="form-group">
                     <label>Result</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.result" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.result" autocomplete="off"/>
                 </div>
             </div>
         </div>
 
         <div class="row my-row">
-            <div class="action-button ml-auto">
-                <a href="confirmrecord/list"> Cancel </a>
+            <div class="action-button">
+                <button type="submit" class="btn btn-primary"><span>Save</span></button>
 
                 @if (confirmrecord.patient_id > 0)
                 {
-                    <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
                 }
 
-                <button type="submit" class="btn btn-primary">Save</button>
+                <a href="confirmrecord/list"> Cancel </a>
             </div>
         </div>
-
 
     </EditForm>
 }
@@ -136,12 +168,24 @@ else
     [Parameter]
     public int PatientId { get; set; }
 
-    private en.confirm_record confirmrecord;
     private string msg;
     private MessageModal modal;
-    private IEnumerable<en.quarantine_record> qRecords;
-    private IEnumerable<en.quarantine_station> qStations;
-    private IEnumerable<en.entry_reason> eReasons;
+    private en.confirm_record confirmrecord;
+    private List<en.quarantine_record> qRecordList;
+    private List<en.quarantine_station> qStationList;
+    private List<en.entry_reason> eReasonList;
+
+    private en.quarantine_record selectedQuaRecord { get; set; }
+    private en.quarantine_station selectedQuaStation { get; set; }
+    private en.entry_reason selectedReson { get; set; }
+
+    protected override void OnInitialized()
+    {
+        va.IsLoading = true;
+        qRecordList = new List<en.quarantine_record>();
+        qStationList = new List<en.quarantine_station>();
+        eReasonList = new List<en.entry_reason>();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -154,14 +198,37 @@ else
 
     private async Task GetData()
     {
-        if (PatientId > 0)
-            confirmrecord = await da.confirm_record.Get(PatientId);
+        try
+        {
+            confirmrecord ??= new en.confirm_record();
 
-        confirmrecord ??= new en.confirm_record();
+            var qRecords = await da.quarantine_record.Get();
+            if (qRecords != null)
+                qRecordList.AddRange(qRecords);
 
-        qRecords = await da.quarantine_record.Get();
-        qStations = await da.quarantine_station.Get();
-        eReasons = await da.entry_reason.Get();
+            var qStations = await da.quarantine_station.Get();
+            if (qStations != null)
+                qStationList.AddRange(qStations);
+
+            var eReasons = await da.entry_reason.Get();
+            if (eReasons != null)
+                eReasonList.AddRange(eReasons);
+
+            if (PatientId > 0)
+            {
+                confirmrecord = await da.confirm_record.Get(PatientId);
+                selectedQuaRecord = qRecordList.Find(qr => qr.quarantine_id == confirmrecord?.quarantine_id);
+                selectedQuaStation = qStationList.Find(qs => qs.station_id == confirmrecord.station_id);
+                selectedReson = eReasonList.Find(r => r.reason_id == confirmrecord.reason_id);
+            }
+
+            va.IsLoading = false;
+        }
+        catch(Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
     }
 
     private async Task HandleValidSubmit()
@@ -169,6 +236,13 @@ else
         try
         {
             es.ActionResult result;
+
+            if (selectedQuaRecord != null)
+                confirmrecord.quarantine_id = selectedQuaRecord.quarantine_id;
+            if (selectedQuaStation != null)
+                confirmrecord.station_id = selectedQuaStation.station_id;
+            if (selectedReson != null)
+                confirmrecord.reason_id = selectedReson.reason_id;
 
             if (confirmrecord.patient_id > 0)
                 result = await da.confirm_record.Update(confirmrecord);
@@ -205,6 +279,24 @@ else
         {
             modal.Show("Message", ex.Message);
         }
+    }
+
+    private async Task<IEnumerable<en.quarantine_record>> GetQuaRecord(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(qRecordList.FindAll(qr => qr.person_name.ToLower().Contains(text)).OrderBy(o => o.person_name));
+    }
+
+    private async Task<IEnumerable<en.quarantine_station>> GetQuaStation(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(qStationList.FindAll(qs => qs.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
+    }
+
+    private async Task<IEnumerable<en.entry_reason>> GetReson(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(eReasonList.FindAll(qr => qr.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
     }
 
     private void IsCheck(string gender)

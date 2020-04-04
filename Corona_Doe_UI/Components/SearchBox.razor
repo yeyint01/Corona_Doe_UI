@@ -1,0 +1,33 @@
+﻿<div class="search-container">
+    <input type="search" placeholder="Search..." class="search" @bind-value="@searchText" @bind-value:event="oninput" @onkeypress="HandleKeyPress"/>
+    <span @onclick="HandleClick"> <i class="fa fa-search search-icon" aria-hidden="true"></i> </span>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<string> SearchClick { get; set; }
+
+    private string searchText { get; set; }
+
+    private async Task HandleClick()
+    {
+        if (SearchClick.HasDelegate)
+            await SearchClick.InvokeAsync(searchText);
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter")
+        {
+            await HandleClick();
+        }
+    }
+
+    //private async void FocusWasOut()
+    //{
+    //    if (string.IsNullOrWhiteSpace(searchText))
+    //    {
+    //        await SearchClick.InvokeAsync(searchText);            
+    //    }
+    //}
+}

@@ -1,76 +1,127 @@
 ﻿<div class="top-row pl-3 navbar navbar-dark">
-    <a class="navbar-brand" href="">Corona Doe</a>
+    @*<a class="navbar-brand" href="">Corona Doe</a>*@
+    <div class="top-logo">
+        <img src="image/mcf-logo.png" class="w-100 h-100" />
+    </div>
+    
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
     </button>
 </div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+<div class="@NavMenuCssClass">
     <ul class="nav flex-column">
         <li class="nav-item px-1">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+            <NavLink class="nav-link menu" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
+        <li class="nav-item px-1">
+            <NavLink class="nav-link menu" @onclick="@(()=>  subMenuOpen("location"))">
+                <span class="fa fa-university" aria-hidden="true"></span> Location
+                <i class="fa fa-caret-down menu-icon"></i>
+            </NavLink>
+
+            <ul class="subMenu" id="location" style="display:none" @onclick="ToggleNavMenu">
+                <li class="nav-item px-1">
+                    <NavLink class="nav-link" href="region/list">
+                        <span class="fa fa-globe" aria-hidden="true"></span> Region
+                    </NavLink>
+                </li>
+
+                <li class="nav-item px-1">
+                    <NavLink class="nav-link" href="locationtype/list">
+                        <span class="fa fa-map" aria-hidden="true"></span> Location Type
+                    </NavLink>
+                </li>
+
+                <li class="nav-item px-1">
+                    <NavLink class="nav-link" href="location/list">
+                        <span class="fa fa-map-marker" aria-hidden="true"></span> Location
+                    </NavLink>
+                </li>
+
+                <li class="nav-item px-1">
+                    <NavLink class="nav-link" href="entrypointtype/list">
+                        <span class="fa fa-bar-chart" aria-hidden="true"></span> Entry Point Type
+                    </NavLink>
+                </li>
+
+                <li class="nav-item px-1">
+                    <NavLink class="nav-link" href="entrypoint/list">
+                        <span class="fa fa-area-chart" aria-hidden="true"></span> Entry Point
+                    </NavLink>
+                </li>
+
+            </ul>
+        </li>
+
 
         <li class="nav-item px-1">
-            <NavLink class="nav-link" href="region/list">
-                <span class="fa fa-globe" aria-hidden="true"></span>Location Region
+            <NavLink class="nav-link menu" @onclick="@(()=>  subMenuOpen("entry"))">
+                <span class="fa fa-university" aria-hidden="true"></span> Entry
+                <i class="fa fa-caret-down menu-icon"></i>
             </NavLink>
+            <ul class="subMenu" id="entry" style="display:none" @onclick="ToggleNavMenu">
+                <li class="nav-item px-1">
+                    <NavLink class="nav-link" href="entryreason/list">
+                        <span class="oi oi-list" aria-hidden="true"></span> Entry Reason
+                    </NavLink>
+                </li>
+
+                <li class="nav-item px-1">
+                    <NavLink class="nav-link" href="entryrecord/0">
+                        <span class="fa fa-outdent" aria-hidden="true"></span> New Entry Record
+                    </NavLink>
+                </li>
+
+                <li class="nav-item px-1">
+                    <NavLink class="nav-link" href="entryrecord/list">
+                        <span class="fa fa-search-plus" aria-hidden="true"></span> Search Entry Record
+                    </NavLink>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-item px-1">
+            <NavLink class="nav-link menu" @onclick="@(()=>  subMenuOpen("quaratine"))">
+                <span class="fa  fa-universal-access" aria-hidden="true"></span> Quarantine
+                <i class="fa fa-caret-down menu-icon"></i>
+            </NavLink>
+
+            <ul class="subMenu" id="quaratine" style="display:none" @onclick="ToggleNavMenu">
+                <li class="nav-item px-1">
+                    <NavLink class="nav-link" href="quaratinestation/list">
+                        <span class="fa fa-university" aria-hidden="true"></span> Quarantine Station
+                    </NavLink>
+                </li>
+
+                <li class="nav-item px-1">
+                    <NavLink class="nav-link" href="quarantinerecord/entry/0">
+                        <span class="fa fa-hospital-o" aria-hidden="true"></span>New Quarantine Record
+                    </NavLink>
+                </li>
+
+                <li class="nav-item px-1">
+                    <NavLink class="nav-link" href="quaratinerecord/list">
+                        <span class="fa fa-search-plus" aria-hidden="true"></span>Search Quarantine Record
+                    </NavLink>
+                </li>
+            </ul>
         </li>
 
         <li class="nav-item px-1">
-            <NavLink class="nav-link" href="locationtype/list">
-                <span class="fa fa-map" aria-hidden="true"></span> Location Type
-            </NavLink>
-        </li>
-
-        <li class="nav-item px-1">
-            <NavLink class="nav-link" href="location/list">
-                <span class="fa fa-map-marker" aria-hidden="true"></span> Location
-            </NavLink>
-        </li>
-
-        <li class="nav-item px-1">
-            <NavLink class="nav-link" href="entrypointtype/list">
-                <span class="fa fa-bar-chart" aria-hidden="true"></span> Entry Point Type
-            </NavLink>
-        </li>
-
-        <li class="nav-item px-1">
-            <NavLink class="nav-link" href="entrypoint/list">
-                <span class="fa fa-area-chart" aria-hidden="true"></span> Entry Point
-            </NavLink>
-        </li>
-
-
-        <li class="nav-item px-1">
-            <NavLink class="nav-link" href="entryreason/list">
-                <span class="oi oi-list" aria-hidden="true"></span> Entry Reason
-            </NavLink>
-        </li>
-
-        <li class="nav-item px-1">
-            <NavLink class="nav-link" href="entryrecord/list">
-                <span class="fa fa-outdent" aria-hidden="true"></span> Entry Record
-            </NavLink>
-        </li>
-
-        <li class="nav-item px-1">
-            <NavLink class="nav-link" href="quaratinestation/list">
-                <span class="fa fa-university" aria-hidden="true"></span> Quarantine Station
-            </NavLink>
-        </li>
-
-        <li class="nav-item px-1">
-            <NavLink class="nav-link" href="quaratinerecord/list">
-                <span class="fa fa-hospital-o" aria-hidden="true"></span> Quarantine Record
-            </NavLink>
-        </li>
-
-        <li class="nav-item px-1">
-            <NavLink class="nav-link" href="confirmrecord/list">
+            <NavLink class="nav-link" href="confirmrecord/list" @onclick="@(()=>  subMenuOpen("covid19"))">
                 <span class="fa fa-file-text-o" aria-hidden="true"></span>COVID19 Confirm
+            </NavLink>
+        </li>
+
+        <li class="nav-item px-1">
+            <NavLink class="nav-link">
+                <form method="get" action="logout" name="myform" class="full">
+                    <div class="menu" onclick="myform.submit()">
+                        <span><i class="fa fa-sign-out"></i></span>Logout
+                    </div>
+                </form>
             </NavLink>
         </li>
 
@@ -85,5 +136,10 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    public void subMenuOpen(string id)
+    {
+        JSRuntime.InvokeVoidAsync("CustomJsFunctions.openSubMenu", id);
     }
 }

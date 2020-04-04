@@ -14,7 +14,13 @@
     <base href="~/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="lib/font-awesome/css/font-awesome.css" />
+    <link href="lib/openlayers/ol.css" type="text/css" rel="stylesheet" />
     <link href="css/site.css" rel="stylesheet" />
+
+    <!--Drop Down-->
+    <link rel="stylesheet" href="_content/LoreSoft.Blazor.Controls/BlazorControls.css" />
+    <script src="_content/LoreSoft.Blazor.Controls/BlazorControls.js"></script>
+
 </head>
 <body>
     <app>
@@ -32,7 +38,12 @@
         <a class="dismiss">🗙</a>
     </div>
 
-    <script src="_framework/blazor.server.js"></script>
+    <script src ="lib/jquery/dist/jquery.min.js"></script>
+    <script src="lib/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="~/js/Custom.js"></script>
+
+    <script src="_framework/blazor.server.js"></script>
+    <script src="lib/openlayers/ol.js"></script>
+    <script type="text/javascript" src="js/Map.js"></script>
 </body>
 </html>

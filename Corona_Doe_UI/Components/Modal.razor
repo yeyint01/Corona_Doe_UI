@@ -31,16 +31,24 @@
     [Parameter]
     public RenderFragment ModalFooter { get; set; }
 
+    [Parameter]
+    public EventCallback OnModalClose { get; set; }
+
     bool show;
 
     public void Open()
     {
         show = true;
         //StateHasChanged();
+
+        //return Task.FromResult(0);
     }
 
     public void Close()
     {
         show = false;
+
+        //if (OnModalClose.HasDelegate)
+        //    await OnModalClose.InvokeAsync(null);
     }
 }

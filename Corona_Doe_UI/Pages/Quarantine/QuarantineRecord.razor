@@ -1,6 +1,6 @@
 ﻿@page "/quarantinerecord/entry/{QuarantineId:int}"
 
-<h4  class="header">Quarantime form</h4>
+<h4 class="header">Quarantine Record Form</h4>
 
 @if (quarantineRecord == null)
 {
@@ -8,159 +8,199 @@
 }
 else
 {
-    <EditForm Model="@quarantineRecord" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+<EditForm Model="@quarantineRecord" OnValidSubmit="HandleValidSubmit" autocomplete="off">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-        <div class="row my-row">
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <label>Name*</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_name" />
-                    <ValidationMessage For="@(() => quarantineRecord.person_name)" />
-                </div>
-
-                <div class="form-group">
-                    <label>NRC</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_nrc" />
-                    <ValidationMessage For="@(() => quarantineRecord.person_nrc)" />
-                </div>
-
-                <div class="form-group">
-                    <label>Station</label>
-                    <select class="full h-35-pixel" value="@quarantineRecord.station_id">
-                        @foreach (var station in stationList)
-                        {
-                            <option value="@station.station_id">@station.name_en</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Start Date</label>
-                    <input type="datetime-local" @bind="quarantineRecord.start_date" @bind:format="@va.datetimeformat" class="full form-control" />
-                </div>
-
-                <div class="form-group">
-                    <label>End Date</label>
-                    <input type="datetime-local" @bind="quarantineRecord.end_date" @bind:format="@va.datetimeformat" class="full form-control" />
-                </div>
-
-                <div class="form-group">
-                    <label>Ph</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_ph" />
-                    <ValidationMessage For="@(() => quarantineRecord.person_ph)" />
-                </div>
-
-                <div class="form-group">
-                    <label>Age</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_age" />
-                    <ValidationMessage For="@(() => quarantineRecord.person_age)" />
-                </div>
-
-                <div class="form-group">
-                    <label>Date of Birth</label>
-                    <input type="datetime-local" @bind="quarantineRecord.person_dob" @bind:format="@va.datetimeformat" class="full form-control" />
-                </div>
-
-                <div class="form-group">
-                    <label>Gender</label>
-                    <div>
-                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck("M"))" checked="@quarantineRecord.gender == 'M'" />
-                        <label for="radio1" class="text-color">Male</label>
-                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck("F"))" checked="@quarantineRecord.gender == 'F'" />
-                        <label for="radio2" class="text-color">Female</label>
-                    </div>
-
-                </div>
-                <div class="form-group">
-                    <label>Home Town</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.hometown" />
-                    <ValidationMessage For="@(() => quarantineRecord.hometown)" />
-                </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label>Name*</label>
+                <InputText class="full form-control" @bind-Value="quarantineRecord.person_name" />
             </div>
 
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <label>Reason</label>
-                    <select class="full h-35-pixel" value="@quarantineRecord.reason_id">
-                        @foreach (var reason in reasonList)
-                        {
-                            <option value="@reason.reason_id">@reason.name_en</option>
-                        }
-                    </select>
-                </div>
+            <div class="form-group">
+                <label>Phone*</label>
+                <InputText class="full form-control" @bind-Value="quarantineRecord.person_ph" />
+            </div>
 
-                <div class="form-group">
-                    <label>Travel History</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.travel_history" />
-                    <ValidationMessage For="@(() => quarantineRecord.travel_history)" />
-                </div>
+            <div class="form-group">
+                <label>NRC</label>
+                <InputText class="full form-control" @bind-Value="quarantineRecord.person_nrc" />
+            </div>
 
-                <div class="form-group">
-                    <label>Residence Address</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.residence_address" />
-                </div>
+            <div class="form-group">
+                <label>Age</label>
+                <InputText class="full form-control" @bind-Value="quarantineRecord.person_age" />
+            </div>
 
-                <div class="form-group">
-                    <label>Current Address</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.current_address" />
-                </div>
+            <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="datetime-local" @bind="quarantineRecord.person_dob" @bind:format="@va.datetimeformat" class="full form-control" />
+            </div>
 
-                <div class="form-group">
-                    <label>Traveled From</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.traveled_from" />
-                    <ValidationMessage For="@(() => quarantineRecord.traveled_from)" />
-                </div>
-
-                <div class="form-group">
-                    <label>Fever History</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.fever_history" />
-                </div>
-
-                <div class="form-group">
-                    <label>Remark</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.remark" />
-                </div>
-
-                <div class="form-group">
-                    <label>Result</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.result" />
-                </div>
-
-                <div class="form-group">
-                    <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="checkedout" value="@quarantineRecord.checkedout" @bind="quarantineRecord.checkedout">
-                        <label class="form-check-label" for="checkedout">Checked Out</label>
-                    </div>
-                </div>
-
-                @if (quarantineRecord.checkedout == true)
+            <div class="form-group">
+                <label>Station</label>
+                @if (stationList != null && stationList?.Count() > 0)
                 {
-                    <div class="form-group">
-                        <label>Check Out Date</label>
-                        <input type="datetime-local" @bind="quarantineRecord.checkout_date" @bind:format="@va.datetimeformat" class="full form-control" />
-                    </div>
+                    <Typeahead SearchMethod="GetQuaStation"
+                               Placeholder="Search..."
+                               Items="stationList"
+                               @bind-Value="selectedQuaStation">
+                        <SelectedTemplate Context="station">
+                            @station.name_en
+                        </SelectedTemplate>
+                        <ResultTemplate Context="station">
+                            @station.name_en
+                        </ResultTemplate>
+                    </Typeahead>
                 }
+            </div>
+
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="datetime-local" @bind="quarantineRecord.start_date" @bind:format="@va.datetimeformat" class="full form-control" />
+            </div>
+
+            <div class="form-group">
+                <label>End Date</label>
+                <input type="datetime-local" @bind="quarantineRecord.end_date" @bind:format="@va.datetimeformat" class="full form-control" />
+            </div>
+
+            <div class="form-group">
+                <label>Home Town</label>
+                <InputText class="full form-control" @bind-Value="quarantineRecord.hometown" />
+            </div>
+
+            <div class="form-group">
+                <label>Gender</label>
+                <div>
+                    @if (string.IsNullOrWhiteSpace(quarantineRecord.gender))
+                    {
+                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck("M"))" checked />
+                    }
+                    else
+                    {
+                        <input type="radio" name="radio-group" id="radio1" value="M" @onclick="@(()=>IsCheck("M"))" data-bind="checked: @quarantineRecord.gender" />
+                    }
+
+                    <label for="radio1" class="text-color">Male</label>
+                    <input type="radio" name="radio-group" id="radio2" value="F" @onclick="@(()=>IsCheck("F"))" data-bind="checked: @quarantineRecord.gender" />
+                    <label for="radio2" class="text-color">Female</label>
+                </div>
 
             </div>
+
+            <div class="form-group">
+                <div class="mycheck form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="labtesting" value="@quarantineRecord.lab_testing" @bind="quarantineRecord.lab_testing">
+                    <label class="form-check-label" for="labtesting">Lab Testing</label>
+                </div>
+            </div>
+
+            @if (quarantineRecord.lab_testing == true)
+            {
+                <div class="form-group">
+                    <label>Lab Testing Date</label>
+                    <input type="datetime-local" @bind="quarantineRecord.lab_testing_date" @bind:format="@va.datetimeformat" class="full form-control" />
+                </div>
+            }
+
         </div>
 
-        <div class="row my-row">
-            <div class="action-button ml-auto">
-                <a href="quaratinerecord/list"> Cancel </a>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label>Reason</label>
 
-                @if (quarantineRecord.quarantine_id > 0)
+                @if (reasonList != null && reasonList?.Count() > 0)
                 {
-                    <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+                    <Typeahead SearchMethod="GetReason"
+                               Placeholder="Search..."
+                               Items="reasonList"
+                               @bind-Value="selectedReason">
+                        <SelectedTemplate Context="station">
+                            @station.name_en
+                        </SelectedTemplate>
+                        <ResultTemplate Context="station">
+                            @station.name_en
+                        </ResultTemplate>
+                    </Typeahead>
                 }
-
-                <button type="submit" class="btn btn-primary">Save</button>
             </div>
-        </div>
-        
 
-    </EditForm>
+            <div class="form-group">
+                <label>Travel History</label>
+                <InputText class="full form-control" @bind-Value="quarantineRecord.travel_history" />
+            </div>
+
+            <div class="form-group">
+                <label>Residence Address</label>
+                <InputText class="full form-control" @bind-Value="quarantineRecord.residence_address" />
+            </div>
+
+            <div class="form-group">
+                <label>Current Address</label>
+                <InputText class="full form-control" @bind-Value="quarantineRecord.current_address" />
+            </div>
+
+            <div class="form-group">
+                <label>Traveled From</label>
+                <InputText class="full form-control" @bind-Value="quarantineRecord.traveled_from" />
+            </div>
+
+            <div class="form-group">
+                <label>Fever History</label>
+                <InputText class="full form-control" @bind-Value="quarantineRecord.fever_history" />
+            </div>
+
+            <div class="form-group">
+                <label>Remark</label>
+                <InputText class="full form-control" @bind-Value="quarantineRecord.remark" />
+            </div>
+
+            <div class="form-group">
+                <label>Result</label>
+                <InputText class="full form-control" @bind-Value="quarantineRecord.result" />
+            </div>
+
+            <div class="form-group">
+                <label>Result Date</label>
+                <input type="datetime-local" @bind="quarantineRecord.result_date" @bind:format="@va.datetimeformat" class="full form-control" />
+            </div>
+
+            <div class="form-group">
+                <div class="mycheck form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="checkedout" value="@quarantineRecord.checkedout" @bind="quarantineRecord.checkedout">
+                    <label class="form-check-label" for="checkedout">Checked Out</label>
+                </div>
+            </div>
+
+            @if (quarantineRecord.checkedout == true)
+            {
+                <div class="form-group">
+                    <label>Check Out Date</label>
+                    <input type="datetime-local" @bind="quarantineRecord.checkout_date" @bind:format="@va.datetimeformat" class="full form-control" />
+                </div>
+            }
+
+        </div>
+    </div>
+
+    <div class="row my-row">
+        <div class="action-button">
+            <button type="submit" class="btn btn-info"><span>Save</span></button>
+
+            @if (quarantineRecord.station_id > 0)
+            {
+                <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
+            }
+
+            <a href="quaratinerecord/list"> Cancel </a>
+        </div>
+    </div>
+
+
+</EditForm>
 }
 
 <MessageModal @ref="modal" />
@@ -169,29 +209,55 @@ else
     [Parameter]
     public int QuarantineId { get; set; }
 
-    private IEnumerable<en.quarantine_station> stationList;
-    private IEnumerable<en.entry_reason> reasonList;
+    private List<en.quarantine_station> stationList;
+    private List<en.entry_reason> reasonList;
     private en.quarantine_record quarantineRecord;
     private string msg;
     private MessageModal modal;
 
+    private en.quarantine_station selectedQuaStation { get; set; }
+    private en.entry_reason selectedReason { get; set; }
+
     protected override void OnInitialized()
     {
-        stationList = new en.quarantine_station[0];
-        reasonList = new en.entry_reason[0];
+        stationList = new List<en.quarantine_station>();
+        reasonList = new List<en.entry_reason>();
 
         quarantineRecord = new en.quarantine_record();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            StateHasChanged();
+        }
     }
 
     private async Task GetData()    // get data from server
     {
         try
         {
-            stationList = await da.quarantine_station.Get();
-            reasonList = await da.entry_reason.Get();
+            var stations = await da.quarantine_station.Get();
+            if (stations != null)
+            {
+                stationList.Clear();
+                stationList.AddRange(stations);
+            }
+
+            var reasons = await da.entry_reason.Get();
+            if (reasons != null)
+            {
+                reasonList.Clear();
+                reasonList.AddRange(reasons);
+            }
+
             if (QuarantineId > 0)
             {
                 quarantineRecord = await da.quarantine_record.Get(QuarantineId);
+                selectedQuaStation = stationList.Find(station => station.station_id == quarantineRecord?.station_id);
+                selectedReason = reasonList.Find(reason => reason.reason_id == quarantineRecord.reason_id);
             }
 
             va.IsLoading = false;
@@ -207,6 +273,9 @@ else
     {
         try
         {
+            quarantineRecord.station_id = selectedQuaStation?.station_id;
+            quarantineRecord.reason_id = selectedReason?.reason_id;
+
             es.ActionResult result;
 
             if (quarantineRecord.quarantine_id > 0)
@@ -220,7 +289,9 @@ else
                 return;
             }
 
-            NavigationManager.NavigateTo("quaratinerecord/list");
+            //NavigationManager.NavigateTo("quaratinerecord/list");
+            quarantineRecord = new en.quarantine_record();
+            await JsService.Toast("toastsave", "Save Success");
         }
         catch (Exception ex)
         {
@@ -249,5 +320,18 @@ else
     private void IsCheck(string gender)
     {
         quarantineRecord.gender = gender;
+    }
+
+    private async Task<IEnumerable<en.quarantine_station>> GetQuaStation(string searchText)
+    {
+        var text = searchText?.ToLower();
+        //return await Task.FromResult(stationList.FindAll(s => s.NE.ToLower().Contains(text)).OrderBy(o => o.NE));
+        return await Task.FromResult(stationList.FindAll(station => station.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
+    }
+
+    private async Task<IEnumerable<en.entry_reason>> GetReason(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(reasonList.FindAll(reason => reason.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
     }
 }

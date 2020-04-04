@@ -8,38 +8,39 @@
 }
 else
 {
-    <div class="float-right mb-2">
-        <input type="search" placeholder="Search..." @bind="@searchText" @oninput="ChangeSearch" class="search" />
-        <button class="btn btn-info"
+    <div class="mb-3 mt-3 d-flex">
+        <button class="btn btn-info mr-3"
                 @onclick="@(() => NavigationManager.NavigateTo("quarantinerecord/entry/0"))">
-            <span> + Add new </span>
+            <span>+ Add new</span>
         </button>
+
+        <SearchBox SearchClick="HandlSearchClick" />
     </div>
 
     <CustomGrid Entity="en.quarantine_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@quarantineRecordResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
                 ItemList="@quarantineRecordResult.Quarantine_Records" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@quarantineRecordResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="person_name" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Ph*" OnHeaderClick="OnHeaderClick" OrderBy="person_ph" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="NRC" OnHeaderClick="OnHeaderClick" OrderBy="person_nrc" />
 
             @if (!va.IsMobile)
             {
                 @*<SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Station" OnHeaderClick="OnHeaderClick" OrderBy="station_id" />*@
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Start Date" OnHeaderClick="OnHeaderClick" OrderBy="start_date"/>
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Start Date" OnHeaderClick="OnHeaderClick" OrderBy="start_date" />
                 <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="End Date" OnHeaderClick="OnHeaderClick" OrderBy="end_date" />
-                @*<SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Ph" OnHeaderClick="OnHeaderClick" OrderBy="person_ph" />*@
                 <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Age" OnHeaderClick="OnHeaderClick" OrderBy="person_age" />
                 @*<SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Date of Birth" OnHeaderClick="OnHeaderClick" OrderBy="person_dob" />*@
                 <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Gender" OnHeaderClick="OnHeaderClick" OrderBy="gender" />
                 <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Home Town" OnHeaderClick="OnHeaderClick" OrderBy="hometown" />
                 @*<SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Reason" OnHeaderClick="OnHeaderClick" OrderBy="reason_id" />*@
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Travel History" OnHeaderClick="OnHeaderClick" OrderBy="travel_history"/>
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Travel History" OnHeaderClick="OnHeaderClick" OrderBy="travel_history" />
                 @*<SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Residence Address" OnHeaderClick="OnHeaderClick" OrderBy="residence_address" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Current Address" OnHeaderClick="OnHeaderClick" OrderBy="current_address" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Traveled From" OnHeaderClick="OnHeaderClick" OrderBy="traveled_from"/>
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Fever History" OnHeaderClick="OnHeaderClick" OrderBy="fever_history"/>
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Checkout Date" OnHeaderClick="OnHeaderClick" OrderBy="checkout_date" />*@
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Current Address" OnHeaderClick="OnHeaderClick" OrderBy="current_address" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Traveled From" OnHeaderClick="OnHeaderClick" OrderBy="traveled_from"/>
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Fever History" OnHeaderClick="OnHeaderClick" OrderBy="fever_history"/>
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Checkout Date" OnHeaderClick="OnHeaderClick" OrderBy="checkout_date" />*@
                 <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Result" OnHeaderClick="OnHeaderClick" OrderBy="result" />
                 @*<SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Checkedout" OnHeaderClick="OnHeaderClick" OrderBy="checkedout" />*@
             }
@@ -50,78 +51,78 @@ else
                 <span>@context.person_name</span>
             </td>
             <td>
+                <span>@context.person_ph</span>
+            </td>
+            <td>
                 <span>@context.person_nrc</span>
             </td>
             @if (!va.IsMobile)
             {
                 @*<td>
-                    <span>@context.station_id</span>
-                </td>*@
+                <span>@context.station_id</span>
+            </td>*@
                 <td>
-                    <span>@context.start_date</span>
+                    <span>@context.start_date?.ToString(va.dateformat)</span>
                 </td>
                 <td>
-                    <span>@context.end_date</span>
+                    <span>@context.end_date?.ToString(va.dateformat)</span>
                 </td>
-                @*<td>
-                    <span>@context.person_ph</span>
-                </td>*@
                 <td>
                     <span>@context.person_age</span>
                 </td>
                 @*<td>
-                    <span>@context.person_dob</span>
-                </td>*@
+                <span>@context.person_dob</span>
+            </td>*@
                 <td>
-                    <span>@context.gender</span>
+                    <span>@(context.gender == "M" ? "Male" : "Female")</span>
                 </td>
                 <td>
                     <span>@context.hometown</span>
                 </td>
                 @*<td>
-                    <span>@context.reason_id</span>
-                </td>*@
+                <span>@context.reason_id</span>
+            </td>*@
                 <td>
                     <span>@context.travel_history</span>
                 </td>
                 @*<td>
-                    <span>@context.residence_address</span>
-                </td>
-                <td>
-                    <span>@context.current_address</span>
-                </td>
-                <td>
-                    <span>@context.traveled_from</span>
-                </td>
-                <td>
-                    <span>@context.fever_history</span>
-                </td>
-                <td>
-                    <span>@context.remark</span>
-                </td>
-                <td>
-                    <span>@context.checkout_date</span>
-                </td>*@
+                <span>@context.residence_address</span>
+            </td>
+            <td>
+                <span>@context.current_address</span>
+            </td>
+            <td>
+                <span>@context.traveled_from</span>
+            </td>
+            <td>
+                <span>@context.fever_history</span>
+            </td>
+            <td>
+                <span>@context.remark</span>
+            </td>
+            <td>
+                <span>@context.checkout_date</span>
+            </td>*@
                 <td>
                     <span>@context.result</span>
                 </td>
                 @*<td>
-                    @if (context.checkedout != null)
+                @if (context.checkedout != null)
+                {
+                    @if ((bool)context.checkedout)
                     {
-                        @if ((bool)context.checkedout)
-                        {
 
-                            <span class="fa fa-check"></span>
-                        }
-
-                        @if (!(bool)context.checkedout)
-                        {
-
-                            <span class="fa fa-times"></span>
-                        }
+                        <span class="fa fa-check"></span>
                     }
 
-                </td>*@
+                    @if (!(bool)context.checkedout)
+                    {
+
+                        <span class="fa fa-times"></span>
+                    }
+                }
+
+            </td>*@
             }
 
         </GridRow>
@@ -142,6 +143,7 @@ else
 
     protected override void OnInitialized()
     {
+        va.IsLoading = true;
         currentPage = 1;
         quarantineRecordResult = new en.quarantine_recordResult();
     }
@@ -176,10 +178,9 @@ else
         }
     }
 
-    private async Task ChangeSearch(ChangeEventArgs e)
+    private async Task HandlSearchClick(string text)
     {
-        if (e.Value == null) return;
-        searchText = e.Value.ToString(); ;
+        searchText = text;
         currentPage = 1;
         await GetData();
     }

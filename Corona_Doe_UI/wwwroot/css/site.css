@@ -1,4 +1,5 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import url('line-scale-party.css');
 
 :root {
     --core-color: #138496;
@@ -206,6 +207,14 @@ a, .btn-link {
     padding-top: 15px;
 }
 
+.pad-left-0{
+    padding-left: 0px !important;
+}
+
+.pad-right-0{
+    padding-right: 0px !important;
+}
+
 .pad-left-5 {
     padding-left: 5px;
 }
@@ -246,7 +255,11 @@ a, .btn-link {
     height: 35px;
 }
 
-.header{
+.h-400-pixel{
+    height: 400px;
+}
+
+.header {
     font-weight: bold;
 }
 
@@ -267,9 +280,15 @@ app {
 }
 
 .top-row {
-    height: 3.5rem;
+    /*height: 3.5rem;*/
+    height: 4.5rem;
     display: flex;
     align-items: center;
+}
+
+.top-logo{
+    width: 230px;
+    height: 56px;
 }
 
 .my-row {
@@ -339,7 +358,7 @@ app {
     }
 
         .sidebar .nav-item:first-of-type {
-            padding-top: 1rem;
+            padding-top: 0.3rem;
         }
 
         .sidebar .nav-item:last-of-type {
@@ -399,6 +418,37 @@ app {
     z-index: 1000;
 }
 
+/* toast */
+
+.fa-check-circle {
+    font-size: 17px !important;
+}
+
+.fa-exclamation-circle {
+    font-size: 17px !important;
+}
+
+.toastwidth {
+    position: absolute;
+    top: 0;
+    min-width: 170px;
+    margin: auto;
+}
+
+.position-topcenter {
+    top: 2rem;
+    left: 50%;
+    margin-left: -4rem !important;
+}
+
+.my-toast {
+    
+    position: absolute;
+    min-width: 150px;
+}
+
+/*toast*/
+
 #blazor-error-ui .dismiss {
     cursor: pointer;
     position: absolute;
@@ -410,10 +460,25 @@ app {
     cursor: pointer;
 }
 
+.search-container{
+    position:relative;
+    margin-right: 5px;
+}
+
 .search {
     border: 1px solid #ced4da;
     border-radius: .25rem;
     height: 37px;
+    padding-right: 32px;
+    width: 179px;
+}
+
+.search-icon {
+    position: absolute;
+    right: 4px;
+    top: 6px;
+    font-size: 24px;
+    cursor: pointer;
 }
 
 .table {
@@ -441,7 +506,94 @@ app {
 }
 
 .table tbody td {
-    padding: 6px !important;
+    padding: 12px 3px 12px 5px !important;
+}
+
+tbody td span{
+    word-break: break-all;
+}
+
+.confirm-modal {
+    background: rgb(0,0,0,0.7);
+}
+
+.confirm-modal .modal-body {
+    min-height: 115px;
+    padding: 37px 1rem;
+}
+
+.confirm-modal .modal-header {
+    display: block;
+}
+
+/*Open Street Map*/
+.mapchange-btn {
+    display: none;
+    width: 50px;
+    height: 50px;
+    border: 2px solid black;
+    border-radius: 5px;
+    position: absolute;
+    left: 10px;
+    bottom: 35px;
+    color: white;
+    background-image: url(../image/satellitemap.png);
+}
+
+.mapchange-span {
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    font-size: 11px;
+    position: absolute;
+    line-height: normal;
+    padding: 12px 0px 6px 0px;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    background-image: linear-gradient(transparent,rgba(0,0,0,0.6));
+    text-indent: 3px;
+    height: 28px;
+    text-shadow: rgba(0,0,0,0.7) 0px 1px 8px;
+    text-align: left;
+}
+
+.zoom-pointer {
+    cursor: zoom-in;
+}
+
+.txtWidth {
+    width: 100%;
+}
+
+.map-btn {
+    border: 1px solid transparent;
+    border-radius: 3px;
+    background: white;
+    border-color: var(--core-color);
+    color: var(--core-color);
+}
+
+.header-screen, .header-lit-enf {
+    font-weight: bold;
+    color: var(--header-color);
+    padding-top: 3px;
+}
+
+.cancel-btn {
+    height: 37px;
+    min-width: 38px;
+    border-radius: 3px;
+    border-color: var(--core-color);
+    background: #fff;
+    color: var(--core-color);
+    font-size: 20px;
+    padding-top: 3px;
+}
+
+.cancel-btn:hover {
+    background-color: var( --control-hover-backcolor);
+    color: var(--control-hover-color);
 }
 
 /*Table Pagination*/
@@ -517,13 +669,15 @@ app {
 }
 
 [paging ="false"] {
-    padding: 3px;
+    /*padding: 3px;*/
+    padding: 15px 3px;
     text-align: center;
     display: block !important;
 }
 
 [paging = "true"] {
-    padding: 3px;
+    /*padding: 3px;*/
+    padding: 15px 3px;
     text-align: center;
     display: block !important;
     position: fixed;
@@ -546,10 +700,77 @@ app {
     padding: 1.1rem !important;
 }
 
-@media (min-width: 576px) and (max-width: 992px) {
+.loader {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    color: #6f42c1;
+    transform: translate(-50%, -50%);
+    z-index: 999999999;
+}
+
+.subMenu {
+    margin-left: -23px;
+    margin-bottom: -23px;
+}
+
+.menu{
+    position: relative;
+}
+
+.menu-icon {
+    position: absolute;
+    right: 0;
+    top: 14px !important;
+}
+
+.validation-errors {
+    padding-left: 19px;
+}
+
+/*Login page*/
+.login {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 310px;
+    border: 0.5px solid #aca9a9;
+    background: #E0E0E0;
+    transform: translate(-50%,-50%);
+    padding: 30px 10px;
+    border-radius: 5px;
+}
+
+.login-btn, .login-btn:hover {
+    background-color: var(--control-backcolor);
+    color: var(--control-color) !important;
+    border-radius: 0;
+}
+
+.login-eyeicon {
+    position: absolute;
+    top: 40px;
+    right: 8px;
+    cursor: pointer;
+}
+
+.myform {
+    margin-bottom: 15px;
+}
+
+/*End*/
+
+/*@media (min-width: 576px) and (max-width: 992px) {
     .table tbody td {
         padding-top: 12px !important;
         padding-bottom: 12px !important;
+    }
+}*/
+
+@media screen and (min-width: 576px) {
+    .modal-dialog-entry {
+        max-width: 891px !important;
+        margin: 1.75rem auto;
     }
 }
 
@@ -573,7 +794,7 @@ app {
     }
 
     .sidebar {
-        width: 200px;
+        width: 264px;
         min-height: 100vh;
         position: sticky;
         top: 0;

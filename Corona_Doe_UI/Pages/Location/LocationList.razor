@@ -2,26 +2,27 @@
 
 <h4 class="header">Location</h4>
 
-@if (locationsResult == null)
+@if (locationsResult != null)
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-<div class="float-right mb-2">
-    <input type="search" placeholder="Search..." @bind="@searchText" @oninput="ChangeSearch" class="search" />
-    <button class="btn btn-info"
-            @onclick="@(() => NavigationManager.NavigateTo("location/entry/0"))">
-        <span> + Add new </span>
-    </button>
-</div>
+    <div class="mb-3 mt-3 d-flex">
+        @*<input type="search" placeholder="Search..." @bind="@searchText" @oninput="ChangeSearch" class="search" />*@
+        <button class="btn btn-info mr-2"
+                @onclick="@(() => NavigationManager.NavigateTo("location/entry/0"))">
+            <span> + Add new </span>
+        </button>
+        <SearchBox SearchClick="HandlSearchClick" />
+    </div>
 
     <CustomGrid Entity="en.location" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="locationsResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
                 ItemList="@locationsResult.Locations" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="locationsResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
-        
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
+            @if (!va.IsMobile)
+            {
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Reagion" OnHeaderClick="OnHeaderClick" OrderBy="region_id" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Location Type" OnHeaderClick="OnHeaderClick" OrderBy="locationtype_id" />
+            }
         </GridHeader>
         <GridRow>
             <td class="w-75-pixel">
@@ -30,6 +31,23 @@ else
             <td>
                 <span>@context.name_en</span>
             </td>
+
+            @if (!va.IsMobile)
+            {
+                <td>
+                    @if (regions != null)
+                    {
+                        <span>@regions.FirstOrDefault(r => r.region_id == context.region_id)?.name_en</span>
+                    }
+
+                </td>
+                <td>
+                    @if (locatypes != null)
+                    {
+                        <span>@locatypes.FirstOrDefault(l => l.locationtype_id == context.locationtype_id)?.name_en</span>
+                    }
+                </td>
+            }
         </GridRow>
     </CustomGrid>
 }
@@ -43,10 +61,13 @@ else
     private MessageModal modal;
     private bool isCustomPagingNone;
     private en.locationResult locationsResult;
+    private IEnumerable<en.region> regions;
+    private IEnumerable<en.location_type> locatypes;
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
 
     protected override void OnInitialized()
     {
+        va.IsLoading = true;
         currentPage = 1;
         locationsResult = new en.locationResult();
     }
@@ -55,8 +76,8 @@ else
     {
         if (firstRender)
         {
+            await GetRegionAndLocType();
             await GetData();
-            va.IsLoading = false;
             StateHasChanged();
         }
     }
@@ -82,13 +103,20 @@ else
             modal.Show("Message", ex.Message);
         }
     }
-    private async Task ChangeSearch(ChangeEventArgs e)
+
+    private async Task GetRegionAndLocType()
     {
-        if (e.Value == null) return;
-        searchText = (string)e.Value;
+        regions = await da.region.Get();
+        locatypes = await da.location_type.Get();
+    }
+
+    private async Task HandlSearchClick(string text)
+    {
+        searchText = text;
         currentPage = 1;
         await GetData();
     }
+
     private async Task OnHeaderClick(string orderBy)
     {
         CurSortInfo = fn.CurrentSortInfo(orderBy);
@@ -96,6 +124,7 @@ else
         await GetData();
         isCustomPagingNone = false;
     }
+
     private Task HandleRowClick(en.location obj)
     {
         NavigationManager.NavigateTo("location/entry/" + obj.location_id);

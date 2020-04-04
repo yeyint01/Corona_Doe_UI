@@ -15,7 +15,7 @@
     </tbody>
 </table>
 
-<div class="pagination" paging-display="@IsShowPaging.ToString()" paging="@TablePaging" style="width: @(va.IsMobile?tableWidth:"")">
+<div class="pagination" paging-display="@IsShowPaging.ToString()" paging="false" style="width: @(va.IsMobile?tableWidth:"")">
     <button class="fa fa-step-backward font-12 btn-pag @(isPreDisabled ? "" : "btn-nav-pag") " disabled="@isPreDisabled" @onclick=@(async () => SetCurrentPage(Paging.First))></button>
     <button class="fa fa-caret-left btn-pag @(isPreDisabled ? "" : "btn-nav-pag")" disabled="@isPreDisabled" @onclick=@(async () => SetCurrentPage(Paging.Previous))></button>
 

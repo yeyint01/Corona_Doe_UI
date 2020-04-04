@@ -1,0 +1,48 @@
+﻿@*@using Microsoft.JSInterop
+@using Newtonsoft.Json.Linq
+@inject IJSRuntime JSRuntime*@
+
+<div id="map" class="map full h-100"></div>
+
+<div>
+    <button id="mapchangebtn" class="mapchange-btn">
+        <span id="mapchangespan" class="mapchange-span">Satellite</span>
+    </button>
+</div>
+
+@code {
+    private static OpenStreetMap openStreetMap;
+
+    [Parameter]
+    public double? LonValue { get; set; }
+
+    [Parameter]
+    public double? LatValue { get; set; }
+
+    [Parameter]
+    public Action<double, double> ChangedLocation { get; set; }
+
+    [Parameter]
+    public bool AllowClickOnMap { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            openStreetMap = new OpenStreetMap();
+            openStreetMap.ChangedLocation = ChangedLocation;
+            await JSRuntime.InvokeAsync<object>("MapJsFunctions.showMap", LonValue, LatValue, AllowClickOnMap);
+        }
+    }
+
+    [JSInvokable]
+    public static void GetLonLat(object coordinates)
+    {
+        var details = JObject.Parse(coordinates.ToString());
+        var lon = (double)details["lon"];
+        var lat = (double)details["lat"];
+        openStreetMap.ChangedLocation?.Invoke(lon, lat);
+    }
+
+
+}

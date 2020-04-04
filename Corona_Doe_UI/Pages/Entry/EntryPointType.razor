@@ -1,6 +1,6 @@
 ﻿@page "/entrypointtype/entry/{EntryPointTypeId:int}"
 
-<h4 class="header">Entry Point Type form</h4>
+<h4 class="header">Entry Point Type Form</h4>
 
 @if (entrypoint_Type == null)
 {
@@ -12,31 +12,31 @@ else
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-
     <div class="form-group">
-        <label for="myanname">Myanmar name</label>
-        <InputText class="form-control" id="name_mm" @bind-Value="entrypoint_Type.name_mm" />
+        <label for="myanname">Myanmar Name*</label>
+        <InputText class="form-control" id="name_mm" @bind-Value="entrypoint_Type.name_mm" autocomplete="off" />
     </div>
 
     <div class="form-group">
-        <label for="engname">English name</label>
-        <InputText class="form-control" id="name_en" @bind-Value="entrypoint_Type.name_en" />
+        <label for="engname">English Name*</label>
+        <InputText class="form-control" id="name_en" @bind-Value="entrypoint_Type.name_en" autocomplete="off" />
     </div>
     <div class="form-group">
         <label for="remark">Remark</label>
-        <InputText class="form-control" id="name_remark" @bind-Value="entrypoint_Type.remark" />
+        <InputText class="form-control" id="name_remark" @bind-Value="entrypoint_Type.remark" autocomplete="off"/>
     </div>
 
     <div class="row my-row">
-        <div class="action-button ml-auto">
-            <a href="entrypointtype/list"> Cancel </a>
+        <div class="action-button">
+
+            <button type="submit" class="btn btn-info"><span>Save</span></button>
 
             @if (entrypoint_Type.entrypoint_type_id > 0)
             {
-                <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+                <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
             }
+            <a href="entrypointtype/list"> Cancel </a>
 
-            <button type="submit" class="btn btn-primary">Save</button>
         </div>
     </div>
 

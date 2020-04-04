@@ -8,19 +8,20 @@
 }
 else
 {
-    <div class="float-right mb-2">
-        <input type="search" placeholder="Search..." @bind="@searchText" @oninput="ChangeSearch" class="search"/>
-        <button class="btn btn-info"
+    <div class="mb-3 mt-3 d-flex">
+        <button class="btn btn-info mr-3"
                 @onclick="@(() => NavigationManager.NavigateTo("quarantinestation/entry/0"))">
-            <span> + Add new </span>
+            <span>+ Add new</span>
         </button>
+
+        <SearchBox SearchClick="HandlSearchClick" />
     </div>
 
     <CustomGrid Entity="en.quarantine_station" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@quarantineStationResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
                 ItemList="@quarantineStationResult.Quarantine_Stations" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@quarantineStationResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
 
             @if (!va.IsMobile)
             {
@@ -30,11 +31,12 @@ else
         </GridHeader>
         <GridRow>
             <td>
-                    <span>@context.name_en</span>
-                </td>
-            <td>
                 <span>@context.name_mm</span>
             </td>
+            <td>
+                <span>@context.name_en</span>
+            </td>
+
             @if (!va.IsMobile)
             {
                 <td>
@@ -60,6 +62,7 @@ else
 
     protected override void OnInitialized()
     {
+        va.IsLoading = true;
         currentPage = 1;
         quarantineStationResult = new en.quarantine_stationResult();
     }
@@ -94,10 +97,9 @@ else
         }
     }
 
-    private async Task ChangeSearch(ChangeEventArgs e)
+    private async Task HandlSearchClick(string text)
     {
-        if (e.Value == null) return;
-        searchText = e.Value.ToString(); ;
+        searchText = text;
         currentPage = 1;
         await GetData();
     }

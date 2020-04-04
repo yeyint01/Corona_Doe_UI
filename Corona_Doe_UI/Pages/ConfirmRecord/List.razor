@@ -2,55 +2,51 @@
 
 <h3 class="header">Confirm Record</h3>
 
-@if (cRecordResult == null)
+@if(cRecordResult != null)
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-<div class="float-right mb-2">
-    <input type="search" placeholder="Search..." @bind="@searchText" @oninput="ChangeSearch" class="search" />
-    <button class="btn btn-info"
-            @onclick="@(() => NavigationManager.NavigateTo("confirmrecord/entry/0"))">
-        + Add new
-    </button>
-</div>
+    <div class="mb-3 mt-3 d-flex">
+        <button class="btn btn-info mr-3"
+                @onclick="@(() => NavigationManager.NavigateTo("confirmrecord/entry/0"))">
+            <span>+ Add new</span>
+        </button>
+
+        <SearchBox SearchClick="HandlSearchClick" />
+    </div>
 
     <CustomGrid Entity="en.confirm_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@cRecordResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
                 ItemList="@cRecordResult.Confirm_Records" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@cRecordResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
-            <th>Name</th>
-            <th>NRC</th>
-            <th>Ph</th>
-            <th>Age</th>
-            <th>Gender</th>
-            <th>Home Town</th>
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="patient_name" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Ph*" OnHeaderClick="OnHeaderClick" OrderBy="patient_ph" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="NRC" OnHeaderClick="OnHeaderClick" OrderBy="patient_nrc" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Age" OnHeaderClick="OnHeaderClick" OrderBy="patient_age" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Gender*" OnHeaderClick="OnHeaderClick" OrderBy="gender" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Home Town*" OnHeaderClick="OnHeaderClick" OrderBy="hometown" />
         </GridHeader>
         <GridRow>
             <td>
                 <span>@context.patient_name</span>
             </td>
             <td>
-                <span>@context.patient_nrc</span>
+                <span>@context.patient_ph</span>
             </td>
             <td>
-                <span>@context.patient_ph</span>
+                <span>@context.patient_nrc</span>
             </td>
             <td>
                 <span>@context.patient_age</span>
             </td>
             <td>
-                <span>@context.gender</span>
+                <span>@(context.gender == "M" ? "Male" : "Female")</span>
             </td>
             <td>
                 <span>@context.hometown</span>
             </td>
-            <td>
-                <span>@context.remark</span>
-            </td>
         </GridRow>
     </CustomGrid>
 }
+
+<MessageModal @ref="modal" />
 
 @code {
     private MessageModal modal;
@@ -62,6 +58,7 @@ else
 
     protected override void OnInitialized()
     {
+        va.IsLoading = true;
         currentPage = 1;
         cRecordResult = new en.confirm_recordResult();
     }
@@ -70,8 +67,7 @@ else
     {
         if (firstRender)
         {
-            await GetData();
-            va.IsLoading = false;
+            await GetData();            
             StateHasChanged();
         }
     }
@@ -96,10 +92,9 @@ else
         }
     }
 
-    private async Task ChangeSearch(ChangeEventArgs e)
+    private async Task HandlSearchClick(string text)
     {
-        if (e.Value == null) return;
-        searchText = e.Value.ToString(); ;
+        searchText = text;
         currentPage = 1;
         await GetData();
     }

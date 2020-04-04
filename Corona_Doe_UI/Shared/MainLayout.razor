@@ -1,26 +1,57 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="sidebar">
-    <NavMenu />
-</div>
 
-<div class="main">
-    <div class="top-row">
-        <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+@if (va.IsLoading)
+{
+    <div class="la-line-scale-party loader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
     </div>
+}
 
-    <div class="content">
-        @Body
-    </div>
-</div>
+<AuthorizeView>
+    <Authorized>
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+
+        <div class="main">
+            @*<div class="top-row">
+                <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+            </div>*@
+
+            <Toast SuccessIconClass="fa fa-check-circle" WarningIconClass="fa fa-exclamation-circle" />
+            <div class="content">
+                @Body
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
+    
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
     int InnerHeight = 0;
     int InnerWidth = 0;
 
     protected override void OnInitialized()
     {
         BrowserResize.OnResize += BrowserHasResized;
+        va.LoadingEvent += LoadingEventChanged;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await authenticationStateTask;
+        if (!authState.User.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("login");
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -38,6 +69,7 @@
     public void Dispose()
     {
         BrowserResize.OnResize -= BrowserHasResized;
+        va.LoadingEvent -= LoadingEventChanged;
     }
 
     #region Function
@@ -49,6 +81,11 @@
         va.IsTablet = InnerWidth < 992;
         //ToggleWindowWidth();
         StateHasChanged();
+    }
+
+    private void LoadingEventChanged()
+    {
+        InvokeAsync(() => StateHasChanged());
     }
 
     #endregion

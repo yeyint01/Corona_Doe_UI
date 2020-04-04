@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using Corona_Doe_UI.Services;
+using Corona_Doe_UI.Extensions;
+using Corona_Doe_UI.Data;
 
 namespace Corona_Doe_UI
 {
@@ -21,9 +23,10 @@ namespace Corona_Doe_UI
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCustomIdentity<User, UserStore>();
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            //services.AddSingleton<WeatherForecastService>();
 
             services.AddScoped<BrowserResize>();
             services.AddScoped<JSRuntimeService>();
@@ -54,6 +57,9 @@ namespace Corona_Doe_UI
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

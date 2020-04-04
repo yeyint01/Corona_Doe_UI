@@ -1,6 +1,6 @@
 ﻿@page "/quarantinestation/entry/{StationId:int}"
 
-<h3 class="header">Quarantime form</h3>
+<h3 class="header">Quarantine Station Form</h3>
 
 @if (quarantineStation == null)
 {
@@ -8,21 +8,19 @@
 }
 else
 {
-<EditForm Model="@quarantineStation" OnValidSubmit="HandleValidSubmit">
+<EditForm Model="@quarantineStation" OnValidSubmit="HandleValidSubmit" autocomplete="off">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <div class="row my-row">
+    <div class="row">
         <div class="col-sm-6">
             <div class="form-group">
-                <label>English Name</label>
-                <InputText class="full form-control" @bind-Value="quarantineStation.name_en" />
-                <ValidationMessage For="@(() => quarantineStation.name_en)" />
+                <label>Myanmar Name*</label>
+                <InputText class="full form-control" @bind-Value="quarantineStation.name_mm" />
             </div>
             <div class="form-group">
-                <label>Myanmar Name</label>
-                <InputText class="full form-control" @bind-Value="quarantineStation.name_mm" />
-                <ValidationMessage For="@(() => quarantineStation.name_mm)" />
+                <label>English Name*</label>
+                <InputText class="full form-control" @bind-Value="quarantineStation.name_en" />
             </div>
             <div class="form-group">
                 <label>Description</label>
@@ -30,12 +28,21 @@ else
             </div>
             <div class="form-group">
                 <label>Location</label>
-                <select class="full h-35-pixel" value="@quarantineStation.location_id">
-                    @foreach (var location in locationList)
-                    {
-                        <option value="@location.location_id">@location.name_en</option>
-                    }
-                </select>
+
+                @if (locationList != null && locationList?.Count() > 0)
+                {
+                    <Typeahead SearchMethod="GetLocation"
+                               Placeholder="Search..."
+                               Items="locationList"
+                               @bind-Value="selectedLocation">
+                        <SelectedTemplate Context="location">
+                            @location.name_en
+                        </SelectedTemplate>
+                        <ResultTemplate Context="location">
+                            @location.name_en
+                        </ResultTemplate>
+                    </Typeahead>
+                }
             </div>
 
         </div>
@@ -64,15 +71,15 @@ else
     </div>
 
     <div class="row my-row">
-        <div class="action-button ml-auto">
-            <a href="quaratinestation/list"> Cancel </a>
+        <div class="action-button">
+            <button type="submit" class="btn btn-info"><span>Save</span></button>
 
             @if (quarantineStation.station_id > 0)
             {
-                <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+                <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
             }
 
-            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="quaratinestation/list"> Cancel </a>
         </div>
     </div>
 
@@ -85,15 +92,17 @@ else
     [Parameter]
     public int StationId { get; set; }
 
-    private IEnumerable<en.location> locationList;
+    private List<en.location> locationList;
 
     private en.quarantine_station quarantineStation;
     private string msg;
     private MessageModal modal;
 
+    private en.location selectedLocation { get; set; }
+
     protected override void OnInitialized()
     {
-        locationList = new en.location[0];
+        locationList = new List<en.location>();
         quarantineStation = new en.quarantine_station();
     }
 
@@ -111,10 +120,17 @@ else
     {
         try
         {
-            locationList = await da.location.Get();
+            var locations = await da.location.Get();
+            if (locations != null)
+            {
+                locationList.Clear();
+                locationList.AddRange(locations);
+            }
+
             if (StationId > 0)
             {
                 quarantineStation = await da.quarantine_station.Get(StationId);
+                selectedLocation = locationList.Find(location => location.location_id == quarantineStation.location_id);
             }
 
             va.IsLoading = false;
@@ -130,6 +146,8 @@ else
     {
         try
         {
+            quarantineStation.location_id = selectedLocation?.location_id;
+
             es.ActionResult result;
 
             if (quarantineStation.station_id > 0)
@@ -167,6 +185,12 @@ else
         {
             modal.Show("Message", ex.Message);
         }
+    }
+
+    private async Task<IEnumerable<en.location>> GetLocation(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(locationList.FindAll(location => location.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
     }
 
 }
