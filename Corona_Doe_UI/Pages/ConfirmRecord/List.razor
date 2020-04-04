@@ -1,8 +1,8 @@
-﻿@page "/location/list"
+﻿@page "/confirmrecord/list"
 
-<h4 class="header">Location</h4>
+<h3 class="header">Confirm Record</h3>
 
-@if (locationsResult == null)
+@if (cRecordResult == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -11,44 +11,59 @@ else
 <div class="float-right mb-2">
     <input type="search" placeholder="Search..." @bind="@searchText" @oninput="ChangeSearch" class="search" />
     <button class="btn btn-info"
-            @onclick="@(() => NavigationManager.NavigateTo("location/entry/0"))">
-        <span> + Add new </span>
+            @onclick="@(() => NavigationManager.NavigateTo("confirmrecord/entry/0"))">
+        + Add new
     </button>
 </div>
 
-    <CustomGrid Entity="en.location" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="locationsResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
-                ItemList="@locationsResult.Locations" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="locationsResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
+    <CustomGrid Entity="en.confirm_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@cRecordResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                ItemList="@cRecordResult.Confirm_Records" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@cRecordResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
-        
+            <th>Name</th>
+            <th>NRC</th>
+            <th>Ph</th>
+            <th>Age</th>
+            <th>Gender</th>
+            <th>Home Town</th>
         </GridHeader>
         <GridRow>
-            <td class="w-75-pixel">
-                <span>@context.name_mm</span>
+            <td>
+                <span>@context.patient_name</span>
             </td>
             <td>
-                <span>@context.name_en</span>
+                <span>@context.patient_nrc</span>
+            </td>
+            <td>
+                <span>@context.patient_ph</span>
+            </td>
+            <td>
+                <span>@context.patient_age</span>
+            </td>
+            <td>
+                <span>@context.gender</span>
+            </td>
+            <td>
+                <span>@context.hometown</span>
+            </td>
+            <td>
+                <span>@context.remark</span>
             </td>
         </GridRow>
     </CustomGrid>
 }
 
-<MessageModal @ref="modal" />
-
 @code {
-
+    private MessageModal modal;
+    private en.confirm_recordResult cRecordResult;
+    private bool isCustomPagingNone;
     private int currentPage;    // paging current click page
     private string searchText;
-    private MessageModal modal;
-    private bool isCustomPagingNone;
-    private en.locationResult locationsResult;
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
 
     protected override void OnInitialized()
     {
         currentPage = 1;
-        locationsResult = new en.locationResult();
+        cRecordResult = new en.confirm_recordResult();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -61,13 +76,11 @@ else
         }
     }
 
-    #region Functions
-
     private async Task GetData()    // get data from server
     {
         try
         {
-            locationsResult = await da.location.Get(new en.locationParam
+            cRecordResult = await da.confirm_record.Get(new en.confirm_recordParam
             {
                 Name = searchText,
                 PgNo = currentPage,
@@ -82,13 +95,15 @@ else
             modal.Show("Message", ex.Message);
         }
     }
+
     private async Task ChangeSearch(ChangeEventArgs e)
     {
         if (e.Value == null) return;
-        searchText = (string)e.Value;
+        searchText = e.Value.ToString(); ;
         currentPage = 1;
         await GetData();
     }
+
     private async Task OnHeaderClick(string orderBy)
     {
         CurSortInfo = fn.CurrentSortInfo(orderBy);
@@ -96,19 +111,17 @@ else
         await GetData();
         isCustomPagingNone = false;
     }
-    private Task HandleRowClick(en.location obj)
+
+    private Task HandleRowClick(en.confirm_record obj)
     {
-        NavigationManager.NavigateTo("location/entry/" + obj.location_id);
+        NavigationManager.NavigateTo("confirmrecord/entry/" + obj.patient_id);
 
         return Task.FromResult<object>(null);
     }
 
-    private async Task PagerClick(int curpage)      // paging clicked event
+    private async Task PagerClick(int curpage)
     {
         currentPage = curpage;
         await GetData();
     }
-
-    #endregion
-
 }

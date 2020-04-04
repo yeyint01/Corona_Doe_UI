@@ -4,25 +4,23 @@
 
 <h4 class="header">Entry Records</h4>
 
-@if (records == null)
+@if (recordResult == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <div class="float-right mb-2">
-        <button class="btn btn-info"
-                @onclick="@(() => navMgr.NavigateTo("entryrecord/0"))">
-            + Add new
-        </button>
-    </div>
+<div class="float-right mb-2">
+    <input type="search" @bind-value="@searchText" />
+    <button class="btn btn-info"
+            @onclick="@(() => navMgr.NavigateTo("entryrecord/0"))">
+        <span>+ Add new</span>
+    </button>
+</div>
 
 
-
-    @if (records != null)
-    {
-        <CustomGrid Entity="en.entry_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="5" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
-                    ItemList="@records" GridRowClick="ShowModel" PagerClick="PagerClick" RowsCount="5" TablePaging="@(va.IsMobile? "true": "false")">
+        <CustomGrid Entity="en.entry_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="recordResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                    ItemList="@recordResult.Entry_Records" GridRowClick="ShowModel" PagerClick="PagerClick" RowsCount="recordResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
             <GridHeader>
                 
                 <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="person_name" />
@@ -53,47 +51,52 @@ else
                 </td>
             </GridRow>
         </CustomGrid>
-    }
+  
 }
 <MessageModal @ref="modal" />
 
 
 @code {
-    private en.entry_record[] records;
     private en.entry_recordResult recordResult;
     private bool isCustomPagingNone;
     private int currentPage;
+    private string searchText;
     private MessageModal modal;
     private (string OrderBy, es.SortOrder Order) CurSortInfo;
-   
 
-    protected override async Task OnInitializedAsync()
+
+    protected override void OnInitialized()
     {
-        string con_strng = da.shared.Variables.ConnString;
         recordResult = new en.entry_recordResult();
-        var list = await da.entry_record.Get();
-        records = list.ToArray();
         currentPage = 1;
 
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            va.IsLoading = false;
+            StateHasChanged();
+        }
     }
     private async Task GetData()
     {
         try
         {
-           
+            recordResult = await da.entry_record.Get(new en.entry_recordParam
+            {
+                Name = searchText,
+                PgNo = currentPage,
+                Order = CurSortInfo.Order,
+                OrderBy = CurSortInfo.OrderBy
+            }) ;
         }
         catch (Exception ex)
         {
-              modal.Show("Message", ex.Message);
+            modal.Show("Message", ex.Message);
         }
 
-    }
-
-    private Task HandleRowClick(int record_id)
-    {
-        navMgr.NavigateTo("entryrecord/" + record_id);
-
-        return Task.FromResult<object>(null);
     }
 
     private Task ShowModel(en.entry_record obj)     // open entry modal

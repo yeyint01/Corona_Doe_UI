@@ -1,0 +1,214 @@
+﻿@page "/confirmrecord/entry/{PatientId:int}"
+
+<h4 class="header">Quarantime form</h4>
+
+@if (confirmrecord == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@confirmrecord" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="row my-row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Quarantine</label>
+                    <select class="full h-35-pixel" value="@confirmrecord.quarantine_id">
+                        @foreach (var record in qRecords)
+                        {
+                            <option value="@record.quarantine_id">@record.person_name</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Station</label>
+                    <select class="full h-35-pixel" value="@confirmrecord.station_id">
+                        @foreach (var station in qStations)
+                        {
+                            <option value="@station.station_id">@station.name_en</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Name</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_name" />
+                </div>
+                <div class="form-group">
+                    <label>NRC</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_nrc" />
+                </div>
+                <div class="form-group">
+                    <label>Ph</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_ph" />
+                </div>
+                <div class="form-group">
+                    <label>Age</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_age" />
+                </div>
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="datetime-local" @bind="confirmrecord.patient_dob" @bind:format="@va.datetimeformat" class="full form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <div>
+                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck("M"))" checked="@confirmrecord.gender == 'M'" />
+                        <label for="radio1" class="text-color">Male</label>
+                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck("F"))" checked="@confirmrecord.gender == 'F'" />
+                        <label for="radio2" class="text-color">Female</label>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label>Home Town</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.hometown" />
+                </div>
+                <div class="form-group">
+                    <label>Reason</label>
+                    <select class="full h-35-pixel" value="@confirmrecord.reason_id">
+                        @foreach (var reason in eReasons)
+                        {
+                            <option value="@reason.reason_id">@reason.name_en</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Travel History</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.travel_history" />
+                </div>
+                <div class="form-group">
+                    <label>Residence Address</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.residence_address" />
+                </div>
+                <div class="form-group">
+                    <label>Current Address</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.current_address" />
+                </div>
+                <div class="form-group">
+                    <label>Traveled From</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.traveled_from" />
+                </div>
+                <div class="form-group">
+                    <label>Fever History</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.fever_history" />
+                </div>
+                <div class="form-group">
+                    <label>Remark</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.remark" />
+                </div>
+                <div class="form-group">
+                    <label>Check Out Date</label>
+                    <input type="datetime-local" @bind="confirmrecord.result_date" @bind:format="@va.datetimeformat" class="full form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Result</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.result" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row my-row">
+            <div class="action-button ml-auto">
+                <a href="confirmrecord/list"> Cancel </a>
+
+                @if (confirmrecord.patient_id > 0)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete">Delete</button>
+                }
+
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+
+
+    </EditForm>
+}
+
+<MessageModal @ref="modal" />
+
+@code {
+    [Parameter]
+    public int PatientId { get; set; }
+
+    private en.confirm_record confirmrecord;
+    private string msg;
+    private MessageModal modal;
+    private IEnumerable<en.quarantine_record> qRecords;
+    private IEnumerable<en.quarantine_station> qStations;
+    private IEnumerable<en.entry_reason> eReasons;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetData()
+    {
+        if (PatientId > 0)
+            confirmrecord = await da.confirm_record.Get(PatientId);
+
+        confirmrecord ??= new en.confirm_record();
+
+        qRecords = await da.quarantine_record.Get();
+        qStations = await da.quarantine_station.Get();
+        eReasons = await da.entry_reason.Get();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            es.ActionResult result;
+
+            if (confirmrecord.patient_id > 0)
+                result = await da.confirm_record.Update(confirmrecord);
+            else
+                result = await da.confirm_record.Insert(confirmrecord);
+
+            if (result.Status != es.Status.Success)
+            {
+                modal.Show("Message", result.Msg);
+                return;
+            }
+
+            NavigationManager.NavigateTo("confirmrecord/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
+
+        try
+        {
+            await da.confirm_record.Delete(PatientId);
+
+            NavigationManager.NavigateTo("confirmrecord/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private void IsCheck(string gender)
+    {
+        confirmrecord.gender = gender;
+    }
+}

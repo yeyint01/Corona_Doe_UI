@@ -3,11 +3,11 @@
         @message
     </ModalBody>
     <ModalFooter>
-        @if (btn1 != null)
+        @if (btn2 != null)
         {
-            <button class="btn btn-primary" @onclick="HandlNegativeClick">@btn2</button>
+            <button class="btn btn-dark" @onclick="HandlNegativeClick"><span>@btn2</span></button>
         }
-        <button class="btn btn-primary" @onclick="HandlPostiveClick">@btn1</button>
+        <button class="btn btn-primary" @onclick="HandlPostiveClick"><span>@btn1</span></button>
     </ModalFooter>
 </Modal>
 
@@ -23,6 +23,10 @@
         this.message = message;
         btn1 = "Close";
         btn2 = null;
+
+        modal.Open();
+
+        StateHasChanged();
     }
 
     public Task<bool> Show(string title, string message, string postive, string negative)

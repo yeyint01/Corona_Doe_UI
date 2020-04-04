@@ -40,42 +40,14 @@ else
     </EditForm>
 }
 
-<Modal Title="Message" @ref="errModal">
-    <ModalBody>
-        @msg
-    </ModalBody>
-    <ModalFooter>
-        <button class="btn btn-danger"
-                @onclick="(() => errModal.Close())">
-            Close
-        </button>
-    </ModalFooter>
-</Modal>
-
-<Modal Title="Message" @ref="modal">
-    <ModalBody>
-        @msg
-    </ModalBody>
-    <ModalFooter>
-        <button class="btn btn-danger"
-                @onclick="(() => modal.Close())">
-            No
-        </button>
-        <button class="btn btn-primary"
-                @onclick="DeleteRegion">
-            Yes
-        </button>
-    </ModalFooter>
-</Modal>
+<MessageModal @ref="modal" />
 
 @code {
     [Parameter]
     public int RegionId { get; set; }
 
     private en.region region;
-    private string msg;
-    private Modal errModal;
-    private Modal modal;
+    private MessageModal modal;
 
     protected override async Task OnInitializedAsync()
     {
@@ -98,8 +70,7 @@ else
 
             if (result.Status != es.Status.Success)
             {
-                msg = result.Msg;
-                errModal.Open();
+                modal.Show("Message", result.Msg);
                 return;
             }
 
@@ -107,21 +78,16 @@ else
         }
         catch (Exception ex)
         {
-            msg = ex.Message;
-            errModal.Open();
+            modal.Show("Message", ex.Message);
         }
     }
 
-    private Task HandleDelete()
+    private async Task HandleDelete()
     {
-        msg = "Are you sure want to delete ?";
-        modal.Open();
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
 
-        return Task.FromResult<object>(null);
-    }
-
-    private async Task DeleteRegion()
-    {
         try
         {
             await da.region.Delete(RegionId);
@@ -130,7 +96,7 @@ else
         }
         catch (Exception ex)
         {
-            msg = ex.Message;
+            modal.Show("Message", ex.Message);
         }
     }
 }

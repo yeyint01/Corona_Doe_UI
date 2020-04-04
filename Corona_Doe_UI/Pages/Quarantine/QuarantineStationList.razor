@@ -1,81 +1,125 @@
 ﻿@page "/quaratinestation/list"
 
-<h3 class="header">Quarantine Station</h3>
+<h4 class="header">Quarantine Station</h4>
 
-@if (quarantineStations == null)
+@if (quarantineStationResult == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
     <div class="float-right mb-2">
+        <input type="search" placeholder="Search..." @bind="@searchText" @oninput="ChangeSearch" class="search"/>
         <button class="btn btn-info"
                 @onclick="@(() => NavigationManager.NavigateTo("quarantinestation/entry/0"))">
-            + Add new
+            <span> + Add new </span>
         </button>
     </div>
 
-    <CustomGrid Entity="en.quarantine_station" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="5" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
-                ItemList="@quarantineStations" GridRowClick="ShowModel" PagerClick="PagerClick" RowsCount="5" TablePaging="@(va.IsMobile? "true": "false")">
+    <CustomGrid Entity="en.quarantine_station" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@quarantineStationResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                ItemList="@quarantineStationResult.Quarantine_Stations" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@quarantineStationResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
-            <th>English Name</th>
-            <th>Myanmar Name</th>
-            <th>Description</th>
-            <th>Location</th>
-            <th>Capacity</th>
-            <th>Discontinued</th>
-            <th>Discontinued Date</th>
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
+
+            @if (!va.IsMobile)
+            {
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Description" OnHeaderClick="OnHeaderClick" OrderBy="description" />
+            }
+
         </GridHeader>
         <GridRow>
             <td>
-                <span>@context.name_en</span>
-            </td>
+                    <span>@context.name_en</span>
+                </td>
             <td>
                 <span>@context.name_mm</span>
             </td>
-            <td>
-                <span>@context.description</span>
-            </td>
-            <td>
-                <span>@context.location_id</span>
-            </td>
-            <td>
-                <span>@context.capacity</span>
-            </td>
-            <td>
-                <span>@context.discontinued</span>
-            </td>
-            <td>
-                <span>@context.discontinued_date</span>
-            </td>
+            @if (!va.IsMobile)
+            {
+                <td>
+                    <span>@context.station_id</span>
+                </td>
+            }
+
         </GridRow>
     </CustomGrid>
 }
 
+<MessageModal @ref="modal" />
+
 @code {
-    private en.quarantine_station[] quarantineStations;
+    private en.quarantine_stationResult quarantineStationResult;
 
     private bool isCustomPagingNone;
+    private MessageModal modal;
 
-    protected override async Task OnInitializedAsync()
+    private int currentPage;    // paging current click page
+    private string searchText;
+    private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
+
+    protected override void OnInitialized()
     {
-        string con_strng = da.shared.Variables.ConnString;
-        var list = await da.quarantine_station.Get();
-        quarantineStations = list.ToArray();
+        currentPage = 1;
+        quarantineStationResult = new en.quarantine_stationResult();
     }
 
-    private Task HandleRowClick(int station_id)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        NavigationManager.NavigateTo("quarantinestation/entry/" + station_id);
+        if (firstRender)
+        {
+            await GetData();
+            va.IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            quarantineStationResult = await da.quarantine_station.Get(new en.quarantine_stationParam
+            {
+                Name = searchText,
+                PgNo = currentPage,
+                Order = CurSortInfo.Order,
+                OrderBy = CurSortInfo.OrderBy
+            });
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task ChangeSearch(ChangeEventArgs e)
+    {
+        if (e.Value == null) return;
+        searchText = e.Value.ToString(); ;
+        currentPage = 1;
+        await GetData();
+    }
+
+    private async Task OnHeaderClick(string orderBy)
+    {
+        CurSortInfo = fn.CurrentSortInfo(orderBy);
+        isCustomPagingNone = true;
+        await GetData();
+        isCustomPagingNone = false;
+    }
+
+    private Task HandleRowClick(en.quarantine_station obj)
+    {
+        NavigationManager.NavigateTo("quarantinestation/entry/" + obj.station_id);
 
         return Task.FromResult<object>(null);
     }
 
-    private async void ShowModel(en.quarantine_station obj)     // open entry modal
-    {
-    }
-
     private async Task PagerClick(int curpage)      // paging clicked event
     {
+        currentPage = curpage;
+        await GetData();
     }
 }

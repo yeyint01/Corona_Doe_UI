@@ -2,84 +2,206 @@
 
 <h4 class="header">Quarantine Record</h4>
 
-@if (quarantineRecords == null)
+@if (quarantineRecordResult == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
     <div class="float-right mb-2">
+        <input type="search" placeholder="Search..." @bind="@searchText" @oninput="ChangeSearch" class="search" />
         <button class="btn btn-info"
                 @onclick="@(() => NavigationManager.NavigateTo("quarantinerecord/entry/0"))">
-            + Add new
+            <span> + Add new </span>
         </button>
     </div>
 
-    <CustomGrid Entity="en.quarantine_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="5" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
-                ItemList="@quarantineRecords" GridRowClick="ShowModel" PagerClick="PagerClick" RowsCount="5" TablePaging="@(va.IsMobile? "true": "false")">
+    <CustomGrid Entity="en.quarantine_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@quarantineRecordResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                ItemList="@quarantineRecordResult.Quarantine_Records" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@quarantineRecordResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Name</th>
-            <th>NRC</th>
-            <th>Ph</th>
-            <th>Age</th>
-            <th>Date of Birth</th>
-            <th>Gender</th>
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="person_name" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="NRC" OnHeaderClick="OnHeaderClick" OrderBy="person_nrc" />
+
+            @if (!va.IsMobile)
+            {
+                @*<SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Station" OnHeaderClick="OnHeaderClick" OrderBy="station_id" />*@
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Start Date" OnHeaderClick="OnHeaderClick" OrderBy="start_date"/>
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="End Date" OnHeaderClick="OnHeaderClick" OrderBy="end_date" />
+                @*<SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Ph" OnHeaderClick="OnHeaderClick" OrderBy="person_ph" />*@
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Age" OnHeaderClick="OnHeaderClick" OrderBy="person_age" />
+                @*<SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Date of Birth" OnHeaderClick="OnHeaderClick" OrderBy="person_dob" />*@
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Gender" OnHeaderClick="OnHeaderClick" OrderBy="gender" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Home Town" OnHeaderClick="OnHeaderClick" OrderBy="hometown" />
+                @*<SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Reason" OnHeaderClick="OnHeaderClick" OrderBy="reason_id" />*@
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Travel History" OnHeaderClick="OnHeaderClick" OrderBy="travel_history"/>
+                @*<SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Residence Address" OnHeaderClick="OnHeaderClick" OrderBy="residence_address" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Current Address" OnHeaderClick="OnHeaderClick" OrderBy="current_address" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Traveled From" OnHeaderClick="OnHeaderClick" OrderBy="traveled_from"/>
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Fever History" OnHeaderClick="OnHeaderClick" OrderBy="fever_history"/>
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Checkout Date" OnHeaderClick="OnHeaderClick" OrderBy="checkout_date" />*@
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Result" OnHeaderClick="OnHeaderClick" OrderBy="result" />
+                @*<SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Checkedout" OnHeaderClick="OnHeaderClick" OrderBy="checkedout" />*@
+            }
+
         </GridHeader>
         <GridRow>
-            <td>
-                <span>@context.start_date</span>
-            </td>
-            <td>
-                <span>@context.end_date</span>
-            </td>
             <td>
                 <span>@context.person_name</span>
             </td>
             <td>
                 <span>@context.person_nrc</span>
             </td>
-            <td>
-                <span>@context.person_ph</span>
-            </td>
-            <td>
-                <span>@context.person_age</span>
-            </td>
-            <td>
-                <span>@context.person_dob</span>
-            </td>
-            <td>
-                <span>@context.gender</span>
-            </td>
+            @if (!va.IsMobile)
+            {
+                @*<td>
+                    <span>@context.station_id</span>
+                </td>*@
+                <td>
+                    <span>@context.start_date</span>
+                </td>
+                <td>
+                    <span>@context.end_date</span>
+                </td>
+                @*<td>
+                    <span>@context.person_ph</span>
+                </td>*@
+                <td>
+                    <span>@context.person_age</span>
+                </td>
+                @*<td>
+                    <span>@context.person_dob</span>
+                </td>*@
+                <td>
+                    <span>@context.gender</span>
+                </td>
+                <td>
+                    <span>@context.hometown</span>
+                </td>
+                @*<td>
+                    <span>@context.reason_id</span>
+                </td>*@
+                <td>
+                    <span>@context.travel_history</span>
+                </td>
+                @*<td>
+                    <span>@context.residence_address</span>
+                </td>
+                <td>
+                    <span>@context.current_address</span>
+                </td>
+                <td>
+                    <span>@context.traveled_from</span>
+                </td>
+                <td>
+                    <span>@context.fever_history</span>
+                </td>
+                <td>
+                    <span>@context.remark</span>
+                </td>
+                <td>
+                    <span>@context.checkout_date</span>
+                </td>*@
+                <td>
+                    <span>@context.result</span>
+                </td>
+                @*<td>
+                    @if (context.checkedout != null)
+                    {
+                        @if ((bool)context.checkedout)
+                        {
+
+                            <span class="fa fa-check"></span>
+                        }
+
+                        @if (!(bool)context.checkedout)
+                        {
+
+                            <span class="fa fa-times"></span>
+                        }
+                    }
+
+                </td>*@
+            }
+
         </GridRow>
     </CustomGrid>
 }
 
+<MessageModal @ref="modal" />
+
 @code {
-    private en.quarantine_record[] quarantineRecords;
+    private en.quarantine_recordResult quarantineRecordResult;
 
     private bool isCustomPagingNone;
+    private MessageModal modal;
 
-    protected override async Task OnInitializedAsync()
+    private int currentPage;    // paging current click page
+    private string searchText;
+    private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
+
+    protected override void OnInitialized()
     {
-        string con_strng = da.shared.Variables.ConnString;
-        var list = await da.quarantine_record.Get();
-        quarantineRecords = list.ToArray();
+        currentPage = 1;
+        quarantineRecordResult = new en.quarantine_recordResult();
     }
 
-    private Task HandleRowClick(int quarantine_id)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        NavigationManager.NavigateTo("quarantinerecord/entry/" + quarantine_id);
+        if (firstRender)
+        {
+            await GetData();
+            va.IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            quarantineRecordResult = await da.quarantine_record.Get(new en.quarantine_recordParam
+            {
+                Name = searchText,
+                PgNo = currentPage,
+                Order = CurSortInfo.Order,
+                OrderBy = CurSortInfo.OrderBy
+            });
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task ChangeSearch(ChangeEventArgs e)
+    {
+        if (e.Value == null) return;
+        searchText = e.Value.ToString(); ;
+        currentPage = 1;
+        await GetData();
+    }
+
+    private async Task OnHeaderClick(string orderBy)
+    {
+        CurSortInfo = fn.CurrentSortInfo(orderBy);
+        isCustomPagingNone = true;
+        await GetData();
+        isCustomPagingNone = false;
+    }
+
+    private Task HandleRowClick(en.quarantine_record obj)
+    {
+        NavigationManager.NavigateTo("quarantinerecord/entry/" + obj.quarantine_id);
 
         return Task.FromResult<object>(null);
     }
 
-    private async void ShowModel(en.quarantine_record obj)     // open entry modal
-    {
-    }
-
     private async Task PagerClick(int curpage)      // paging clicked event
     {
+        currentPage = curpage;
+        await GetData();
     }
 }

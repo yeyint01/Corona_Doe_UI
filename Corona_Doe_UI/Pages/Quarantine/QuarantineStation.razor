@@ -51,10 +51,14 @@ else
                     <label class="form-check-label" for="checkedout">Discontinued</label>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Discontinued Date</label>
-                <input type="datetime-local" @bind="quarantineStation.discontinued_date" @bind:format="@va.datetimeformat" class="full form-control" />
-            </div>
+            @if (quarantineStation.discontinued == true)
+            {
+                <div class="form-group">
+                    <label>Discontinued Date</label>
+                    <input type="datetime-local" @bind="quarantineStation.discontinued_date" @bind:format="@va.datetimeformat" class="full form-control" />
+                </div>
+            }
+
 
         </div>
     </div>

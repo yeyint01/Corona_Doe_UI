@@ -2,27 +2,28 @@
 
 <h4 class="header">Entry Point Type</h4>
 
-@if (entrypointtypes == null)
+@if (entryPointTypeResult == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <div class="float-right mb-2">
-        <button class="btn btn-info"
-                @onclick="@(() => NavigationManager.NavigateTo("entrypointtype/entry/0"))">
-            + Add new
-        </button>
-    </div>
+<div class="float-right mb-2">
+    <input type="search" placeholder="Search..." @bind="@searchText" @oninput="ChangeSearch" class="search" />
+    <button class="btn btn-info"
+            @onclick="@(() => NavigationManager.NavigateTo("entrypointtype/entry/0"))">
+        <span>+ Add new</span>
+    </button>
+</div>
 
-    @if (entrypointtypes != null)
+    @if (entryPointTypeResult != null)
     {
-        <CustomGrid Entity="en.entrypoint_type" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="5" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
-                    ItemList="@entrypointtypes" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="5" TablePaging="@(va.IsMobile? "true": "false")">
+        <CustomGrid Entity="en.entrypoint_type" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@entryPointTypeResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                    ItemList="@entryPointTypeResult.Entrypoint_Types" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@entryPointTypeResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
             <GridHeader>
-                <th>Myanmar name</th>
-                <th>English name</th>
-                <th>Remark</th>
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
             </GridHeader>
             <GridRow>
                 <td class="w-75-pixel">
@@ -42,14 +43,55 @@ else
 
 @code {
 
-    private IEnumerable<en.entrypoint_type> entrypointtypes;
-    private bool isCustomPagingNone; 
+    private en.entrypoint_typeResult entryPointTypeResult;
+    private bool isCustomPagingNone;
+    private int currentPage;    // paging current click page
+    private string searchText;
+    private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
+    private MessageModal modal;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        string con_strng = da.shared.Variables.ConnString;
-        var list = await da.entrypoint_type.Get();
-        entrypointtypes = list.ToArray();
+        currentPage = 1;
+        entryPointTypeResult = new en.entrypoint_typeResult();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            va.IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            entryPointTypeResult = await da.entrypoint_type.Get(new en.entrypoint_typeParam
+            {
+                Name = searchText,
+                PgNo = currentPage,
+                Order = CurSortInfo.Order,
+                OrderBy = CurSortInfo.OrderBy
+            });
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task OnHeaderClick(string orderBy)
+    {
+        CurSortInfo = fn.CurrentSortInfo(orderBy);
+        isCustomPagingNone = true;
+        await GetData();
+        isCustomPagingNone = false;
     }
 
     private Task HandleRowClick(en.entrypoint_type obj)
@@ -59,7 +101,14 @@ else
         return Task.FromResult<object>(null);
     }
 
-    
+    private async Task ChangeSearch(ChangeEventArgs e)
+    {
+        if (e.Value == null) return;
+        searchText = (string)e.Value;
+        currentPage = 1;
+        await GetData();
+    }
+
     private async Task PagerClick(int curpage)      // paging clicked event
     {
 

@@ -35,15 +35,13 @@ else
 }
 
 @code {
-    private en.region[] regions;
+    private IEnumerable<en.region> regions;
 
     private bool isCustomPagingNone;
 
     protected override async Task OnInitializedAsync()
     {
-        string con_strng = da.shared.Variables.ConnString;
-        var list = await da.region.Get();
-        regions = list.ToArray();
+        regions = await da.region.Get();
     }
 
     private Task HandleRowClick(en.region obj)

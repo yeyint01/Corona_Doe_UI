@@ -15,6 +15,18 @@ else
         <div class="row my-row">
             <div class="col-sm-6">
                 <div class="form-group">
+                    <label>Name*</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_name" />
+                    <ValidationMessage For="@(() => quarantineRecord.person_name)" />
+                </div>
+
+                <div class="form-group">
+                    <label>NRC</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_nrc" />
+                    <ValidationMessage For="@(() => quarantineRecord.person_nrc)" />
+                </div>
+
+                <div class="form-group">
                     <label>Station</label>
                     <select class="full h-35-pixel" value="@quarantineRecord.station_id">
                         @foreach (var station in stationList)
@@ -32,18 +44,6 @@ else
                 <div class="form-group">
                     <label>End Date</label>
                     <input type="datetime-local" @bind="quarantineRecord.end_date" @bind:format="@va.datetimeformat" class="full form-control" />
-                </div>
-
-                <div class="form-group">
-                    <label>Name</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_name" />
-                    <ValidationMessage For="@(() => quarantineRecord.person_name)" />
-                </div>
-
-                <div class="form-group">
-                    <label>NRC</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_nrc" />
-                    <ValidationMessage For="@(() => quarantineRecord.person_nrc)" />
                 </div>
 
                 <div class="form-group">
@@ -124,11 +124,6 @@ else
                 </div>
 
                 <div class="form-group">
-                    <label>Check Out Date</label>
-                    <input type="datetime-local" @bind="quarantineRecord.checkout_date" @bind:format="@va.datetimeformat" class="full form-control" />
-                </div>
-
-                <div class="form-group">
                     <label>Result</label>
                     <InputText class="full form-control" @bind-Value="quarantineRecord.result" />
                 </div>
@@ -139,6 +134,15 @@ else
                         <label class="form-check-label" for="checkedout">Checked Out</label>
                     </div>
                 </div>
+
+                @if (quarantineRecord.checkedout == true)
+                {
+                    <div class="form-group">
+                        <label>Check Out Date</label>
+                        <input type="datetime-local" @bind="quarantineRecord.checkout_date" @bind:format="@va.datetimeformat" class="full form-control" />
+                    </div>
+                }
+
             </div>
         </div>
 
