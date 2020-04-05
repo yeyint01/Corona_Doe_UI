@@ -428,6 +428,13 @@ app {
     font-size: 17px !important;
 }
 
+.toastposition {
+    z-index: 9000;
+    position: fixed;
+    top:0;
+    margin-left: 35%; 
+}
+
 .toastwidth {
     position: absolute;
     top: 0;
@@ -775,6 +782,11 @@ tbody td span{
 }
 
 @media (max-width: 767.98px) {
+
+    .toastposition{
+        margin-left : 50%
+       }
+
     .main .top-row:not(.auth) {
         display: none;
     }

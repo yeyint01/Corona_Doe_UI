@@ -17,27 +17,27 @@
                 ItemList="@cRecordResult.Confirm_Records" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@cRecordResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="patient_name" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Ph*" OnHeaderClick="OnHeaderClick" OrderBy="patient_ph" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="NRC" OnHeaderClick="OnHeaderClick" OrderBy="patient_nrc" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Phone*" OnHeaderClick="OnHeaderClick" OrderBy="patient_ph" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Age" OnHeaderClick="OnHeaderClick" OrderBy="patient_age" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Gender*" OnHeaderClick="OnHeaderClick" OrderBy="gender" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Home Town*" OnHeaderClick="OnHeaderClick" OrderBy="hometown" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Gender" OnHeaderClick="OnHeaderClick" OrderBy="gender" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Home Town" OnHeaderClick="OnHeaderClick" OrderBy="hometown" />
         </GridHeader>
         <GridRow>
             <td>
                 <span>@context.patient_name</span>
             </td>
             <td>
-                <span>@context.patient_ph</span>
+                <span>@context.patient_nrc</span>
             </td>
             <td>
-                <span>@context.patient_nrc</span>
+                <span>@context.patient_ph</span>
             </td>
             <td>
                 <span>@context.patient_age</span>
             </td>
             <td>
-                <span>@(context.gender == "M" ? "Male" : "Female")</span>
+                <span>@(context.gender == en.Gender.Male ? en.Gender.Male : en.Gender.Female)</span>
             </td>
             <td>
                 <span>@context.hometown</span>

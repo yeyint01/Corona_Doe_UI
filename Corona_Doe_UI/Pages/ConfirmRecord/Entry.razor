@@ -61,7 +61,7 @@
                     <InputText class="full form-control" @bind-Value="confirmrecord.patient_nrc" autocomplete="off"/>
                 </div>
                 <div class="form-group">
-                    <label>Phone Number*</label>
+                    <label>Phone*</label>
                     <InputText class="full form-control" @bind-Value="confirmrecord.patient_ph" autocomplete="off"/>
                 </div>
                 <div class="form-group">
@@ -75,9 +75,9 @@
                 <div class="form-group">
                     <label>Gender</label>
                     <div>
-                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck("M"))" checked="@confirmrecord.gender == 'M'" />
+                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@isMaleCheck" />
                         <label for="radio1" class="text-color">Male</label>
-                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck("F"))" checked="@confirmrecord.gender == 'F'" />
+                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@isFemaleCheck"/>
                         <label for="radio2" class="text-color">Female</label>
                     </div>
 
@@ -169,6 +169,7 @@
     public int PatientId { get; set; }
 
     private string msg;
+    private bool isMaleCheck, isFemaleCheck;
     private MessageModal modal;
     private en.confirm_record confirmrecord;
     private List<en.quarantine_record> qRecordList;
@@ -220,7 +221,10 @@
                 selectedQuaRecord = qRecordList.Find(qr => qr.quarantine_id == confirmrecord?.quarantine_id);
                 selectedQuaStation = qStationList.Find(qs => qs.station_id == confirmrecord.station_id);
                 selectedReson = eReasonList.Find(r => r.reason_id == confirmrecord.reason_id);
+                isMaleCheck = confirmrecord.gender == en.Gender.Male;
             }
+
+            isFemaleCheck = !isMaleCheck;
 
             va.IsLoading = false;
         }
