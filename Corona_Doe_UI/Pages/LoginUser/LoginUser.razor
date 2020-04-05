@@ -1,12 +1,11 @@
 ﻿@page "/useraccount/entry/{UserId:int}"
 
-<h3 class="header">Quarantine Station Form</h3>
+@inject UserManager<Entity.user_account> UserManager
 
-@if (userAccount == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
+
+<h3 class="header">User Account Form</h3>
+
+@if (userAccount != null)
 {
     <EditForm Model="@userAccount" OnValidSubmit="HandleValidSubmit" autocomplete="off">
         <DataAnnotationsValidator />
@@ -191,7 +190,7 @@ else
                     <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
                 }
 
-                <a href="quaratinestation/list"> Cancel </a>
+                <a href="/useraccount/list"> Cancel </a>
             </div>
         </div>
 
@@ -224,10 +223,11 @@ else
     private en.quarantine_station selectedQuaStation { get; set; }
 
     private string msg, retypePassword, customWarning;
-    private bool isConfirmModalOpen,isChangeModalOpen;
+    private bool isConfirmModalOpen, isChangeModalOpen;
 
     protected override void OnInitialized()
     {
+        va.IsLoading = true;
         entryPointList = new List<en.entry_points>();
         //userAccount = new en.user_account();
         stationList = new List<en.quarantine_station>();
@@ -242,6 +242,7 @@ else
         }
     }
 
+    #region Functions
 
     private async Task GetData()    // get data from server
     {
@@ -268,9 +269,7 @@ else
                 selectedQuaStation = stationList.Find(station => station.station_id == userAccount?.station_id);
             }
             else
-            {
                 userAccount = new en.user_account();
-            }
 
             va.IsLoading = false;
         }
@@ -295,7 +294,14 @@ else
             if (userAccount.user_id > 0)
                 result = await da.user_account.Update(userAccount);
             else
+            {
+                userAccount.password = UserManager.PasswordHasher.HashPassword(
+                             new en.user_account { user_id = userAccount.user_id, user_name = userAccount.user_name },
+                             userAccount.password);
+
                 result = await da.user_account.Insert(userAccount);
+            }
+
 
             if (result.Status != es.Status.Success)
             {
@@ -379,5 +385,7 @@ else
         isChangeModalOpen = changedPwd;
         StateHasChanged();
     }
+
+    #endregion
 
 }

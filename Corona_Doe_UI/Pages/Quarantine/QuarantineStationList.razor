@@ -3,21 +3,17 @@
 
 <h4 class="header">Quarantine Station</h4>
 
-@if (quarantineStationResult == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <div class="mb-3 mt-3 d-flex">
-        <button class="btn btn-info mr-3"
-                @onclick="@(() => NavigationManager.NavigateTo("quarantinestation/entry/0"))">
-            <span>+ Add new</span>
-        </button>
+<div class="mb-3 mt-3 d-flex">
+    <button class="btn btn-info mr-3"
+            @onclick="@(() => NavigationManager.NavigateTo("quarantinestation/entry/0"))">
+        <span>+ Add new</span>
+    </button>
 
-        <SearchBox SearchClick="HandlSearchClick" />
-    </div>
+    <SearchBox SearchClick="HandlSearchClick" />
+</div>
 
+@if (quarantineStationResult != null)
+{
     <CustomGrid Entity="en.quarantine_station" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@quarantineStationResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
                 ItemList="@quarantineStationResult.Quarantine_Stations" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@quarantineStationResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
@@ -52,15 +48,14 @@ else
 <MessageModal @ref="modal" />
 
 @code {
+
     private en.quarantine_stationResult quarantineStationResult;
 
-    private bool isCustomPagingNone;
-    private MessageModal modal;
-
-    private int currentPage;    // paging current click page
     private string searchText;
-    private int gridHeight;
-    private string elementID = Guid.NewGuid() + "quastationlist";
+    private MessageModal modal;
+    private bool isCustomPagingNone;
+    private int currentPage, gridHeight;
+    private string elementID = Guid.NewGuid() + "quastationstationlist";
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
 
     protected override void OnInitialized()
@@ -76,7 +71,6 @@ else
         if (firstRender)
         {
             await GetData();
-            va.IsLoading = false;
             StateHasChanged();
         }
     }

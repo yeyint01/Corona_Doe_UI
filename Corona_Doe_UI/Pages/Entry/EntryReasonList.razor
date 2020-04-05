@@ -12,28 +12,31 @@
 
     <SearchBox SearchClick="HandlSearchClick" />
 </div>
-   
-        <CustomGrid Entity="en.entry_reason" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@entryReasonResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
-                    ItemList="@entryReasonResult.Entry_Reasons" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@entryReasonResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
-            <GridHeader>
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Description*" OnHeaderClick="OnHeaderClick" OrderBy="description" />
-            </GridHeader>
-            <GridRow>
-               
-                <td class="w-75-pixel">
-                    <span>@context.name_mm</span>
-                </td>
-                <td>
-                    <span>@context.name_en</span>
-                </td>
-                <td>
-                    <span>@context.description</span>
-                </td>
-                
-            </GridRow>
-        </CustomGrid>
+
+@if (entryReasonResult != null)
+{
+    <CustomGrid Entity="en.entry_reason" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@entryReasonResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                ItemList="@entryReasonResult.Entry_Reasons" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@entryReasonResult.RCount" TablePaging="@(va.IsMobile ? "true" : "false")">
+        <GridHeader>
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Description*" OnHeaderClick="OnHeaderClick" OrderBy="description" />
+        </GridHeader>
+        <GridRow>
+
+            <td class="w-75-pixel">
+                <span>@context.name_mm</span>
+            </td>
+            <td>
+                <span>@context.name_en</span>
+            </td>
+            <td>
+                <span>@context.description</span>
+            </td>
+
+        </GridRow>
+    </CustomGrid>
+}
 
 <MessageModal @ref="modal" />
 
@@ -61,7 +64,6 @@
         if (firstRender)
         {
             await GetData();
-            va.IsLoading = false;
             StateHasChanged();
         }
     }
@@ -123,7 +125,7 @@
 
     private async Task BrowserHasResized()
     {
-        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);       
+        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
         StateHasChanged();
     }
 

@@ -33,7 +33,6 @@
     </CustomGrid>
 }
 
-
 <MessageModal @ref="modal" />
 
 
@@ -60,8 +59,7 @@
     {
         if (firstRender)
         {
-            await GetData();
-            va.IsLoading = false;
+            await GetData();            
             StateHasChanged();
         }
     }

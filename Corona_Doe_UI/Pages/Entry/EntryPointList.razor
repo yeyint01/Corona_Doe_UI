@@ -3,19 +3,15 @@
 
 <h4 class="header">Entry Point</h4>
 
-@if (pointsResult == null)
+@if (pointsResult != null)
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-<div class="mb-3 mt-3 d-flex">
-    <button class="btn btn-info mr-3"
-            @onclick="@(() => NavigationManager.NavigateTo("entrypoint/0"))">
-        <span>+ Add new</span>
-    </button>
-    <SearchBox SearchClick="HandlSearchClick" />
-</div>
+    <div class="mb-3 mt-3 d-flex">
+        <button class="btn btn-info mr-3"
+                @onclick="@(() => NavigationManager.NavigateTo("entrypoint/0"))">
+            <span>+ Add new</span>
+        </button>
+        <SearchBox SearchClick="HandlSearchClick" />
+    </div>
 
     <CustomGrid Entity="en.entry_points" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="pointsResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
                 ItemList="@pointsResult.Entry_Points" GridRowClick="ShowModel" PagerClick="PagerClick" RowsCount="pointsResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
@@ -39,6 +35,8 @@ else
 
 }
 
+<MessageModal @ref="modal" />
+
 @code {
     private en.entry_pointsResult pointsResult;
     private int currentPage;
@@ -51,7 +49,8 @@ else
     private bool isCustomPagingNone;
 
     protected override void OnInitialized()
-    {   va.IsLoading = true;
+    {
+        va.IsLoading = true;
         currentPage = 1;
         pointsResult = new en.entry_pointsResult();
         BrowserResize.OnResize += BrowserHasResized;
@@ -62,7 +61,6 @@ else
         if (firstRender)
         {
             await GetData();
-            va.IsLoading = false;
             StateHasChanged();
         }
     }
@@ -131,7 +129,7 @@ else
 
     private async Task BrowserHasResized()
     {
-        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);        
+        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
         StateHasChanged();
     }
 

@@ -3,16 +3,17 @@
 
 <h4 class="header">Location Type</h4>
 
+<div class="mb-3 mt-3 d-flex">
+
+    <button class="btn btn-info mr-3"
+            @onclick="@(() => NavigationManager.NavigateTo("locationtype/entry/0"))">
+        <span> + Add new </span>
+    </button>
+    <SearchBox SearchClick="HandlSearchClick" />
+</div>
+
 @if (locationTypeResult != null)
 {
-    <div class="mb-3 mt-3 d-flex">
-
-        <button class="btn btn-info mr-3"
-                @onclick="@(() => NavigationManager.NavigateTo("locationtype/entry/0"))">
-            <span> + Add new </span>
-        </button>
-        <SearchBox SearchClick="HandlSearchClick" />
-    </div>
     <CustomGrid Entity="en.location_type" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="locationTypeResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
                 ItemList="@locationTypeResult.location_Types" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="locationTypeResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
@@ -34,12 +35,11 @@
 
 @code {
 
-    private int currentPage;    // paging current click page
     private string searchText;
     private MessageModal modal;
     private bool isCustomPagingNone;
+    private int currentPage, gridHeight;
     private en.location_typeResult locationTypeResult;
-    private int gridHeight;
     private string elementID = Guid.NewGuid() + "locationtypelist";
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
 

@@ -4,11 +4,7 @@
 
 <h4 class="header">Entry Record Form</h4>
 
-@if (entryRecord == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
+@if (entryRecord != null)
 {
     <EditForm Model="@entryRecord" OnValidSubmit="HandleValidSubmit" autocomplete="off">
         <DataAnnotationsValidator />
@@ -150,21 +146,23 @@ else
     [Parameter]
     public int EntryRecordId { get; set; }
 
+    private string msg;
+    private Modal errModal;
+    private MessageModal modal;
     private en.entry_record entryRecord;
     private List<en.entry_reason> reasonList;
     private List<en.entry_points> pointslist;
     private en.entry_points selectedPoints { get; set; }
     private en.entry_reason selectedReason { get; set; }
-    private string msg;
-    private Modal errModal;
-    private MessageModal modal;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
+        va.IsLoading = true;
         entryRecord ??= new en.entry_record();
         reasonList = new List<en.entry_reason>();
         pointslist = new List<en.entry_points>();
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -173,6 +171,8 @@ else
             StateHasChanged();
         }
     }
+
+    #region Functions
 
     private async Task GetData()    // get data from server
     {
@@ -276,5 +276,7 @@ else
         var text = searchText?.ToLower();
         return await Task.FromResult(reasonList.FindAll(reason => reason.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
     }
+
+    #endregion
 }
 

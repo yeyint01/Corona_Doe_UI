@@ -4,7 +4,7 @@
 
 @if (confirmrecord != null)
 {
-    <EditForm Model="@confirmrecord" OnValidSubmit="HandleValidSubmit" >
+    <EditForm Model="@confirmrecord" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
@@ -49,42 +49,42 @@
                     }
                     else
                     {
-                        <div class="full form-control h-35-pixel"> </div>                       
+                        <div class="full form-control h-35-pixel"> </div>
                     }
                 </div>
                 <div class="form-group">
                     <label>Name*</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_name" autocomplete="off"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_name" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label>NRC</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_nrc" autocomplete="off"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_nrc" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label>Phone*</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_ph" autocomplete="off"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_ph" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label>Age</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_age" autocomplete="off"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_age" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label>Date of Birth</label>
-                    <input type="datetime-local" @bind="confirmrecord.patient_dob" @bind:format="@va.datetimeformat" class="full form-control"/>
+                    <input type="datetime-local" @bind="confirmrecord.patient_dob" @bind:format="@va.datetimeformat" class="full form-control" />
                 </div>
                 <div class="form-group">
                     <label>Gender</label>
                     <div>
                         <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@isMaleCheck" />
                         <label for="radio1" class="text-color">Male</label>
-                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@isFemaleCheck"/>
+                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@isFemaleCheck" />
                         <label for="radio2" class="text-color">Female</label>
                     </div>
 
                 </div>
                 <div class="form-group">
                     <label>Home Town</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.hometown" autocomplete="off"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.hometown" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label>Reason</label>
@@ -113,27 +113,27 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>Travel History</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.travel_history" autocomplete="off"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.travel_history" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label>Residence Address</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.residence_address" autocomplete="off"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.residence_address" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label>Current Address</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.current_address" autocomplete="off"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.current_address" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label>Traveled From</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.traveled_from" autocomplete="off"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.traveled_from" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label>Fever History</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.fever_history" autocomplete="off"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.fever_history" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label>Remark</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.remark" autocomplete="off"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.remark" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label>Check Out Date</label>
@@ -141,7 +141,7 @@
                 </div>
                 <div class="form-group">
                     <label>Result</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.result" autocomplete="off"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.result" autocomplete="off" />
                 </div>
             </div>
         </div>
@@ -183,9 +183,9 @@
     protected override void OnInitialized()
     {
         va.IsLoading = true;
+        eReasonList = new List<en.entry_reason>();
         qRecordList = new List<en.quarantine_record>();
         qStationList = new List<en.quarantine_station>();
-        eReasonList = new List<en.entry_reason>();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -196,6 +196,8 @@
             StateHasChanged();
         }
     }
+
+    #region Functions
 
     private async Task GetData()
     {
@@ -228,7 +230,7 @@
 
             va.IsLoading = false;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             va.IsLoading = false;
             modal.Show("Message", ex.Message);
@@ -308,4 +310,6 @@
     {
         confirmrecord.gender = gender;
     }
+
+    #endregion
 }

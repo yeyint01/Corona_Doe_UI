@@ -2,45 +2,41 @@
 
 <h4 class="header">Entry Point Form</h4>
 
-@if (points == null)
+@if (points != null)
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-<EditForm Model="@points" OnValidSubmit="HandleValidSubmit" autocomplete="off">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <EditForm Model="@points" OnValidSubmit="HandleValidSubmit" autocomplete="off">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-    <div class="form-group">
-        <label for="usr">Myanmar Name*</label>
-        <InputText class="form-control" id="name_mm" @bind-Value="points.name_mm" />
-    </div>
-    <div class="form-group">
-        <label for="pwd">English Name*</label>
-        <InputText class="form-control" id="name_en" @bind-Value="points.name_en" />
-    </div>
-    <div class="form-group">
-        <label for="pwd">Remark</label>
-        <InputText class="form-control" id="name_en" @bind-Value="points.remark" />
-    </div>
-    <div class="form-group">
-        <button type="button" class="map-btn" @onclick="@MapModalOpen">
-            <i class="fa fa-map-marker"></i><span class="pad-left-5">Map</span>
-        </button>
-    </div>
-    <div class="row my-row">
-        <div class="action-button">
-            <button type="submit" class="btn btn-info"><span>Save</span></button>
-            @if (points.entrypoint_id > 0)
-            {
-                <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
-            }
-            <a href="/entrypoint/list"><span> Cancel</span> </a>
-
+        <div class="form-group">
+            <label for="usr">Myanmar Name*</label>
+            <InputText class="form-control" id="name_mm" @bind-Value="points.name_mm" />
         </div>
-    </div>
-</EditForm>
+        <div class="form-group">
+            <label for="pwd">English Name*</label>
+            <InputText class="form-control" id="name_en" @bind-Value="points.name_en" />
+        </div>
+        <div class="form-group">
+            <label for="pwd">Remark</label>
+            <InputText class="form-control" id="name_en" @bind-Value="points.remark" />
+        </div>
+        <div class="form-group">
+            <button type="button" class="map-btn" @onclick="@MapModalOpen">
+                <i class="fa fa-map-marker"></i><span class="pad-left-5">Map</span>
+            </button>
+        </div>
+        <div class="row my-row">
+            <div class="action-button">
+                <button type="submit" class="btn btn-info"><span>Save</span></button>
+                @if (points.entrypoint_id > 0)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
+                }
+                <a href="/entrypoint/list"><span> Cancel</span> </a>
+
+            </div>
+        </div>
+    </EditForm>
 }
 
 <MessageModal @ref="modal" />
@@ -80,20 +76,32 @@ else
     [Parameter]
     public int PointID { get; set; }
 
-    private en.entry_points points;
+    private bool isMapOpen;
     private Modal errModal;
     private MessageModal modal;
-
-    private bool isMapOpen;
+    private en.entry_points points;
     private double tempLon, tempLat;
 
     protected override async Task OnInitializedAsync()
     {
-        if (PointID > 0)
-            points = await da.entry_points.Get(PointID);
+        try
+        {
+            va.IsLoading = true;
+            if (PointID > 0)
+                points = await da.entry_points.Get(PointID);
 
-        points ??= new en.entry_points();
+            points ??= new en.entry_points();
+
+            va.IsLoading = false;
+        }
+        catch(Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
     }
+
+    #region Functions
 
     private async Task HandleValidSubmit()
     {
@@ -170,4 +178,6 @@ else
         MapModalClose();
         StateHasChanged();
     }
+
+    #endregion
 }

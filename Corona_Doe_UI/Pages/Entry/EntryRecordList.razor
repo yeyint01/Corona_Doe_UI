@@ -3,12 +3,6 @@
 
 <h4 class="header">Entry Record</h4>
 
-@if (recordResult == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
 <div class="mb-3 mt-3 d-flex">
     <button class="btn btn-info mr-3"
             @onclick="@(() => NavigationManager.NavigateTo("entryrecord/0"))">
@@ -17,6 +11,8 @@ else
     <SearchBox SearchClick="HandlSearchClick" />
 </div>
 
+@if (recordResult != null)
+{
 
     <CustomGrid Entity="en.entry_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="recordResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
                 ItemList="@recordResult.Entry_Records" GridRowClick="ShowModel" PagerClick="PagerClick" RowsCount="recordResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
@@ -24,10 +20,13 @@ else
 
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="person_name" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Age*" OnHeaderClick="OnHeaderClick" OrderBy="person_age" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Current Address*" OnHeaderClick="OnHeaderClick" OrderBy="current_address" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Tavel History*" OnHeaderClick="OnHeaderClick" OrderBy="travel_history" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Entrance Date*" OnHeaderClick="OnHeaderClick" OrderBy="entrance_date" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark*" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
+            @if (!va.IsMobile)
+            {
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Current Address*" OnHeaderClick="OnHeaderClick" OrderBy="current_address" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Tavel History*" OnHeaderClick="OnHeaderClick" OrderBy="travel_history" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Entrance Date*" OnHeaderClick="OnHeaderClick" OrderBy="entrance_date" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark*" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
+            }
         </GridHeader>
         <GridRow>
             <td class="w-75-pixel">
@@ -36,48 +35,51 @@ else
             <td>
                 <span>@context.person_age</span>
             </td>
-            <td>
-                <span>@context.current_address</span>
-            </td>
-            <td>
-                <span>@context.travel_history</span>
-            </td>
-            <td>
-                <span>@context.entrance_date</span>
-            </td>
-            <td>
-                <span>@context.remark</span>
-            </td>
+            @if (!va.IsMobile)
+            {
+                <td>
+                    <span>@context.current_address</span>
+                </td>
+                <td>
+                    <span>@context.travel_history</span>
+                </td>
+                <td>
+                    <span>@context.entrance_date</span>
+                </td>
+                <td>
+                    <span>@context.remark</span>
+                </td>
+            }
         </GridRow>
     </CustomGrid>
 
 }
 <MessageModal @ref="modal" />
 
-
 @code {
-    private en.entry_recordResult recordResult;
-    private bool isCustomPagingNone;
-    private int currentPage;
+
     private string searchText;
-    private int gridHeight;
-    private string elementID = Guid.NewGuid() + "entryrecordlist";
     private MessageModal modal;
+    private bool isCustomPagingNone;
+    private int currentPage, gridHeight;
+    private en.entry_recordResult recordResult;
+    private string elementID = Guid.NewGuid() + "entryrecordlist";
     private (string OrderBy, es.SortOrder Order) CurSortInfo;
 
 
     protected override void OnInitialized()
-    { va.IsLoading = true;
-        recordResult = new en.entry_recordResult();
+    {
+        va.IsLoading = true;
         currentPage = 1;
+        recordResult = new en.entry_recordResult();
         BrowserResize.OnResize += BrowserHasResized;
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await GetData();
-            va.IsLoading = false;
             StateHasChanged();
         }
     }
@@ -100,12 +102,12 @@ else
                 Order = CurSortInfo.Order,
                 OrderBy = CurSortInfo.OrderBy
             });
+            va.IsLoading = false;
         }
         catch (Exception ex)
         {
             modal.Show("Message", ex.Message);
         }
-
     }
 
     private Task ShowModel(en.entry_record obj)     // open entry modal

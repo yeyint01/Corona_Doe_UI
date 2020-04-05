@@ -50,13 +50,17 @@
     {
         try
         {
+            va.IsLoading = true;
             if (CategoryId > 0)
                 entryPoint_Category = await da.entrypoint_category.Get(CategoryId);
 
             entryPoint_Category ??= new en.entrypoint_category();
+
+            va.IsLoading = false;
         }
         catch (Exception ex)
         {
+            va.IsLoading = false;
             modal.Show("Message", ex.Message);
         }
 

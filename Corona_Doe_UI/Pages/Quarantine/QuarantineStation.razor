@@ -2,88 +2,84 @@
 
 <h3 class="header">Quarantine Station Form</h3>
 
-@if (quarantineStation == null)
+@if (quarantineStation != null)
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-<EditForm Model="@quarantineStation" OnValidSubmit="HandleValidSubmit" autocomplete="off">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+    <EditForm Model="@quarantineStation" OnValidSubmit="HandleValidSubmit" autocomplete="off">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
 
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="form-group">
-                <label>Myanmar Name*</label>
-                <InputText class="full form-control" @bind-Value="quarantineStation.name_mm" />
-            </div>
-            <div class="form-group">
-                <label>English Name*</label>
-                <InputText class="full form-control" @bind-Value="quarantineStation.name_en" />
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <InputText class="full form-control" @bind-Value="quarantineStation.description" />
-            </div>
-            <div class="form-group">
-                <label>Location</label>
-
-                @if (locationList != null && locationList?.Count() > 0)
-                {
-                    <Typeahead SearchMethod="GetLocation"
-                               Placeholder="Search..."
-                               Items="locationList"
-                               @bind-Value="selectedLocation">
-                        <SelectedTemplate Context="location">
-                            @location.name_en
-                        </SelectedTemplate>
-                        <ResultTemplate Context="location">
-                            @location.name_en
-                        </ResultTemplate>
-                    </Typeahead>
-                }
-            </div>
-
-        </div>
-
-        <div class="col-sm-6">
-            <div class="form-group">
-                <label>Capacity</label>
-                <input type="number" class="full form-control" @bind-value="quarantineStation.capacity" />
-            </div>
-            <div class="form-group">
-                <div class="mycheck form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="checkedout" value="@quarantineStation.discontinued" @bind="quarantineStation.discontinued">
-                    <label class="form-check-label" for="checkedout">Discontinued</label>
-                </div>
-            </div>
-            @if (quarantineStation.discontinued == true)
-            {
+        <div class="row">
+            <div class="col-sm-6">
                 <div class="form-group">
-                    <label>Discontinued Date</label>
-                    <input type="datetime-local" @bind="quarantineStation.discontinued_date" @bind:format="@va.datetimeformat" class="full form-control" />
+                    <label>Myanmar Name*</label>
+                    <InputText class="full form-control" @bind-Value="quarantineStation.name_mm" />
                 </div>
-            }
+                <div class="form-group">
+                    <label>English Name*</label>
+                    <InputText class="full form-control" @bind-Value="quarantineStation.name_en" />
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <InputText class="full form-control" @bind-Value="quarantineStation.description" />
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+
+                    @if (locationList != null && locationList?.Count() > 0)
+                    {
+                        <Typeahead SearchMethod="GetLocation"
+                                   Placeholder="Search..."
+                                   Items="locationList"
+                                   @bind-Value="selectedLocation">
+                            <SelectedTemplate Context="location">
+                                @location.name_en
+                            </SelectedTemplate>
+                            <ResultTemplate Context="location">
+                                @location.name_en
+                            </ResultTemplate>
+                        </Typeahead>
+                    }
+                </div>
+
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Capacity</label>
+                    <input type="number" class="full form-control" @bind-value="quarantineStation.capacity" />
+                </div>
+                <div class="form-group">
+                    <div class="mycheck form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="checkedout" value="@quarantineStation.discontinued" @bind="quarantineStation.discontinued">
+                        <label class="form-check-label" for="checkedout">Discontinued</label>
+                    </div>
+                </div>
+                @if (quarantineStation.discontinued == true)
+                {
+                    <div class="form-group">
+                        <label>Discontinued Date</label>
+                        <input type="datetime-local" @bind="quarantineStation.discontinued_date" @bind:format="@va.datetimeformat" class="full form-control" />
+                    </div>
+                }
 
 
+            </div>
         </div>
-    </div>
 
-    <div class="row my-row">
-        <div class="action-button">
-            <button type="submit" class="btn btn-info"><span>Save</span></button>
+        <div class="row my-row">
+            <div class="action-button">
+                <button type="submit" class="btn btn-info"><span>Save</span></button>
 
-            @if (quarantineStation.station_id > 0)
-            {
-                <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
-            }
+                @if (quarantineStation.station_id > 0)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
+                }
 
-            <a href="quaratinestation/list"> Cancel </a>
+                <a href="quaratinestation/list"> Cancel </a>
+            </div>
         </div>
-    </div>
 
-</EditForm>
+    </EditForm>
 }
 
 <MessageModal @ref="modal" />
@@ -92,16 +88,16 @@ else
     [Parameter]
     public int StationId { get; set; }
 
-    private List<en.location> locationList;
-
-    private en.quarantine_station quarantineStation;
     private string msg;
     private MessageModal modal;
+    private List<en.location> locationList;
+    private en.quarantine_station quarantineStation;
 
     private en.location selectedLocation { get; set; }
 
     protected override void OnInitialized()
     {
+        va.IsLoading = true;
         locationList = new List<en.location>();
         quarantineStation = new en.quarantine_station();
     }
@@ -115,6 +111,7 @@ else
         }
     }
 
+    #region Functions
 
     private async Task GetData()    // get data from server
     {
@@ -194,4 +191,5 @@ else
         return await Task.FromResult(locationList.FindAll(location => location.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
     }
 
+    #endregion
 }

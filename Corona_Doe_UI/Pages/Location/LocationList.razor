@@ -3,19 +3,18 @@
 
 <h4 class="header">Location</h4>
 
+<div class="mb-3 mt-3 d-flex">
+    <button class="btn btn-info mr-3"
+            @onclick="@(() => NavigationManager.NavigateTo("location/entry/0"))">
+        <span> + Add new </span>
+    </button>
+    <SearchBox SearchClick="HandlSearchClick" />
+</div>
+
 @if (locationsResult != null)
 {
-    <div class="mb-3 mt-3 d-flex">
-        @*<input type="search" placeholder="Search..." @bind="@searchText" @oninput="ChangeSearch" class="search" />*@
-        <button class="btn btn-info mr-3"
-                @onclick="@(() => NavigationManager.NavigateTo("location/entry/0"))">
-            <span> + Add new </span>
-        </button>
-        <SearchBox SearchClick="HandlSearchClick" />
-    </div>
-
     <CustomGrid Entity="en.location" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="locationsResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
-                ItemList="@locationsResult.Locations" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="locationsResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
+                ItemList="@locationsResult.Locations" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="locationsResult.RCount" TablePaging="@(va.IsMobile ? "true" : "false")">
         <GridHeader>
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
@@ -57,15 +56,15 @@
 
 @code {
 
-    private int currentPage;    // paging current click page
     private string searchText;
     private MessageModal modal;
     private bool isCustomPagingNone;
+    private int currentPage, gridHeight;
     private en.locationResult locationsResult;
-    private int gridHeight;
-    private string elementID = Guid.NewGuid() + "locationlist";
+
     private IEnumerable<en.region> regions;
     private IEnumerable<en.location_type> locatypes;
+    private string elementID = Guid.NewGuid() + "locationlist";
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
 
     protected override void OnInitialized()

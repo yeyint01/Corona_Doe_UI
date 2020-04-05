@@ -1,12 +1,9 @@
 ﻿@page "/useraccount/list"
+@implements IDisposable
 
 <h4 class="header">User Account</h4>
 
-@if (UserAccountList == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
+@if (userAccountResult != null)
 {
     <div class="mb-3 mt-3 d-flex">
         <button class="btn btn-info mr-3"
@@ -17,13 +14,17 @@ else
         <SearchBox SearchClick="HandlSearchClick" />
     </div>
 
-    <CustomGrid Entity="en.user_account" IsShowPaging="false" TableLayout="table-layout"
-                ItemList="UserAccountList" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="UserAccountList.Count()">
+    <CustomGrid Entity="en.user_account" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="userAccountResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                ItemList="@userAccountResult.User_Accounts" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="userAccountResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="user_name" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Full Name*" OnHeaderClick="OnHeaderClick" OrderBy="user_name" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Phone*" OnHeaderClick="OnHeaderClick" OrderBy="phone_no" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
+            @if (!va.IsMobile)
+            {
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Phone*" OnHeaderClick="OnHeaderClick" OrderBy="phone_no" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
+            }
+
         </GridHeader>
         <GridRow>
             <td>
@@ -32,12 +33,15 @@ else
             <td>
                 <span>@context.full_name</span>
             </td>
-            <td>
-                <span>@context.phone_no</span>
-            </td>
-            <td>
-                <span>@context.remark</span>
-            </td>
+            @if (!va.IsMobile)
+            {
+                <td>
+                    <span>@context.phone_no</span>
+                </td>
+                <td>
+                    <span>@context.remark</span>
+                </td>
+            }
 
         </GridRow>
     </CustomGrid>
@@ -46,20 +50,22 @@ else
 <MessageModal @ref="modal" />
 
 @code {
-    private IEnumerable<en.user_account> UserAccountList;
 
-    private bool isCustomPagingNone;
-    private MessageModal modal;
+    private en.user_accountResult userAccountResult;
 
-    private int currentPage;    // paging current click page
+    private int currentPage, gridHeight;    // paging current click page
     private string searchText;
+    private MessageModal modal;
+    private bool isCustomPagingNone;
+    private string elementID = Guid.NewGuid() + "loginuserlist";
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
 
     protected override void OnInitialized()
     {
         va.IsLoading = true;
         currentPage = 1;
-        UserAccountList = new en.user_account[0];
+        userAccountResult = new en.user_accountResult();
+        BrowserResize.OnResize += BrowserHasResized;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -67,16 +73,29 @@ else
         if (firstRender)
         {
             await GetData();
-            va.IsLoading = false;
             StateHasChanged();
         }
     }
+
+    public void Dispose()
+    {
+        BrowserResize.OnResize -= BrowserHasResized;
+    }
+
+    #region Functions
 
     private async Task GetData()    // get data from server
     {
         try
         {
-            UserAccountList = await da.user_account.Get();
+            userAccountResult = await da.user_account.Get(new en.user_accountParam
+            {
+                Name = searchText,
+                PgNo = currentPage,
+                Order = CurSortInfo.Order,
+                OrderBy = CurSortInfo.OrderBy
+            });
+            va.IsLoading = false;
             va.IsLoading = false;
         }
         catch (Exception ex)
@@ -113,4 +132,12 @@ else
         currentPage = curpage;
         await GetData();
     }
+
+    private async Task BrowserHasResized()
+    {
+        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
+        StateHasChanged();
+    }
+
+    #endregion
 }

@@ -3,72 +3,66 @@
 
 <h4 class="header">Quarantine Record</h4>
 
-@if (quarantineRecordResult == null)
+<div class="mb-3 mt-3 d-flex">
+    <button class="btn btn-info mr-3"
+            @onclick="@(() => NavigationManager.NavigateTo("quarantinerecord/entry/0"))">
+        <span>+ Add new</span>
+    </button>
+
+    <SearchBox SearchClick="HandlSearchClick" />
+</div>
+
+@if (quarantineRecordResult != null)
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <div class="mb-3 mt-3 d-flex">
-        <button class="btn btn-info mr-3"
-                @onclick="@(() => NavigationManager.NavigateTo("quarantinerecord/entry/0"))">
-            <span>+ Add new</span>
-        </button>
+    <CustomGrid Entity="en.quarantine_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@quarantineRecordResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                ItemList="@quarantineRecordResult.Quarantine_Records" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@quarantineRecordResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
+        <GridHeader>
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="person_name" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Phone*" OnHeaderClick="OnHeaderClick" OrderBy="person_ph" />
 
-        <SearchBox SearchClick="HandlSearchClick" />
-    </div>
-
-
-        <CustomGrid Entity="en.quarantine_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@quarantineRecordResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
-                    ItemList="@quarantineRecordResult.Quarantine_Records" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@quarantineRecordResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
-            <GridHeader>
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="person_name" />
+            @if (!va.IsMobile)
+            {
                 <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="NRC" OnHeaderClick="OnHeaderClick" OrderBy="person_nrc" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Phone*" OnHeaderClick="OnHeaderClick" OrderBy="person_ph" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Age" OnHeaderClick="OnHeaderClick" OrderBy="person_age" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Gender" OnHeaderClick="OnHeaderClick" OrderBy="gender" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Home Town" OnHeaderClick="OnHeaderClick" OrderBy="hometown" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Result" OnHeaderClick="OnHeaderClick" OrderBy="result" />
+            }
 
+        </GridHeader>
+        <GridRow>
+            <td style="min-width: 150px;">
+                <span>@context.person_name</span>
+            </td>
 
-                @if (!va.IsMobile)
-                {
-                    <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Age" OnHeaderClick="OnHeaderClick" OrderBy="person_age" />
-                    <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Gender" OnHeaderClick="OnHeaderClick" OrderBy="gender" />
-                    <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Home Town" OnHeaderClick="OnHeaderClick" OrderBy="hometown" />
-                    <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Result" OnHeaderClick="OnHeaderClick" OrderBy="result" />
-                }
+            <td style="min-width: 150px;">
+                <span>@context.person_ph</span>
+            </td>
 
-            </GridHeader>
-            <GridRow>
-                <td style="min-width: 150px;">
-                    <span>@context.person_name</span>
-                </td>
-
+            @if (!va.IsMobile)
+            {
                 <td style="min-width: 150px;">
                     <span>@context.person_nrc</span>
                 </td>
 
+                <td style="min-width: 50px;">
+                    <span>@context.person_age</span>
+                </td>
+                <td style="min-width: 80px;">
+                    <span>@(context.gender == "M" ? "Male" : "Female")</span>
+                </td>
                 <td style="min-width: 150px;">
-                    <span>@context.person_ph</span>
+                    <span>@context.hometown</span>
                 </td>
 
-                @if (!va.IsMobile)
-                {
-                    <td style="min-width: 50px;">
-                        <span>@context.person_age</span>
-                    </td>
-                    <td style="min-width: 80px;">
-                        <span>@(context.gender == "M" ? "Male" : "Female")</span>
-                    </td>
-                    <td style="min-width: 150px;">
-                        <span>@context.hometown</span>
-                    </td>
+                <td style="min-width: 100px;">
+                    <span>@context.result</span>
+                </td>
+            }
 
-                    <td style="min-width: 100px;">
-                        <span>@context.result</span>
-                    </td>
-                }
+        </GridRow>
+    </CustomGrid>
 
-            </GridRow>
-        </CustomGrid>
-  
 }
 
 <MessageModal @ref="modal" />
@@ -76,12 +70,10 @@ else
 @code {
     private en.quarantine_recordResult quarantineRecordResult;
 
-    private bool isCustomPagingNone;
-    private MessageModal modal;
-
-    private int currentPage;    // paging current click page
     private string searchText;
-    private int gridHeight;
+    private MessageModal modal;
+    private bool isCustomPagingNone;
+    private int currentPage, gridHeight;
     private string elementID = Guid.NewGuid() + "quarecordlist";
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
 
@@ -98,7 +90,6 @@ else
         if (firstRender)
         {
             await GetData();
-            va.IsLoading = false;
             StateHasChanged();
         }
     }
@@ -165,6 +156,5 @@ else
     }
 
     #endregion Functions
-
 
 }

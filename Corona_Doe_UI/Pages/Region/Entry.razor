@@ -2,13 +2,9 @@
 
 <h4 class="header">Region Form</h4>
 
-@if (region == null)
+@if (region != null)
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <EditForm Model="@region" OnValidSubmit="HandleValidSubmit" autocomplete ="off">
+    <EditForm Model="@region" OnValidSubmit="HandleValidSubmit" autocomplete="off">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
@@ -33,13 +29,14 @@ else
                 <a href="region/list"> <span>Cancel</span> </a>
             </div>
         </div>
-        
+
     </EditForm>
 }
 
 <MessageModal @ref="modal" />
 
 @code {
+
     [Parameter]
     public int RegionId { get; set; }
 
@@ -48,11 +45,23 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (RegionId > 0)
-            region = await da.region.Get(RegionId);
+        try
+        {
+            va.IsLoading = true;
+            if (RegionId > 0)
+                region = await da.region.Get(RegionId);
 
-        region ??= new en.region();
+            region ??= new en.region();
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
     }
+
+    #region Functions
 
     private async Task HandleValidSubmit()
     {
@@ -97,4 +106,6 @@ else
             modal.Show("Message", ex.Message);
         }
     }
+
+    #endregion
 }
