@@ -82,6 +82,9 @@ a, .btn-link {
     transform: scale(1);
 }
 
+.text-color {
+    color: var(--core-color) !important;
+}
 
 /*font Sizes*/
 .form-control, input, label, span, p, strong, a, u, th, td {
@@ -298,6 +301,23 @@ app {
 
 .full {
     width: 100%;
+}
+
+.eye-icon {
+    position: absolute;
+    top: 8px;
+    right: 19px;
+    cursor: pointer;
+}
+
+[errorborder = "err"] {
+    border: none;
+    border: 0.5px solid red;
+}
+
+[errorborder = "err"]:focus {
+    border: none;
+    border: 0.5px solid red;
 }
 
 .mycheck .form-check-input {

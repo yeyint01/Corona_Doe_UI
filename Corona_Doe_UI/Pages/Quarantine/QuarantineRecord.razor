@@ -291,6 +291,8 @@ else
 
             //NavigationManager.NavigateTo("quaratinerecord/list");
             quarantineRecord = new en.quarantine_record();
+            selectedQuaStation = new en.quarantine_station();
+            selectedReason = new en.entry_reason();
             await JsService.Toast("toastsave", "Save Success");
         }
         catch (Exception ex)

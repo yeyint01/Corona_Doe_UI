@@ -1,0 +1,110 @@
+﻿@page "/entrypointcategory/entry/{CategoryId:int}"
+
+<h4 class="header">Entry Point Category Form</h4>
+
+@if (entryPoint_Category != null)
+{
+    <EditForm Model="@entryPoint_Category" OnValidSubmit="HandleValidSubmit" autocomplete="off">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="myanname">Myanmar Name*</label>
+            <InputText class="form-control" id="name_mm" @bind-Value="entryPoint_Category.name_mm" />
+        </div>
+
+        <div class="form-group">
+            <label for="engname">English Name*</label>
+            <InputText class="form-control" id="name_en" @bind-Value="entryPoint_Category.name_en" />
+        </div>
+
+        <div class="row my-row">
+            <div class="action-button">
+
+                <button type="submit" class="btn btn-primary"><span>Save</span></button>
+
+                @if (entryPoint_Category.category_id > 0)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
+                }
+                <a href="entrypointcategory/list"> Cancel </a>
+
+            </div>
+        </div>
+
+    </EditForm>
+}
+
+<MessageModal @ref="modal" />
+
+@code {
+
+    [Parameter]
+    public int CategoryId { get; set; }
+
+    en.entrypoint_category entryPoint_Category;
+    private string msg;
+    private MessageModal modal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (CategoryId > 0)
+                entryPoint_Category = await da.entrypoint_category.Get(CategoryId);
+
+            entryPoint_Category ??= new en.entrypoint_category();
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            es.ActionResult result;
+
+            if (entryPoint_Category.category_id > 0)
+                result = await da.entrypoint_category.Update(entryPoint_Category);
+            else
+                result = await da.entrypoint_category.Insert(entryPoint_Category);
+
+            if (result.Status != es.Status.Success)
+            {
+                modal.Show("Message", result.Msg);
+                return;
+            }
+
+            NavigationManager.NavigateTo("entrypointcategory/list");
+            await JsService.Toast("toastsave", "Save Success");
+
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
+
+        try
+        {
+            await da.entrypoint_category.Delete(CategoryId);
+
+            NavigationManager.NavigateTo("entrypointcategory/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+}

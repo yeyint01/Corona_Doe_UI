@@ -1,0 +1,116 @@
+﻿@page "/useraccount/list"
+
+<h4 class="header">User Account</h4>
+
+@if (UserAccountList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="mb-3 mt-3 d-flex">
+        <button class="btn btn-info mr-3"
+                @onclick="@(() => NavigationManager.NavigateTo("useraccount/entry/0"))">
+            <span>+ Add new</span>
+        </button>
+
+        <SearchBox SearchClick="HandlSearchClick" />
+    </div>
+
+    <CustomGrid Entity="en.user_account" IsShowPaging="false" TableLayout="table-layout"
+                ItemList="UserAccountList" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="UserAccountList.Count()">
+        <GridHeader>
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="user_name" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Full Name*" OnHeaderClick="OnHeaderClick" OrderBy="user_name" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Phone*" OnHeaderClick="OnHeaderClick" OrderBy="phone_no" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
+        </GridHeader>
+        <GridRow>
+            <td>
+                <span>@context.user_name</span>
+            </td>
+            <td>
+                <span>@context.full_name</span>
+            </td>
+            <td>
+                <span>@context.phone_no</span>
+            </td>
+            <td>
+                <span>@context.remark</span>
+            </td>
+
+        </GridRow>
+    </CustomGrid>
+}
+
+<MessageModal @ref="modal" />
+
+@code {
+    private IEnumerable<en.user_account> UserAccountList;
+
+    private bool isCustomPagingNone;
+    private MessageModal modal;
+
+    private int currentPage;    // paging current click page
+    private string searchText;
+    private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
+
+    protected override void OnInitialized()
+    {
+        va.IsLoading = true;
+        currentPage = 1;
+        UserAccountList = new en.user_account[0];
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            va.IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            UserAccountList = await da.user_account.Get();
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandlSearchClick(string text)
+    {
+        searchText = text;
+        currentPage = 1;
+        await GetData();
+    }
+
+    private async Task OnHeaderClick(string orderBy)
+    {
+        CurSortInfo = fn.CurrentSortInfo(orderBy);
+        isCustomPagingNone = true;
+        await GetData();
+        isCustomPagingNone = false;
+    }
+
+    private Task HandleRowClick(en.user_account obj)
+    {
+        NavigationManager.NavigateTo("useraccount/entry/" + obj.user_id);
+
+        return Task.FromResult<object>(null);
+    }
+
+    private async Task PagerClick(int curpage)      // paging clicked event
+    {
+        currentPage = curpage;
+        await GetData();
+    }
+}

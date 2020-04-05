@@ -1,0 +1,383 @@
+﻿@page "/useraccount/entry/{UserId:int}"
+
+<h3 class="header">Quarantine Station Form</h3>
+
+@if (userAccount == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@userAccount" OnValidSubmit="HandleValidSubmit" autocomplete="off">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>User Name*</label>
+                    <InputText class="full form-control" @bind-Value="userAccount.user_name" />
+                </div>
+
+                @if (userAccount.user_id == 0)
+                {
+                    <div class="form-group">
+                        <label>Password*</label>
+                        <div class="position-relative">
+                            <InputText type="password" id="login-pwd" @bind-Value="userAccount.password" class="full form-control" />
+                            <span id="eye-icon" class="fa fa-eye eye-icon" @onclick="@(()=>JSRuntime.InvokeVoidAsync("CustomJsFunctions.ShowPassword", "login-pwd","eye-icon"))"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Retype Password*</label>
+                        <div class="position-relative">
+                            <input type="password" id="login-pwd2"
+                                   @bind="retypePassword" @onfocusout="ChangeRetypePassword"
+                                   errorborder="@(customWarning != null ? "err" : "" )"
+                                   class="full form-control pad-right-25" autocomplete="new-password" />
+                            <span id="eye-icon2" class="fa fa-eye eye-icon" @onclick="@(()=>JSRuntime.InvokeVoidAsync("CustomJsFunctions.ShowPassword", "login-pwd2","eye-icon2"))"></span>
+                            @if (!string.IsNullOrWhiteSpace(customWarning))
+                            {
+                                <label for="errconfirmPwd" class="text-danger">@customWarning</label>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="form-group">
+                    <label>Full Name*</label>
+                    <InputText class="full form-control" @bind-Value="userAccount.full_name" />
+                </div>
+
+                <div class="form-group">
+                    <label>Phone*</label>
+                    <InputText class="full form-control" @bind-Value="userAccount.phone_no" />
+                </div>
+
+                @*<div class="form-group">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="pointuser" value="@userAccount.entrypoint_user" @bind="userAccount.entrypoint_user">
+                            <label class="form-check-label" for="pointuser">Entry Point User</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="dashboarduser" value="@userAccount.dashboard_user" @bind="userAccount.dashboard_user">
+                            <label class="form-check-label" for="dashboarduser">Dashboard User</label>
+                        </div>
+                    </div>*@
+
+                <div class="form-group row my-row">
+                    <div class="col-sm-6 col-6 p-0">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="pointuser" value="@userAccount.entrypoint_user" @bind="userAccount.entrypoint_user">
+                            <label class="form-check-label" for="pointuser">Entry Point User</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-6 p-0">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="dashboarduser" value="@userAccount.dashboard_user" @bind="userAccount.dashboard_user">
+                            <label class="form-check-label" for="dashboarduser">Dashboard User</label>
+                        </div>
+                    </div>
+                </div>
+
+                @if (userAccount.entrypoint_user)
+                {
+                    <div class="form-group">
+                        <label>Entry Point</label>
+
+                        @if (entryPointList != null && entryPointList?.Count() > 0)
+                        {
+                            <Typeahead SearchMethod="GetEntryPoints"
+                                       Placeholder="Search..."
+                                       Items="entryPointList"
+                                       @bind-Value="selectedEntryPoints">
+                                <SelectedTemplate Context="point">
+                                    @point.name_en
+                                </SelectedTemplate>
+                                <ResultTemplate Context="point">
+                                    @point.name_en
+                                </ResultTemplate>
+                            </Typeahead>
+                        }
+                    </div>
+                }
+
+                @if (userAccount.user_id > 0)
+                {
+                    <div class="form-group">
+                        <span class="text-color pointer" @onclick="@(()=>ConfirmModalOpen())">Change Password</span>
+                    </div>
+                }
+
+
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Remark</label>
+                    <InputText class="full form-control" @bind-Value="userAccount.remark" />
+                </div>
+
+                @*<div class="form-group">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="pointright" value="@userAccount.point_admin_right" @bind="userAccount.point_admin_right">
+                            <label class="form-check-label" for="pointright">Point Admin Right</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="active" value="@userAccount.active" @bind="userAccount.active">
+                            <label class="form-check-label" for="active">Active</label>
+                        </div>
+                    </div>*@
+
+                <div class="form-group row my-row">
+                    <div class="col-sm-6 col-6 p-0">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="pointright" value="@userAccount.point_admin_right" @bind="userAccount.point_admin_right">
+                            <label class="form-check-label" for="pointright">Point Admin Right</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-6 p-0">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="active" value="@userAccount.active" @bind="userAccount.active">
+                            <label class="form-check-label" for="active">Active</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="mycheck form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="quarantineuser" value="@userAccount.quarantine_user" @bind="userAccount.quarantine_user">
+                        <label class="form-check-label" for="quarantineuser">Quarantine User</label>
+                    </div>
+                </div>
+
+                @if (userAccount.quarantine_user)
+                {
+                    <div class="form-group">
+                        <label>Station</label>
+                        @if (stationList != null && stationList?.Count() > 0)
+                        {
+                            <Typeahead SearchMethod="GetQuaStation"
+                                       Placeholder="Search..."
+                                       Items="stationList"
+                                       @bind-Value="selectedQuaStation">
+                                <SelectedTemplate Context="station">
+                                    @station.name_en
+                                </SelectedTemplate>
+                                <ResultTemplate Context="station">
+                                    @station.name_en
+                                </ResultTemplate>
+                            </Typeahead>
+                        }
+                    </div>
+                }
+
+            </div>
+        </div>
+
+        <div class="row my-row">
+            <div class="action-button">
+                <button type="submit" class="btn btn-info"><span>Save</span></button>
+
+                @if (userAccount.user_id > 0)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
+                }
+
+                <a href="quaratinestation/list"> Cancel </a>
+            </div>
+        </div>
+
+    </EditForm>
+}
+
+@if (isConfirmModalOpen)
+{
+    <ConfirmPassword ComfimPwd="isConfirmModalOpen" OnEmit="ReceiveEmitConfirm"></ConfirmPassword>
+}
+
+@if (isChangeModalOpen)
+{
+    <ChangePassword ChangePwd="isChangeModalOpen" ObjName="userAccount" OnEmit="ReceiveEmitChange" ModelName="user_account"> </ChangePassword>
+}
+
+<MessageModal @ref="modal" />
+
+@code {
+    [Parameter]
+    public int UserId { get; set; }
+
+    private List<en.entry_points> entryPointList;
+    private List<en.quarantine_station> stationList;
+
+    private en.user_account userAccount;
+    private MessageModal modal;
+
+    private en.entry_points selectedEntryPoints { get; set; }
+    private en.quarantine_station selectedQuaStation { get; set; }
+
+    private string msg, retypePassword, customWarning;
+    private bool isConfirmModalOpen,isChangeModalOpen;
+
+    protected override void OnInitialized()
+    {
+        entryPointList = new List<en.entry_points>();
+        //userAccount = new en.user_account();
+        stationList = new List<en.quarantine_station>();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            StateHasChanged();
+        }
+    }
+
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            var stations = await da.quarantine_station.Get();
+            if (stations != null)
+            {
+                stationList.Clear();
+                stationList.AddRange(stations);
+            }
+
+            var entryPoints = await da.entry_points.Get();
+            if (entryPoints != null)
+            {
+                entryPointList.Clear();
+                entryPointList.AddRange(entryPoints);
+            }
+
+            if (UserId > 0)
+            {
+                userAccount = await da.user_account.Get(UserId);
+                selectedEntryPoints = entryPointList.Find(point => point.entrypoint_id == userAccount?.entrypoint_id);
+                selectedQuaStation = stationList.Find(station => station.station_id == userAccount?.station_id);
+            }
+            else
+            {
+                userAccount = new en.user_account();
+            }
+
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (!string.IsNullOrWhiteSpace(customWarning)) return;
+
+        try
+        {
+            userAccount.entrypoint_id = selectedEntryPoints?.entrypoint_id;
+            userAccount.station_id = selectedQuaStation?.station_id;
+
+            es.ActionResult result;
+
+            if (userAccount.user_id > 0)
+                result = await da.user_account.Update(userAccount);
+            else
+                result = await da.user_account.Insert(userAccount);
+
+            if (result.Status != es.Status.Success)
+            {
+                modal.Show("Message", result.Msg);
+                return;
+            }
+
+            NavigationManager.NavigateTo("useraccount/list");
+            await JsService.Toast("toastsave", "Save Success");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
+
+        try
+        {
+            await da.quarantine_station.Delete(UserId);
+
+            NavigationManager.NavigateTo("quaratinestation/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task<IEnumerable<en.entry_points>> GetEntryPoints(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(entryPointList.FindAll(point => point.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
+    }
+
+    private async Task<IEnumerable<en.quarantine_station>> GetQuaStation(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(stationList.FindAll(station => station.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
+    }
+
+    private void ChangeRetypePassword()
+    {
+        if (string.IsNullOrWhiteSpace(retypePassword))
+        {
+            customWarning = "Please fill retype password.";
+            return;
+        }
+
+        if (retypePassword != userAccount.password)
+        {
+            customWarning = "Password and Retype Password must be same.";
+            return;
+        }
+
+        customWarning = null;
+    }
+
+    private void ConfirmModalOpen()
+    {
+        isConfirmModalOpen = !isConfirmModalOpen;
+    }
+
+    private void ReceiveEmitConfirm(bool comfirmedPwd, bool changedPwd)
+    {
+        // close confirm passs modal
+        isConfirmModalOpen = comfirmedPwd;
+        // show change passs modal
+        isChangeModalOpen = changedPwd;
+        StateHasChanged();
+    }
+
+    private void ReceiveEmitChange(bool changedPwd)
+    {
+        // close change pwd modal
+        isChangeModalOpen = changedPwd;
+        StateHasChanged();
+    }
+
+}

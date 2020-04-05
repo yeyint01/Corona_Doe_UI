@@ -1,0 +1,132 @@
+﻿@page "/entrypointcategory/list"
+@implements IDisposable
+
+<h4 class="header">Entry Point Category</h4>
+
+<div class="mb-3 mt-3 d-flex">
+
+    <button class="btn btn-info mr-3"
+            @onclick="@(() => NavigationManager.NavigateTo("entrypointcategory/entry/0"))">
+        <span>+ Add new</span>
+    </button>
+
+    <SearchBox SearchClick="HandlSearchClick" />
+</div>
+
+@if (entryPointCategoryResult != null)
+{
+    <CustomGrid Entity="en.entrypoint_category" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@entryPointCategoryResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                ItemList="@entryPointCategoryResult.Entrypoint_Categories" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@entryPointCategoryResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
+        <GridHeader>
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
+           
+        </GridHeader>
+        <GridRow>
+            <td class="w-75-pixel">
+                <span>@context.name_mm</span>
+            </td>
+            <td>
+                <span>@context.name_en</span>
+            </td>            
+        </GridRow>
+    </CustomGrid>
+}
+
+
+<MessageModal @ref="modal" />
+
+
+@code {
+
+    private en.entrypoint_categoryResult entryPointCategoryResult;
+    private bool isCustomPagingNone;
+    private int currentPage;    // paging current click page
+    private string searchText;
+    private int gridHeight;
+    private string elementID = Guid.NewGuid() + "entrypointcategorylist";
+    private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
+    private MessageModal modal;
+
+    protected override void OnInitialized()
+    {
+        va.IsLoading = true;
+        currentPage = 1;
+        entryPointCategoryResult = new en.entrypoint_categoryResult();
+        BrowserResize.OnResize += BrowserHasResized;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            va.IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        BrowserResize.OnResize -= BrowserHasResized;
+    }
+
+    #region Functions
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            entryPointCategoryResult = await da.entrypoint_category.Get(new en.entrypoint_categoryParam
+            {
+                Name = searchText,
+                PgNo = currentPage,
+                Order = CurSortInfo.Order,
+                OrderBy = CurSortInfo.OrderBy
+            });
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task OnHeaderClick(string orderBy)
+    {
+        CurSortInfo = fn.CurrentSortInfo(orderBy);
+        isCustomPagingNone = true;
+        await GetData();
+        isCustomPagingNone = false;
+    }
+
+    private Task HandleRowClick(en.entrypoint_category obj)
+    {
+        NavigationManager.NavigateTo("entrypointcategory/entry/" + obj.category_id);
+
+        return Task.FromResult<object>(null);
+    }
+
+    private async Task HandlSearchClick(string text)
+    {
+        searchText = text;
+        currentPage = 1;
+        await GetData();
+    }
+
+    private async Task PagerClick(int curpage)      // paging clicked event
+    {
+        currentPage = curpage;
+        await GetData();
+    }
+
+    private async Task BrowserHasResized()
+    {
+        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
+        StateHasChanged();
+    }
+
+    #endregion Functions
+
+}

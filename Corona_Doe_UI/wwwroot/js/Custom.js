@@ -1,4 +1,4 @@
-﻿var cursubmenu ="start";
+﻿var cursubmenu = "start";
 window.CustomJsFunctions = {
     openModal: function (el) {
         modal = document.getElementById(el);
@@ -90,8 +90,8 @@ window.CustomJsFunctions = {
         //    document.getElementById(cursubmenu).style.display = "none";
         //}
         //else
-            if (cursubmenu != "start" && cursubmenu != id) {
-                document.getElementById(cursubmenu).style.display = "none";
+        if (cursubmenu != "start" && cursubmenu != id) {
+            document.getElementById(cursubmenu).style.display = "none";
         }
         if (x) {
             if (x.style.display === "none") {
@@ -101,7 +101,16 @@ window.CustomJsFunctions = {
                 x.style.display = "none";
             }
         }
-        
-        
-    }
+
+    },
+    ShowPassword: function (input, icon) {
+        var type = $("#" + input).attr('type');
+        if (type === 'password') {
+            $("#" + input).attr('type', 'text');
+            $('#' + icon).attr('class', 'eye-icon fa fa-eye-slash')
+        } else {
+            $("#" + input).attr('type', 'password');
+            $('#' + icon).attr('class', 'eye-icon  fa fa-eye');
+        }
+    },
 };
