@@ -1,7 +1,5 @@
 ﻿@page "/entrypoint/{PointID:int}"
 
-@inject NavigationManager navMgr
-
 <h4 class="header">Entry Point Form</h4>
 
 @if (points == null)
@@ -104,11 +102,11 @@ else
             es.ActionResult result;
 
             if (points.entrypoint_id > 0)
-            { 
+            {
                 result = await da.entry_points.Update(points);
             }
             else
-            { 
+            {
                 result = await da.entry_points.Insert(points);
             }
 
@@ -119,7 +117,8 @@ else
                 return;
             }
 
-            navMgr.NavigateTo("entrypoint/list");
+            NavigationManager.NavigateTo("entrypoint/list");
+            await JsService.Toast("toastsave", "Save Success");
         }
         catch (Exception ex)
         {
@@ -137,7 +136,7 @@ else
         {
             await da.entry_points.Delete(PointID);
 
-            navMgr.NavigateTo("entrypoint/list");
+            NavigationManager.NavigateTo("entrypoint/list");
         }
         catch (Exception ex)
         {

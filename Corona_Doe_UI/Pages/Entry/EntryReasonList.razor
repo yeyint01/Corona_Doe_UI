@@ -123,8 +123,7 @@
 
     private async Task BrowserHasResized()
     {
-        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
-        await JSRuntime.InvokeVoidAsync("CustomJsFunctions.adjustSearchBox", elementID);
+        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);       
         StateHasChanged();
     }
 

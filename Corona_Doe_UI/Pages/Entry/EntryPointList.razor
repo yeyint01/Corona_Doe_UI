@@ -1,8 +1,7 @@
 ﻿@page "/entrypoint/list"
+@implements IDisposable
 
-@inject NavigationManager navMgr
-
-<h4 class="header">Entry Points</h4>
+<h4 class="header">Entry Point</h4>
 
 @if (pointsResult == null)
 {
@@ -12,7 +11,7 @@ else
 {
 <div class="mb-3 mt-3 d-flex">
     <button class="btn btn-info mr-3"
-            @onclick="@(() => navMgr.NavigateTo("entrypoint/0"))">
+            @onclick="@(() => NavigationManager.NavigateTo("entrypoint/0"))">
         <span>+ Add new</span>
     </button>
     <SearchBox SearchClick="HandlSearchClick" />
@@ -44,6 +43,8 @@ else
     private en.entry_pointsResult pointsResult;
     private int currentPage;
     private string searchText;
+    private int gridHeight;
+    private string elementID = Guid.NewGuid() + "entrypointlist";
     private MessageModal modal;
     private (string OrderBy, es.SortOrder Order) CurSortInfo;
 
@@ -53,6 +54,7 @@ else
     {   va.IsLoading = true;
         currentPage = 1;
         pointsResult = new en.entry_pointsResult();
+        BrowserResize.OnResize += BrowserHasResized;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -64,6 +66,14 @@ else
             StateHasChanged();
         }
     }
+
+    public void Dispose()
+    {
+        BrowserResize.OnResize -= BrowserHasResized;
+    }
+
+    #region Functions
+
     private async Task GetData()
     {
         try
@@ -94,14 +104,14 @@ else
 
     private Task HandleRowClick(int point_id)
     {
-        navMgr.NavigateTo("entrypoint/" + point_id);
+        NavigationManager.NavigateTo("entrypoint/" + point_id);
 
         return Task.FromResult<object>(null);
     }
 
     private Task ShowModel(en.entry_points obj)     // open entry modal
     {
-        navMgr.NavigateTo("entrypoint/" + obj.entrypoint_id);
+        NavigationManager.NavigateTo("entrypoint/" + obj.entrypoint_id);
 
         return Task.FromResult<object>(null);
     }
@@ -118,5 +128,13 @@ else
         await GetData();
         isCustomPagingNone = false;
     }
+
+    private async Task BrowserHasResized()
+    {
+        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);        
+        StateHasChanged();
+    }
+
+    #endregion Functions
 
 }

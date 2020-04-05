@@ -23,7 +23,7 @@ namespace Corona_Doe_UI
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCustomIdentity<User, UserStore>();
+            services.AddCustomIdentity<Entity.user_account, UserStore>();
 
             services.AddRazorPages();
             services.AddServerSideBlazor();

@@ -1,323 +1,324 @@
 ﻿@typeparam Entity
 @implements IDisposable
-<table class="table  @TableLayout" style="margin-bottom:@(va.IsMobile? "30px":"")" id="@(elementID +"table")">
-    <thead class="thead">
-        <tr class="blazor-grid-header">@GridHeader</tr>
-    </thead>
-    <tbody>
-        @if (ItemList != null)
-        {
-            foreach (var item in ItemList)
-            {
-                <tr class="pointer" @onclick="@(e => OnTappedRowItem(item, IsImgColClick) )">@GridRow(item)</tr>
-            }
-        }
-    </tbody>
-</table>
-
-<div class="pagination" paging-display="@IsShowPaging.ToString()" paging="false" style="width: @(va.IsMobile?tableWidth:"")">
-    <button class="fa fa-step-backward font-12 btn-pag @(isPreDisabled ? "" : "btn-nav-pag") " disabled="@isPreDisabled" @onclick=@(async () => SetCurrentPage(Paging.First))></button>
-    <button class="fa fa-caret-left btn-pag @(isPreDisabled ? "" : "btn-nav-pag")" disabled="@isPreDisabled" @onclick=@(async () => SetCurrentPage(Paging.Previous))></button>
-
-    @for (int i = startPage; i <= endPage; i++)
-    {
-        var currentPage = i;
-        <button class="btn-pagno @(currentPage == curPage ? "currentpage" : "" )" @onclick=@(async () => OnPageChanged(currentPage,true))>
-            @currentPage
-        </button>
-    }
-
-    <button class="fa fa-caret-right mar-left-3 btn-pag @(isNextDisabled ? "" : "btn-nav-pag")" disabled="@isNextDisabled" @onclick=@(async () => SetCurrentPage(Paging.Next))></button>
-    <button class="fa fa-step-forward font-12 btn-pag @(isNextDisabled ? "" : "btn-nav-pag")" disabled="@isNextDisabled" @onclick=@(async () => SetCurrentPage(Paging.Last))></button>
-
-    <span class="lbl-pag-no @(va.IsMobile ? "d-none" : "")">Page @curPage of @PagesCount</span>
-
-    <span class="lbl-rowcount @(va.IsMobile ? "d-none" : "")">Total Count : @RowsCount</span>
-</div>
-
-@code {
-    private int curPage, preCurPage;
-    private int startPage, endPage; // start page and end page of pager
-
-    private bool isPreDisabled, isNextDisabled, isPageNumBtnClick, isPreNextBtnClick;
-
-    private Paging curDirection;
-
-    private enum Paging
-    {
-        First,
-        Previous,
-        Next,
-        Last,
-        Forward,
-        Back,
-        None
-    }
-
-    [Parameter]
-    public RenderFragment GridHeader { get; set; } // Header for BlazorGrid.
-
-    [Parameter]
-    public RenderFragment<Entity> GridRow { get; set; } // Rows for BlazorGrid.
-
-    [Parameter]
-    public int PagesCount { get; set; }
-
-    [Parameter]
-    public int RowsCount { get; set; }
-
-    [Parameter]
-    public string TableLayout { get; set; }
-
-    [Parameter]
-    public bool IsImgColClick { get; set; }
-
-    [Parameter]
-    public bool IsShowPaging { get; set; } = true;
-
-    [Parameter]
-    public string TablePaging { get; set; }
-
-    private int pagerSize;
-    private int gridHeight;
-    private string tableWidth;
-    private string elementID = Guid.NewGuid() + "-grid";
-
-    [Parameter]
-    public int PagerSize // Size of pager of BlazorGrid. This is a required field.
-    {
-        get { return pagerSize; }
-        set
-        {
-            if (pagerSize != value)
-            {
-                pagerSize = value;
-                SetPagerSizeByFirstLast();
-            }
-        }
-    }
-
-    private bool isPagingNone;
-    [Parameter]
-    public bool IsPagingNone
-    {
-        get { return isPagingNone; }
-        set
-        {
-            isPagingNone = value;
-            if (isPagingNone)
-            {
-                curDirection = Paging.None;
-            }
-        }
-    }
-
-    [Parameter]
-    public EventCallback<Entity> GridRowClick { get; set; } //Click event of Row Click
-
-    [Parameter]
-    public EventCallback<Entity> IconClick { get; set; } //Click event of Icon Click inside Row
-
-    [Parameter]
-    public EventCallback<int> PagerClick { get; set; }// Click event of Page Click
-
-    private IEnumerable<Entity> itemList;
-    [Parameter]
-    public IEnumerable<Entity> ItemList // The list of item supplied to the BlazorGrid.
-    {
-        get { return itemList; }
-        set
-        {
-            if (itemList != value)
-            {
-                itemList = value;
-                if (itemList != null && !isPageNumBtnClick)
+    <div style="overflow-x: auto">
+        <table class="table  @TableLayout" style="margin-bottom:@(va.IsMobile? "30px":"")" id="@(elementID +"table")">
+            <thead class="thead">
+                <tr class="blazor-grid-header">@GridHeader</tr>
+            </thead>
+            <tbody>
+                @if (ItemList != null)
                 {
-                    NavigateToPage();
-                    isPreNextBtnClick = false;
+                    foreach (var item in ItemList)
+                    {
+                        <tr class="pointer" @onclick="@(e => OnTappedRowItem(item, IsImgColClick) )">@GridRow(item)</tr>
+                    }
                 }
-                isPageNumBtnClick = false;
+            </tbody>
+        </table>
+    </div>
+    <div class="pagination" paging-display="@IsShowPaging.ToString()" paging="false" >
+        <button class="fa fa-step-backward font-12 btn-pag @(isPreDisabled ? "" : "btn-nav-pag") " disabled="@isPreDisabled" @onclick=@(async () => SetCurrentPage(Paging.First))></button>
+        <button class="fa fa-caret-left btn-pag @(isPreDisabled ? "" : "btn-nav-pag")" disabled="@isPreDisabled" @onclick=@(async () => SetCurrentPage(Paging.Previous))></button>
+
+        @for (int i = startPage; i <= endPage; i++)
+        {
+            var currentPage = i;
+            <button class="btn-pagno @(currentPage == curPage ? "currentpage" : "" )" @onclick=@(async () => OnPageChanged(currentPage,true))>
+                @currentPage
+            </button>
+        }
+
+        <button class="fa fa-caret-right mar-left-3 btn-pag @(isNextDisabled ? "" : "btn-nav-pag")" disabled="@isNextDisabled" @onclick=@(async () => SetCurrentPage(Paging.Next))></button>
+        <button class="fa fa-step-forward font-12 btn-pag @(isNextDisabled ? "" : "btn-nav-pag")" disabled="@isNextDisabled" @onclick=@(async () => SetCurrentPage(Paging.Last))></button>
+
+        <span class="lbl-pag-no @(va.IsMobile ? "d-none" : "")">Page @curPage of @PagesCount</span>
+
+        <span class="lbl-rowcount @(va.IsMobile ? "d-none" : "")">Total Count : @RowsCount</span>
+    </div>
+
+    @code {
+        private int curPage, preCurPage;
+        private int startPage, endPage; // start page and end page of pager
+
+        private bool isPreDisabled, isNextDisabled, isPageNumBtnClick, isPreNextBtnClick;
+
+        private Paging curDirection;
+
+        private enum Paging
+        {
+            First,
+            Previous,
+            Next,
+            Last,
+            Forward,
+            Back,
+            None
+        }
+
+        [Parameter]
+        public RenderFragment GridHeader { get; set; } // Header for BlazorGrid.
+
+        [Parameter]
+        public RenderFragment<Entity> GridRow { get; set; } // Rows for BlazorGrid.
+
+        [Parameter]
+        public int PagesCount { get; set; }
+
+        [Parameter]
+        public int RowsCount { get; set; }
+
+        [Parameter]
+        public string TableLayout { get; set; }
+
+        [Parameter]
+        public bool IsImgColClick { get; set; }
+
+        [Parameter]
+        public bool IsShowPaging { get; set; } = true;
+
+        [Parameter]
+        public string TablePaging { get; set; }
+
+        private int pagerSize;
+        private int gridHeight;
+        private string tableWidth;
+        private string elementID = Guid.NewGuid() + "-grid";
+
+        [Parameter]
+        public int PagerSize // Size of pager of BlazorGrid. This is a required field.
+        {
+            get { return pagerSize; }
+            set
+            {
+                if (pagerSize != value)
+                {
+                    pagerSize = value;
+                    SetPagerSizeByFirstLast();
+                }
             }
         }
-    }
 
-    protected override void OnInitialized()
-    {
-        curPage = preCurPage = 1;
-        isPreNextBtnClick = true;
-        AssignBtnDisabledValue();
-        BrowserResize.OnResize += BrowserHasResized;
-        base.OnInitialized();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+        private bool isPagingNone;
+        [Parameter]
+        public bool IsPagingNone
         {
-            await BrowserHasResized();
+            get { return isPagingNone; }
+            set
+            {
+                isPagingNone = value;
+                if (isPagingNone)
+                {
+                    curDirection = Paging.None;
+                }
+            }
         }
 
-        base.OnAfterRender(firstRender);
-    }
+        [Parameter]
+        public EventCallback<Entity> GridRowClick { get; set; } //Click event of Row Click
 
-    private void OnPageChanged(int currentPage, bool isAssignCurPageValue = false)
-    {
-        preCurPage = currentPage;
-        isPageNumBtnClick = isAssignCurPageValue;
+        [Parameter]
+        public EventCallback<Entity> IconClick { get; set; } //Click event of Icon Click inside Row
 
-        PagerClick.InvokeAsync(preCurPage);
+        [Parameter]
+        public EventCallback<int> PagerClick { get; set; }// Click event of Page Click
 
-        if (isPageNumBtnClick)
+        private IEnumerable<Entity> itemList;
+        [Parameter]
+        public IEnumerable<Entity> ItemList // The list of item supplied to the BlazorGrid.
         {
-            curPage = preCurPage;
+            get { return itemList; }
+            set
+            {
+                if (itemList != value)
+                {
+                    itemList = value;
+                    if (itemList != null && !isPageNumBtnClick)
+                    {
+                        NavigateToPage();
+                        isPreNextBtnClick = false;
+                    }
+                    isPageNumBtnClick = false;
+                }
+            }
+        }
+
+        protected override void OnInitialized()
+        {
+            curPage = preCurPage = 1;
+            isPreNextBtnClick = true;
+            AssignBtnDisabledValue();
+            BrowserResize.OnResize += BrowserHasResized;
+            base.OnInitialized();
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await BrowserHasResized();
+            }
+
+            base.OnAfterRender(firstRender);
+        }
+
+        private void OnPageChanged(int currentPage, bool isAssignCurPageValue = false)
+        {
+            preCurPage = currentPage;
+            isPageNumBtnClick = isAssignCurPageValue;
+
+            PagerClick.InvokeAsync(preCurPage);
+
+            if (isPageNumBtnClick)
+            {
+                curPage = preCurPage;
+                AssignBtnDisabledValue();
+            }
+        }
+
+        private void SetPagerSizeByForwardBack(Paging paging)
+        {
+            if (paging == Paging.Forward && endPage < PagesCount)
+            {
+                startPage = endPage + 1;
+
+                if (endPage + PagerSize < PagesCount)
+                    endPage = startPage + PagerSize - 1;
+                else
+                    endPage = PagesCount;
+            }
+            else if (paging == Paging.Back && startPage > 1)
+            {
+                endPage = startPage - 1;
+                startPage = startPage - PagerSize;
+            }
+        }
+
+        private void SetPagerSizeByFirstLast()
+        {
+            if (curPage > 0 && PagerSize > 0)
+            {
+                if (curPage % PagerSize == 0)
+                    startPage = curPage - PagerSize + 1;
+                else
+                    startPage = curPage - (curPage % PagerSize) + 1;
+
+                var epage = startPage + PagerSize - 1;
+                if (epage < PagesCount)
+                    endPage = epage;
+                else
+                    endPage = PagesCount;
+            }
+
+            if (ItemList != null && ItemList.Count() < 1)
+            {
+                curPage = 0;
+                AssignBtnDisabledValue();
+            }
+        }
+
+        private void SetCurrentPage(Paging paging)
+        {
+            isPreNextBtnClick = true;
+            curDirection = paging;
+
+            switch (curDirection)
+            {
+                case Paging.Next:
+                    if (preCurPage < PagesCount)
+                        preCurPage += 1;
+                    break;
+
+                case Paging.Previous:
+                    if (preCurPage > 1)
+                        preCurPage -= 1;
+                    break;
+
+                case Paging.First:
+                    preCurPage = 1;
+                    break;
+
+                case Paging.Last:
+                    preCurPage = PagesCount;
+                    break;
+            }
+
+            OnPageChanged(preCurPage);
+        }
+
+        private void NavigateToPage()
+        {
+            if (curDirection != Paging.None && !isPreNextBtnClick && !isPageNumBtnClick)
+            {
+                curDirection = Paging.First;
+            }
+
+            switch (curDirection)
+            {
+                case Paging.Next:
+                    if (curPage < PagesCount)
+                    {
+                        if (curPage == endPage)
+                        {
+                            SetPagerSizeByForwardBack(Paging.Forward);
+                        }
+                        curPage += 1;
+                    }
+                    break;
+
+                case Paging.Previous:
+                    if (curPage > 1)
+                    {
+                        if (curPage == startPage)
+                        {
+                            SetPagerSizeByForwardBack(Paging.Back);
+                        }
+                        curPage -= 1;
+                    }
+                    break;
+
+                case Paging.First:
+                    curPage = 1;
+                    SetPagerSizeByFirstLast();
+                    break;
+
+                case Paging.Last:
+                    curPage = PagesCount;
+                    SetPagerSizeByFirstLast();
+                    break;
+
+                case Paging.None:
+                    SetPagerSizeByFirstLast();
+                    break;
+            }
             AssignBtnDisabledValue();
         }
-    }
 
-    private void SetPagerSizeByForwardBack(Paging paging)
-    {
-        if (paging == Paging.Forward && endPage < PagesCount)
+        private void AssignBtnDisabledValue()
         {
-            startPage = endPage + 1;
+            isPreDisabled = (curPage == 0 || curPage == 1);
+            isNextDisabled = (curPage == 0 || curPage == PagesCount);
+        }
 
-            if (endPage + PagerSize < PagesCount)
-                endPage = startPage + PagerSize - 1;
+        private void OnTappedRowItem(Entity item, bool isImgClick)
+        {
+            if (isImgClick)
+                return;
             else
-                endPage = PagesCount;
+                GridRowClick.InvokeAsync(item);
         }
-        else if (paging == Paging.Back && startPage > 1)
+
+        private async Task BrowserHasResized()  // browser resized
         {
-            endPage = startPage - 1;
-            startPage = startPage - PagerSize;
+            gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
+            //await JSRuntime.InvokeVoidAsync("CustomJsFunctions.adjustSearchBox", elementID);
+            tableWidth = await JsService.TableWidth(elementID + "table") + "px";
+            StateHasChanged();
         }
-    }
 
-    private void SetPagerSizeByFirstLast()
-    {
-        if (curPage > 0 && PagerSize > 0)
+        public void Dispose()
         {
-            if (curPage % PagerSize == 0)
-                startPage = curPage - PagerSize + 1;
-            else
-                startPage = curPage - (curPage % PagerSize) + 1;
-
-            var epage = startPage + PagerSize - 1;
-            if (epage < PagesCount)
-                endPage = epage;
-            else
-                endPage = PagesCount;
-        }
-
-        if (ItemList != null && ItemList.Count() < 1)
-        {
-            curPage = 0;
-            AssignBtnDisabledValue();
+            tableWidth = null;
+            BrowserResize.OnResize -= BrowserHasResized;
         }
     }
-
-    private void SetCurrentPage(Paging paging)
-    {
-        isPreNextBtnClick = true;
-        curDirection = paging;
-
-        switch (curDirection)
-        {
-            case Paging.Next:
-                if (preCurPage < PagesCount)
-                    preCurPage += 1;
-                break;
-
-            case Paging.Previous:
-                if (preCurPage > 1)
-                    preCurPage -= 1;
-                break;
-
-            case Paging.First:
-                preCurPage = 1;
-                break;
-
-            case Paging.Last:
-                preCurPage = PagesCount;
-                break;
-        }
-
-        OnPageChanged(preCurPage);
-    }
-
-    private void NavigateToPage()
-    {
-        if (curDirection != Paging.None && !isPreNextBtnClick && !isPageNumBtnClick)
-        {
-            curDirection = Paging.First;
-        }
-
-        switch (curDirection)
-        {
-            case Paging.Next:
-                if (curPage < PagesCount)
-                {
-                    if (curPage == endPage)
-                    {
-                        SetPagerSizeByForwardBack(Paging.Forward);
-                    }
-                    curPage += 1;
-                }
-                break;
-
-            case Paging.Previous:
-                if (curPage > 1)
-                {
-                    if (curPage == startPage)
-                    {
-                        SetPagerSizeByForwardBack(Paging.Back);
-                    }
-                    curPage -= 1;
-                }
-                break;
-
-            case Paging.First:
-                curPage = 1;
-                SetPagerSizeByFirstLast();
-                break;
-
-            case Paging.Last:
-                curPage = PagesCount;
-                SetPagerSizeByFirstLast();
-                break;
-
-            case Paging.None:
-                SetPagerSizeByFirstLast();
-                break;
-        }
-        AssignBtnDisabledValue();
-    }
-
-    private void AssignBtnDisabledValue()
-    {
-        isPreDisabled = (curPage == 0 || curPage == 1);
-        isNextDisabled = (curPage == 0 || curPage == PagesCount);
-    }
-
-    private void OnTappedRowItem(Entity item, bool isImgClick)
-    {
-        if (isImgClick)
-            return;
-        else
-            GridRowClick.InvokeAsync(item);
-    }
-
-    private async Task BrowserHasResized()  // browser resized
-    {
-        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
-        //await JSRuntime.InvokeVoidAsync("CustomJsFunctions.adjustSearchBox", elementID);
-        tableWidth = await JsService.TableWidth(elementID + "table") + "px";
-        StateHasChanged();
-    }
-
-    public void Dispose()
-    {
-        tableWidth = null;
-        BrowserResize.OnResize -= BrowserHasResized;
-    }
-}
 

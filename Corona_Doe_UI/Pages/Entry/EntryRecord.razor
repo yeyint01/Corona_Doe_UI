@@ -31,7 +31,7 @@ else
                     <label for="age">Age</label>
                     <InputText class="form-control" id="age" @bind-Value="entryRecord.person_age" />
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="padding-bottom: 4px !important;padding-top: 9px;">
                     <label>Gender</label>
                     <div>
 
@@ -66,12 +66,12 @@ else
                     <label for="curraddress">Current Address</label>
                     <InputText class="form-control" id="curraddress" @bind-Value="entryRecord.current_address" />
                 </div>
-            </div>
-            <div class="col-sm-6 col-12">
                 <div class="form-group">
                     <label for="residenceaddr">Residence Address</label>
                     <InputText class="form-control" id="residenceaddr" @bind-Value="entryRecord.residence_address" />
                 </div>
+            </div>
+            <div class="col-sm-6 col-12">
                 <div class="form-group">
                     <label for="hometown">HomeTown</label>
                     <InputText class="form-control" id="hometown" @bind-Value="entryRecord.hometown" />
@@ -85,8 +85,44 @@ else
                     <InputText class="form-control" id="travelfrom" @bind-Value="entryRecord.traveled_from" />
                 </div>
                 <div class="form-group">
+                    <label>Entry Point</label>
+
+                    @if (pointslist != null && pointslist?.Count() > 0)
+                    {
+                        <Typeahead SearchMethod="GetPoints"
+                                   Placeholder="Search..."
+                                   Items="pointslist"
+                                   @bind-Value="selectedPoints">
+                            <SelectedTemplate Context="point">
+                                @point.name_en
+                            </SelectedTemplate>
+                            <ResultTemplate Context="point">
+                                @point.name_en
+                            </ResultTemplate>
+                        </Typeahead>
+                    }
+                </div>
+                <div class="form-group">
                     <label for="endate">Entrance Date</label>
                     <input type="datetime-local" @bind="entryRecord.entrance_date" @bind:format="yyyy-MM-ddTHH:mm" class="full form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Entry Reason</label>
+
+                    @if (reasonList != null && reasonList?.Count() > 0)
+                    {
+                        <Typeahead SearchMethod="GetReason"
+                                   Placeholder="Search..."
+                                   Items="reasonList"
+                                   @bind-Value="selectedReason">
+                            <SelectedTemplate Context="station">
+                                @station.name_en
+                            </SelectedTemplate>
+                            <ResultTemplate Context="station">
+                                @station.name_en
+                            </ResultTemplate>
+                        </Typeahead>
+                    }
                 </div>
                 <div class="form-group">
                     <label for="remark">Remark</label>
@@ -102,7 +138,7 @@ else
                     <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
                 }
 
-            <a href="/entryrecord/list"> <span> Cancel </span></a>
+                <a href="/entryrecord/list"> <span> Cancel </span></a>
             </div>
         </div>
     </EditForm>
@@ -115,33 +151,81 @@ else
     public int EntryRecordId { get; set; }
 
     private en.entry_record entryRecord;
+    private List<en.entry_reason> reasonList;
+    private List<en.entry_points> pointslist;
+    private en.entry_points selectedPoints { get; set; }
+    private en.entry_reason selectedReason { get; set; }
     private string msg;
     private Modal errModal;
     private MessageModal modal;
 
     protected override async Task OnInitializedAsync()
     {
-        if (EntryRecordId > 0)
-            entryRecord = await da.entry_record.Get(EntryRecordId);
-
         entryRecord ??= new en.entry_record();
+        reasonList = new List<en.entry_reason>();
+        pointslist = new List<en.entry_points>();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            var points = await da.entry_points.Get();
+            if (points != null)
+            {
+                pointslist.Clear();
+                pointslist.AddRange(points);
+            }
+
+            var reasons = await da.entry_reason.Get();
+            if (reasons != null)
+            {
+                reasonList.Clear();
+                reasonList.AddRange(reasons);
+            }
+
+            if (EntryRecordId > 0)
+            {
+                entryRecord = await da.entry_record.Get(EntryRecordId);
+                selectedPoints = pointslist.Find(points => points.entrypoint_id == entryRecord?.entrypoint_id);
+                selectedReason = reasonList.Find(reason => reason.reason_id == entryRecord.reason_id);
+            }
+
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
     }
 
     private async Task HandleValidSubmit()
     {
         try
         {
+            entryRecord.entrypoint_id = selectedPoints?.entrypoint_id;
+            entryRecord.reason_id = selectedReason?.reason_id;
+
             es.ActionResult result;
 
             if (entryRecord.id > 0)
             {
                 result = await da.entry_record.Update(entryRecord);
-                entryRecord = new en.entry_record();
+
             }
             else
             {
                 result = await da.entry_record.Insert(entryRecord);
-                entryRecord = new en.entry_record();
+
             }
 
             if (result.Status != es.Status.Success)
@@ -149,8 +233,10 @@ else
                 modal.Show("Message", result.Msg);
                 return;
             }
+            entryRecord = new en.entry_record();
+            selectedPoints = new en.entry_points();
+            selectedReason = new en.entry_reason();
             await JsService.Toast("toastsave", "Save Success");
-
         }
         catch (Exception ex)
         {
@@ -179,4 +265,16 @@ else
     {
         entryRecord.gender = gender;
     }
+    private async Task<IEnumerable<en.entry_points>> GetPoints(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(pointslist.FindAll(point => point.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
+    }
+
+    private async Task<IEnumerable<en.entry_reason>> GetReason(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(reasonList.FindAll(reason => reason.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
+    }
 }
+

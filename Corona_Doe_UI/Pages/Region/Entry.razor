@@ -1,7 +1,5 @@
 ﻿@page "/region/entry/{RegionId:int}"
 
-@inject NavigationManager navMgr
-
 <h4 class="header">Region Form</h4>
 
 @if (region == null)
@@ -73,7 +71,8 @@ else
                 return;
             }
 
-            navMgr.NavigateTo("region/list");
+            NavigationManager.NavigateTo("region/list");
+            await JsService.Toast("toastsave", "Save Success");
         }
         catch (Exception ex)
         {
@@ -91,7 +90,7 @@ else
         {
             await da.region.Delete(RegionId);
 
-            navMgr.NavigateTo("region/list");
+            NavigationManager.NavigateTo("region/list");
         }
         catch (Exception ex)
         {

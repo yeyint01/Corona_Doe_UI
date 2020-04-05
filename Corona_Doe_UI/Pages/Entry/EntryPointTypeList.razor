@@ -5,7 +5,7 @@
 
 <div class="mb-3 mt-3 d-flex">
 
-    <button class="btn btn-info mr-2"
+    <button class="btn btn-info mr-3"
             @onclick="@(() => NavigationManager.NavigateTo("entrypointtype/entry/0"))">
         <span>+ Add new</span>
     </button>
@@ -125,8 +125,7 @@
 
     private async Task BrowserHasResized()
     {
-        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
-        await JSRuntime.InvokeVoidAsync("CustomJsFunctions.adjustSearchBox", elementID);
+        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);        
         StateHasChanged();
     }
 

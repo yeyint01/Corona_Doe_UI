@@ -86,18 +86,22 @@ window.CustomJsFunctions = {
 
     openSubMenu: function (id) {
         var x = document.getElementById(id);
-        if (cursubmenu != "start" && id == "covid19") {
-            document.getElementById(cursubmenu).style.display = "none";
+        //if (cursubmenu != "start" && id == "covid19") {
+        //    document.getElementById(cursubmenu).style.display = "none";
+        //}
+        //else
+            if (cursubmenu != "start" && cursubmenu != id) {
+                document.getElementById(cursubmenu).style.display = "none";
         }
-        else if (cursubmenu!= "start" && cursubmenu != id) {
-            document.getElementById(cursubmenu).style.display = "none";
-        } 
-        if (x.style.display === "none") {
-            x.style.display = "block";
-            cursubmenu = id;
-        } else {
-            x.style.display = "none";
+        if (x) {
+            if (x.style.display === "none") {
+                x.style.display = "block";
+                cursubmenu = id;
+            } else {
+                x.style.display = "none";
+            }
         }
+        
         
     }
 };

@@ -1,30 +1,26 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Corona_Doe_UI.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using e = Entity;
-
 
 namespace Corona_Doe_UI.Pages
 {
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<e.user_account> _userManager;
+        private readonly SignInManager<e.user_account> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<User> signInManager,
+        public LoginModel(SignInManager<e.user_account> signInManager,
             ILogger<LoginModel> logger,
-            UserManager<User> userManager)
+            UserManager<e.user_account> userManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;

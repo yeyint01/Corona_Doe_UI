@@ -1,4 +1,5 @@
 ﻿@page "/quaratinerecord/list"
+@implements IDisposable
 
 <h4 class="header">Quarantine Record</h4>
 
@@ -17,55 +18,57 @@ else
         <SearchBox SearchClick="HandlSearchClick" />
     </div>
 
-    <CustomGrid Entity="en.quarantine_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@quarantineRecordResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
-                ItemList="@quarantineRecordResult.Quarantine_Records" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@quarantineRecordResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
-        <GridHeader>
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="person_name" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="NRC" OnHeaderClick="OnHeaderClick" OrderBy="person_nrc" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Phone*" OnHeaderClick="OnHeaderClick" OrderBy="person_ph" />
-            
 
-            @if (!va.IsMobile)
-            {
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Age" OnHeaderClick="OnHeaderClick" OrderBy="person_age" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Gender" OnHeaderClick="OnHeaderClick" OrderBy="gender" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Home Town" OnHeaderClick="OnHeaderClick" OrderBy="hometown" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Result" OnHeaderClick="OnHeaderClick" OrderBy="result" />
-            }
+        <CustomGrid Entity="en.quarantine_record" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@quarantineRecordResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                    ItemList="@quarantineRecordResult.Quarantine_Records" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@quarantineRecordResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
+            <GridHeader>
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="person_name" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="NRC" OnHeaderClick="OnHeaderClick" OrderBy="person_nrc" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Phone*" OnHeaderClick="OnHeaderClick" OrderBy="person_ph" />
 
-        </GridHeader>
-        <GridRow>
-            <td>
-                <span>@context.person_name</span>
-            </td>
 
-            <td>
-                <span>@context.person_nrc</span>
-            </td>
+                @if (!va.IsMobile)
+                {
+                    <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Age" OnHeaderClick="OnHeaderClick" OrderBy="person_age" />
+                    <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Gender" OnHeaderClick="OnHeaderClick" OrderBy="gender" />
+                    <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Home Town" OnHeaderClick="OnHeaderClick" OrderBy="hometown" />
+                    <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Result" OnHeaderClick="OnHeaderClick" OrderBy="result" />
+                }
 
-            <td>
-                <span>@context.person_ph</span>
-            </td>
-
-            @if (!va.IsMobile)
-            {
-                <td>
-                    <span>@context.person_age</span>
-                </td>
-                <td>
-                    <span>@(context.gender == "M" ? "Male" : "Female")</span>
-                </td>
-                <td>
-                    <span>@context.hometown</span>
+            </GridHeader>
+            <GridRow>
+                <td style="min-width: 150px;">
+                    <span>@context.person_name</span>
                 </td>
 
-                <td>
-                    <span>@context.result</span>
+                <td style="min-width: 150px;">
+                    <span>@context.person_nrc</span>
                 </td>
-            }
 
-        </GridRow>
-    </CustomGrid>
+                <td style="min-width: 150px;">
+                    <span>@context.person_ph</span>
+                </td>
+
+                @if (!va.IsMobile)
+                {
+                    <td style="min-width: 50px;">
+                        <span>@context.person_age</span>
+                    </td>
+                    <td style="min-width: 80px;">
+                        <span>@(context.gender == "M" ? "Male" : "Female")</span>
+                    </td>
+                    <td style="min-width: 150px;">
+                        <span>@context.hometown</span>
+                    </td>
+
+                    <td style="min-width: 100px;">
+                        <span>@context.result</span>
+                    </td>
+                }
+
+            </GridRow>
+        </CustomGrid>
+  
 }
 
 <MessageModal @ref="modal" />
@@ -78,6 +81,8 @@ else
 
     private int currentPage;    // paging current click page
     private string searchText;
+    private int gridHeight;
+    private string elementID = Guid.NewGuid() + "quarecordlist";
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
 
     protected override void OnInitialized()
@@ -97,6 +102,13 @@ else
             StateHasChanged();
         }
     }
+
+    public void Dispose()
+    {
+        BrowserResize.OnResize -= BrowserHasResized;
+    }
+
+    #region Functions
 
     private async Task GetData()    // get data from server
     {
@@ -148,12 +160,11 @@ else
 
     private async Task BrowserHasResized()
     {
-        await Task.Delay(3000);
+        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
         StateHasChanged();
     }
 
-    public void Dispose()
-    {
-        BrowserResize.OnResize -= BrowserHasResized;
-    }
+    #endregion Functions
+
+
 }

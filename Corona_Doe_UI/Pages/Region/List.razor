@@ -1,8 +1,6 @@
 ﻿@page "/region/list"
 
-@inject NavigationManager navMgr
-
-<h4 class="header">Regions</h4>
+<h4 class="header">Region</h4>
 
 @if (regionResult == null)
 {
@@ -12,7 +10,7 @@ else
 {
     <div class="mb-3 mt-3 d-flex">
         <button class="btn btn-info mr-3"
-                @onclick="@(() => navMgr.NavigateTo("region/entry/0"))">
+                @onclick="@(() => NavigationManager.NavigateTo("region/entry/0"))">
             <span>+ Add new</span>
         </button>
 
@@ -100,7 +98,7 @@ else
 
     private Task HandleRowClick(en.region obj)
     {
-        navMgr.NavigateTo("region/entry/" + obj.region_id);
+        NavigationManager.NavigateTo("region/entry/" + obj.region_id);
 
         return Task.FromResult<object>(null);
     }

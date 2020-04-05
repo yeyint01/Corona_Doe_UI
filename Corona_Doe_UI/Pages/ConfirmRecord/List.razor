@@ -1,4 +1,5 @@
 ﻿@page "/confirmrecord/list"
+@implements IDisposable
 
 <h3 class="header">Confirm Record</h3>
 
@@ -54,6 +55,8 @@
     private bool isCustomPagingNone;
     private int currentPage;    // paging current click page
     private string searchText;
+    private int gridHeight;
+    private string elementID = Guid.NewGuid() + "confirmrecordlist";
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
 
     protected override void OnInitialized()
@@ -61,16 +64,24 @@
         va.IsLoading = true;
         currentPage = 1;
         cRecordResult = new en.confirm_recordResult();
+        BrowserResize.OnResize += BrowserHasResized;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await GetData();            
+            await GetData();
             StateHasChanged();
         }
     }
+
+    public void Dispose()
+    {
+        BrowserResize.OnResize -= BrowserHasResized;
+    }
+
+    #region Functions
 
     private async Task GetData()    // get data from server
     {
@@ -119,4 +130,13 @@
         currentPage = curpage;
         await GetData();
     }
+
+    private async Task BrowserHasResized()
+    {
+        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
+        StateHasChanged();
+    }
+
+
+    #endregion Functions
 }

@@ -2,13 +2,15 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using d = DataAccess;
+using e = Entity;
 
 namespace Corona_Doe_UI.Data
 {
-    public class UserStore : IUserStore<User>,
-        IUserPasswordStore<User>
+    public class UserStore : IUserStore<e.user_account>,
+        IUserPasswordStore<e.user_account>
     {
-        public async Task<IdentityResult> CreateAsync(User user,
+        public async Task<IdentityResult> CreateAsync(e.user_account user,
             CancellationToken cancellationToken = default)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -18,11 +20,10 @@ namespace Corona_Doe_UI.Data
 
             try
             {
-                await Task.Delay(0);
-                //var result = await d.Admin.Insert(user);
+                var result = await d.user_account.Insert(user);
 
-                //if (result.Status != e.Status.Success)
-                //    return IdentityResult.Failed(new IdentityError { Description = result.Msg });
+                if (result.Status != e.shared.Status.Success)
+                    return IdentityResult.Failed(new IdentityError { Description = result.Msg });
 
                 return IdentityResult.Success;
             }
@@ -32,7 +33,7 @@ namespace Corona_Doe_UI.Data
             }
         }
 
-        public async Task<IdentityResult> DeleteAsync(User user,
+        public async Task<IdentityResult> DeleteAsync(e.user_account user,
             CancellationToken cancellationToken = default)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -42,11 +43,10 @@ namespace Corona_Doe_UI.Data
 
             try
             {
-                await Task.Delay(0);
-                //var result = await d.Admin.Delete(user.AmId);
+                var result = await d.user_account.Delete(user.user_id);
 
-                //if (result.Status != e.Status.Success)
-                //    return IdentityResult.Failed(new IdentityError { Description = result.Msg });
+                if (result.Status != e.shared.Status.Success)
+                    return IdentityResult.Failed(new IdentityError { Description = result.Msg });
 
                 return IdentityResult.Success;
             }
@@ -56,53 +56,41 @@ namespace Corona_Doe_UI.Data
             }
         }
 
-        public async Task<User> FindByIdAsync(string userId,
+        public async Task<e.user_account> FindByIdAsync(string userId,
             CancellationToken cancellationToken = default)
         {
             if (cancellationToken.IsCancellationRequested || userId == null)
                 return null;
 
-            if (!Guid.TryParse(userId, out Guid idGuid))
+            if (!int.TryParse(userId, out int iduser))
                 return null;
 
-            await Task.Delay(0);
-            //return await d.Admin.Get(idGuid);
-
-            if (userId == "54dbd7d3-ed40-4908-9f1f-3735931a4a9f")
-                return new User { login_id = "admin", pwd = "AQAAAAEAACcQAAAAEP3BlQw/Ei+Vh6yf8ZEOzDTCN4iUf2QIaR1AW0zm3Y26Bl7eK3kj+H75yqdsaE+vFA==" };
-            else
-                return null;
+            return await d.user_account.Get(iduser);
         }
 
-        public async Task<User> FindByNameAsync(string userName,
+        public async Task<e.user_account> FindByNameAsync(string userName,
             CancellationToken cancellationToken = default)
         {
             if (cancellationToken.IsCancellationRequested || userName == null)
                 return null;
 
-            await Task.Delay(0);
-            //return await d.Admin.Get(idGuid);
-
-            if (userName.ToLower() == "admin")
-                return new User { login_id = "admin", pwd = "AQAAAAEAACcQAAAAEP3BlQw/Ei+Vh6yf8ZEOzDTCN4iUf2QIaR1AW0zm3Y26Bl7eK3kj+H75yqdsaE+vFA==" };
-            else
-                return null;
+            return await d.user_account.Get(userName);
         }
 
-        public Task<string> GetNormalizedUserNameAsync(User user, CancellationToken cancellationToken)
+        public Task<string> GetNormalizedUserNameAsync(e.user_account user, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<string> GetPasswordHashAsync(User user, CancellationToken cancellationToken)
+        public Task<string> GetPasswordHashAsync(e.user_account user, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested || user == null)
                 return null;
 
-            return Task.FromResult(user.pwd);
+            return Task.FromResult(user.password);
         }
 
-        public Task<string> GetUserIdAsync(User user, CancellationToken cancellationToken)
+        public Task<string> GetUserIdAsync(e.user_account user, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested || user == null)
                 return null;
@@ -110,43 +98,43 @@ namespace Corona_Doe_UI.Data
             return Task.FromResult(user.user_id.ToString());
         }
 
-        public Task<string> GetUserNameAsync(User user, CancellationToken cancellationToken)
+        public Task<string> GetUserNameAsync(e.user_account user, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested || user == null)
                 return null;
 
-            return Task.FromResult(user.login_id);
+            return Task.FromResult(user.user_name);
         }
 
-        public Task<bool> HasPasswordAsync(User user, CancellationToken cancellationToken)
+        public Task<bool> HasPasswordAsync(e.user_account user, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task SetNormalizedUserNameAsync(User user, string normalizedName, CancellationToken cancellationToken)
+        public Task SetNormalizedUserNameAsync(e.user_account user, string normalizedName, CancellationToken cancellationToken)
         {
             return Task.FromResult<object>(null);
         }
 
-        public Task SetPasswordHashAsync(User user, string passwordHash, CancellationToken cancellationToken)
+        public Task SetPasswordHashAsync(e.user_account user, string passwordHash, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested || user == null || passwordHash == null)
                 return null;
 
-            user.pwd = passwordHash;
+            user.password = passwordHash;
             return Task.FromResult<object>(null);
         }
 
-        public Task SetUserNameAsync(User user, string userName, CancellationToken cancellationToken)
+        public Task SetUserNameAsync(e.user_account user, string userName, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested || user == null || userName == null)
                 return null;
 
-            user.login_id = userName;
+            user.user_name = userName;
             return Task.FromResult<object>(null);
         }
 
-        public async Task<IdentityResult> UpdateAsync(User user, CancellationToken cancellationToken)
+        public async Task<IdentityResult> UpdateAsync(e.user_account user, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
                 return IdentityResult.Failed(new IdentityError { Description = "Operation was canceled." });
@@ -155,11 +143,10 @@ namespace Corona_Doe_UI.Data
 
             try
             {
-                await Task.Delay(0);
-                //var result = await d.Admin.Update(user);
+                var result = await d.user_account.Update(user);
 
-                //if (result.Status != e.Status.Success)
-                //    return IdentityResult.Failed(new IdentityError { Description = result.Msg });
+                if (result.Status != e.shared.Status.Success)
+                    return IdentityResult.Failed(new IdentityError { Description = result.Msg });
 
                 return IdentityResult.Success;
             }

@@ -3,11 +3,12 @@
         @message
     </ModalBody>
     <ModalFooter>
+        <button class="btn btn-info" @onclick="HandlPostiveClick"><span>@btn1</span></button>
+
         @if (btn2 != null)
         {
             <button class="btn btn-dark" @onclick="HandlNegativeClick"><span>@btn2</span></button>
         }
-        <button class="btn btn-primary" @onclick="HandlPostiveClick"><span>@btn1</span></button>
     </ModalFooter>
 </Modal>
 
@@ -47,23 +48,24 @@
         return tcs.Task;
     }
 
-    private void HandlPostiveClick()
+    private async Task HandlPostiveClick()
     {
-        modal.Close();
+        await modal.Close();
 
         tcs?.TrySetResult(true);
     }
 
-    private void HandlNegativeClick()
+    private async Task HandlNegativeClick()
     {
-        modal.Close();
+        await modal.Close();
 
         tcs?.TrySetResult(false);
     }
 
-    private Task HandleModalClose()
+    private Task HandleModalClose(bool forceClose)
     {
-        tcs?.TrySetResult(false);
+        if (forceClose)
+            tcs?.TrySetResult(false);
 
         return Task.FromResult(0);
     }

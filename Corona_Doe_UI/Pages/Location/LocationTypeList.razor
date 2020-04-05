@@ -1,4 +1,5 @@
 ﻿@page "/locationtype/list"
+@implements IDisposable
 
 <h4 class="header">Location Type</h4>
 
@@ -6,7 +7,7 @@
 {
     <div class="mb-3 mt-3 d-flex">
 
-        <button class="btn btn-info mr-2"
+        <button class="btn btn-info mr-3"
                 @onclick="@(() => NavigationManager.NavigateTo("locationtype/entry/0"))">
             <span> + Add new </span>
         </button>
@@ -38,6 +39,8 @@
     private MessageModal modal;
     private bool isCustomPagingNone;
     private en.location_typeResult locationTypeResult;
+    private int gridHeight;
+    private string elementID = Guid.NewGuid() + "locationtypelist";
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
 
     protected override void OnInitialized()
@@ -45,6 +48,7 @@
         va.IsLoading = true;
         currentPage = 1;
         locationTypeResult = new en.location_typeResult();
+        BrowserResize.OnResize += BrowserHasResized;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -54,6 +58,11 @@
             await GetData();
             StateHasChanged();
         }
+    }
+
+    public void Dispose()
+    {
+        BrowserResize.OnResize -= BrowserHasResized;
     }
 
     #region Functions
@@ -82,7 +91,7 @@
     {
         searchText = text;
         currentPage = 1;
-        await GetData();       
+        await GetData();
     }
 
     private async Task OnHeaderClick(string orderBy)
@@ -104,6 +113,12 @@
     {
         currentPage = curpage;
         await GetData();
+    }
+
+    private async Task BrowserHasResized()
+    {
+        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
+        StateHasChanged();
     }
 
     #endregion

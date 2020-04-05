@@ -1,4 +1,5 @@
 ﻿@page "/quaratinestation/list"
+@implements IDisposable
 
 <h4 class="header">Quarantine Station</h4>
 
@@ -58,6 +59,8 @@ else
 
     private int currentPage;    // paging current click page
     private string searchText;
+    private int gridHeight;
+    private string elementID = Guid.NewGuid() + "quastationlist";
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
 
     protected override void OnInitialized()
@@ -65,6 +68,7 @@ else
         va.IsLoading = true;
         currentPage = 1;
         quarantineStationResult = new en.quarantine_stationResult();
+        BrowserResize.OnResize += BrowserHasResized;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -76,6 +80,13 @@ else
             StateHasChanged();
         }
     }
+
+    public void Dispose()
+    {
+        BrowserResize.OnResize -= BrowserHasResized;
+    }
+
+    #region Functions
 
     private async Task GetData()    // get data from server
     {
@@ -124,4 +135,12 @@ else
         currentPage = curpage;
         await GetData();
     }
+
+    private async Task BrowserHasResized()
+    {
+        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
+        StateHasChanged();
+    }
+
+    #endregion Functions
 }

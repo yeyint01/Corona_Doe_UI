@@ -723,6 +723,7 @@ tbody td span{
 
 .menu{
     position: relative;
+    cursor: pointer;
 }
 
 .menu-icon {

@@ -17,7 +17,7 @@
 
     private async Task HandleKeyPress(KeyboardEventArgs e)
     {
-        if (e.Code == "Enter")
+        if (e.Key == "Enter")
         {
             await HandleClick();
         }
