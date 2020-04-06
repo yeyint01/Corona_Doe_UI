@@ -19,7 +19,7 @@
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="name" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Place*" OnHeaderClick="OnHeaderClick" OrderBy="place" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Stay Times*" OnHeaderClick="OnHeaderClick" OrderBy="staytimes" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Geometry Type*" OnHeaderClick="OnHeaderClick" OrderBy="geometrytype" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Comments*" OnHeaderClick="OnHeaderClick" OrderBy="comments" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Type" OnHeaderClick="OnHeaderClick" OrderBy="type" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark*" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
         </GridHeader>
@@ -34,7 +34,7 @@
                 <span>@context.staytimes</span>
             </td>
             <td>
-                <span>@context.geometrytype</span>
+                <span>@context.comments</span>
             </td>
             <td>
                 <span>@context.type</span>

@@ -775,6 +775,7 @@ tbody td span{
     transform: translate(-50%,-50%);
     padding: 30px 10px;
     border-radius: 5px;
+    padding-bottom: 10px;
 }
 
 .login-btn, .login-btn:hover {
@@ -790,13 +791,22 @@ tbody td span{
     cursor: pointer;
 }
 
+.login-error ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
 .myform {
     margin-bottom: 15px;
 }
 
 .version{
     float: right;
-    text-decoration: underline;
+}
+
+.underline {
+    text-decoration : underline;
 }
 
 /*End*/

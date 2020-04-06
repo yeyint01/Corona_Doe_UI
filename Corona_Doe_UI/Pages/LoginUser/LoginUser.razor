@@ -197,28 +197,35 @@
     </EditForm>
 }
 
-@if (isConfirmModalOpen)
-{
-    <ConfirmPassword ComfimPwd="isConfirmModalOpen" OnEmit="ReceiveEmitConfirm"></ConfirmPassword>
-}
+@*@if (isConfirmModalOpen)
+    {
+        <ConfirmPassword ComfimPwd="isConfirmModalOpen" OnEmit="ReceiveEmitConfirm"></ConfirmPassword>
+    }
 
-@if (isChangeModalOpen)
-{
-    <ChangePassword ChangePwd="isChangeModalOpen" ObjName="userAccount" OnEmit="ReceiveEmitChange" ModelName="user_account"> </ChangePassword>
-}
+    @if (isChangeModalOpen)
+    {
+        <ChangePassword ChangePwd="isChangeModalOpen" ObjName="userAccount" OnEmit="ReceiveEmitChange" ModelName="user_account"> </ChangePassword>
+    }*@
+
+<ConfirmPassword @ref="confirmPwdModal" OnEmit="ReceiveEmitConfirm" />
+
+<ChangePassword @ref="changePwdModal" ObjName="userAccount" ModelName="user_account" />
 
 <MessageModal @ref="modal" />
 
 @code {
+
     [Parameter]
     public int UserId { get; set; }
 
     private List<en.entry_points> entryPointList;
     private List<en.quarantine_station> stationList;
 
-    private en.user_account userAccount;
     private MessageModal modal;
+    private ConfirmPassword confirmPwdModal;
+    private ChangePassword changePwdModal;
 
+    private en.user_account userAccount;
     private en.entry_points selectedEntryPoints { get; set; }
     private en.quarantine_station selectedQuaStation { get; set; }
 
@@ -365,25 +372,15 @@
         customWarning = null;
     }
 
-    private void ConfirmModalOpen()
+    private async void ConfirmModalOpen()
     {
-        isConfirmModalOpen = !isConfirmModalOpen;
+        await confirmPwdModal.Show("Confirm Password", "");
     }
 
-    private void ReceiveEmitConfirm(bool comfirmedPwd, bool changedPwd)
+    private void ReceiveEmitConfirm(bool changedPwd)
     {
-        // close confirm passs modal
-        isConfirmModalOpen = comfirmedPwd;
-        // show change passs modal
-        isChangeModalOpen = changedPwd;
-        StateHasChanged();
-    }
-
-    private void ReceiveEmitChange(bool changedPwd)
-    {
-        // close change pwd modal
-        isChangeModalOpen = changedPwd;
-        StateHasChanged();
+        if (changedPwd)
+            changePwdModal.Show("Change Password", "");
     }
 
     #endregion

@@ -1,3 +1,76 @@
 ﻿@page "/"
 
+<div class="row my-row mb-3">
+    <span class="font-24 text-color">Welcome @userAccount.full_name</span>
+
+</div>
+
+<div class="row my-row mb-3">
+    <span @onclick="NavigateToUserAccount" class="pointer text-color underline">Edit Profile</span>
+</div>
+
+<div class="row my-row">
+    <span @onclick="ConfirmModalOpen" class="pointer text-color underline">Change Password</span>
+</div>
+
+<ConfirmPassword @ref="confirmPwdModal" OnEmit="ReceiveEmitConfirm" />
+
+<ChangePassword @ref="changePwdModal" ObjName="userAccount" ModelName="user_account" />
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    private AuthenticationState authState;
+    private en.user_account userAccount;
+
+    private ConfirmPassword confirmPwdModal;
+    private ChangePassword changePwdModal;
+
+    protected override void OnInitialized()
+    {
+        userAccount = new en.user_account();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        authState = await authenticationStateTask;
+        if (!authState.User.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("login");
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            authState = await authenticationStateTask;
+            userAccount = await da.user_account.Get(authState.User.Identity.Name);
+            StateHasChanged();
+        }
+    }
+
+    #region Functions
+
+    private void NavigateToUserAccount()
+    {
+        NavigationManager.NavigateTo("useraccount/entry/" + userAccount.user_id);
+    }
+
+    private async void ConfirmModalOpen()
+    {
+        await confirmPwdModal.Show("Confirm Password", "");
+    }
+
+    private void ReceiveEmitConfirm(bool changedPwd)
+    {
+        if (changedPwd)
+            changePwdModal.Show("Change Password", "");
+    }
+
+    #endregion Functions
+}
+
 

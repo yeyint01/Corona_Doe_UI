@@ -19,47 +19,28 @@
                     <InputText class="full form-control" @bind-Value="feature.place" />
                 </div>
                 <div class="form-group">
-                    <label>Type</label>
-                    <InputText class="full form-control" @bind-Value="feature.type" />
-                </div>
-                <div class="form-group">
-                    <label>Stay Time*</label>
-                    <InputText class="full form-control" @bind-Value="feature.staytimes" />
-                </div>
-                <div class="form-group">
                     <label>From Time</label>
-                    <InputNumber type="long" class="full form-control" @bind-Value="feature.fromtime" />
+                    <InputNumber type="long" class="full form-control text-right" @bind-Value="feature.fromtime"  />
                 </div>
                 <div class="form-group">
                     <label>To Time</label>
-                    <InputNumber type="long" class="full form-control" @bind-Value="feature.totime" />
+                    <InputNumber type="long" class="full form-control text-right" @bind-Value="feature.totime" />
                 </div>
                 <div class="form-group">
-                    <label>Source</label>
-                    <InputText class="full form-control" @bind-Value="feature.staytimes" />
+                    <button type="button" class="map-btn" @onclick="@MapModalOpen">
+                        <i class="fa fa-map-marker"></i><span class="pad-left-5">Map</span>
+                    </button>
                 </div>
             </div>
 
             <div class="col-sm-6">
                 <div class="form-group">
-                    <label>Point X</label>
-                    <InputNumber type="float" class="full form-control" @bind-Value="feature.pointx" />
+                    <label>Stay Time*</label>
+                    <InputText class="full form-control" @bind-Value="feature.staytimes" />
                 </div>
                 <div class="form-group">
-                    <label>Point Y</label>
-                    <InputNumber type="float" class="full form-control" @bind-Value="feature.pointy" />
-                </div>
-                <div class="form-group">
-                    <label>Coordinate X</label>
-                    <InputNumber type="float" class="full form-control" @bind-Value="feature.coordinatesx" />
-                </div>
-                <div class="form-group">
-                    <label>Coordinate Y</label>
-                    <InputNumber type="float" class="full form-control" @bind-Value="feature.coordinatesy" />
-                </div>
-                <div class="form-group">
-                    <label>Geometry Type</label>
-                    <InputText class="full form-control" @bind-Value="feature.geometrytype" />
+                    <label>Type</label>
+                    <InputText class="full form-control" @bind-Value="feature.type" />
                 </div>
                 <div class="form-group">
                     <label>Comments</label>
@@ -68,9 +49,9 @@
                 <div class="form-group">
                     <label>Remark</label>
                     <InputText class="full form-control" @bind-Value="feature.remark" />
-                </div>
+                </div> 
             </div>
-            </div>
+        </div>
 
         <div class="row my-row">
             <div class="action-button">
@@ -90,6 +71,37 @@
 
 <MessageModal @ref="modal" />
 
+<div class="modal confirm-modal" id="feature-mapModal">
+    <div class="modal-dialog-entry">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="row my-row">
+                    <div class="header-lit-enf pad-top-7">
+                        <h6 class="h-style">Map</h6>
+                    </div>
+                    <div class="ml-auto">
+                        <button type="button" class="btn cancel-btn" @onclick="GetLatLon">
+                            <i class="fa fa-check"></i>
+                        </button>
+                        <button type="button" class="btn cancel-btn" @onclick="MapModalClose">
+                            <i class="fa fa-ban"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            @if (isMapOpen)
+            {
+                <div class="row my-row">
+                    <div class="full h-400-pixel">
+                        <OpenStreetMap LonValue="@feature.coordinatesx" LatValue="@feature.coordinatesy" AllowClickOnMap="true" ChangedLocation="ChangedPointLocation"></OpenStreetMap>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
 @code {
     [Parameter]
     public int FeatureId { get; set; }
@@ -97,6 +109,8 @@
     private string msg;
     private MessageModal modal;
     private en.features feature;
+    private bool isMapOpen;
+    private float tempLon, tempLat;
 
     protected override void OnInitialized()
     {
@@ -136,6 +150,10 @@
     {
         try
         {
+            feature.sourceoid = 1;
+            feature.geometrytype = "Point";
+            feature.pointx = 0;
+            feature.pointy = 0;
             es.ActionResult result;
 
             if (feature.feature_id > 0)
@@ -175,6 +193,31 @@
             modal.Show("Message", ex.Message);
         }
     }
+    private async void MapModalOpen()
+    {
+        isMapOpen = true;
+        await JsService.OpenModal("feature-mapModal");
+        StateHasChanged();
+    }
 
+    private async void MapModalClose()
+    {
+        isMapOpen = false;
+        await JsService.CloseModal("feature-mapModal");
+    }
+
+    private void ChangedPointLocation(double lon, double lat)
+    {
+        tempLon = (float)lon;
+        tempLat = (float)lat;
+    }
+
+    private void GetLatLon()
+    {
+        feature.coordinatesx = tempLon;
+        feature.coordinatesy = tempLat;
+        MapModalClose();
+        StateHasChanged();
+    }
     #endregion
 }

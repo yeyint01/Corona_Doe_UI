@@ -19,7 +19,7 @@
     <script src="lib/jquery-validation/dist/jquery.validate.js"></script>
     <script src="lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.js"></script>
     <script src="lib/bootstrap/dist/js/bootstrap.min.js"></script>
-        
+
 </head>
 <body>
     <div class="login" id="login">
@@ -33,7 +33,7 @@
                 @*<div asp-validation-summary="All" class="text-danger" id="ddd"></div>*@
                 <div class="myform">
                     <label asp-for="Input.Email" class="font-14 core-color"></label>
-                    <input asp-for="Input.Email" class="form-control" placeholder="Login id" autocomplete="off"/>
+                    <input asp-for="Input.Email" class="form-control" placeholder="Login id" autocomplete="off" />
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
                 <div class="myform position-relative">
@@ -44,11 +44,11 @@
                 </div>
                 <div class="myform">
                     @*<div class="checkbox">
-                <label asp-for="Input.RememberMe" class="core-color">
-                    <input asp-for="Input.RememberMe" />
-                    <span>@Html.DisplayNameFor(m => m.Input.RememberMe)</span>
-                </label>
-            </div>*@
+                            <label asp-for="Input.RememberMe" class="core-color">
+                                <input asp-for="Input.RememberMe" />
+                                <span>@Html.DisplayNameFor(m => m.Input.RememberMe)</span>
+                            </label>
+                        </div>*@
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="checkbox" id="rember" asp-for="Input.RememberMe">
                         <label class="form-check-label" for="rember" asp-for="Input.RememberMe"></label>
@@ -60,11 +60,11 @@
                     <button type="submit" class="btn txtWidth btn-info">Log in</button>
                 </div>
                 @*<div class="myform text-center">
-            <a id="forgot-password" asp-page="./ForgotPassword" class="f core-color">Forgot your password?</a>
-            <p>
-                    <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-                </p>
-        </div>*@
+                        <a id="forgot-password" asp-page="./ForgotPassword" class="f core-color">Forgot your password?</a>
+                        <p>
+                                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
+                            </p>
+                    </div>*@
                 <div class="version">
                     <span class="font-11">v 1.0</span>
                 </div>
@@ -76,33 +76,27 @@
     @if (TempData["sErrMsg"] != null)
     {
         <div class="container">
-            <!-- Modal -->
-            <div class="modal confirm-modal" id="myModal" role="dialog">
-                <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <!-- Modal Header -->
-                        <div class="modal-header">
-                            <div class="row my-row">
-                                <div class="header-lit-enf pad-top-7">
-                                    <h6 class="h-style">Error Message</h6>
-                                </div>
-                                <div class="ml-auto">
-                                    <button type="button" class="btn forall_button" data-dismiss="modal">
-                                        <i class="fa fa-ban"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Modal Body -->
+
+            <div class="modal fade" style="display:block" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Error Message</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
                         <div class="modal-body">
-                            <div asp-validation-summary="All" class="text-danger"></div>
+                            <div asp-validation-summary="All" class="login-error"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-info" data-dismiss="modal"><span>Close</span></button>
                         </div>
                     </div>
-
                 </div>
             </div>
+
 
         </div>
         <script>
