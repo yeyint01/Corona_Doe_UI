@@ -7,6 +7,8 @@ namespace Corona_Doe_UI.Services
 {
     public class ScopeVariables
     {
+        public decimal AppVersion = 1.0m;
+
         public bool IsMobile;
         public bool IsTablet;
 

@@ -96,6 +96,10 @@ a, .btn-link {
     height: unset;
 }
 
+.font-11{
+    font-size: 11px;
+}
+
 .font-12 {
     font-size: 12px !important;
 }
@@ -132,6 +136,9 @@ a, .btn-link {
 
 .mar-right-10 {
     margin-right: 10px;
+}
+.mar-right-25{
+    margin-right: 25px;
 }
 
 .mar-top-5 {
@@ -785,6 +792,11 @@ tbody td span{
 
 .myform {
     margin-bottom: 15px;
+}
+
+.version{
+    float: right;
+    text-decoration: underline;
 }
 
 /*End*/
