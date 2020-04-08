@@ -167,10 +167,9 @@
 @code {
     [Parameter]
     public int PatientId { get; set; }
-
-    private string msg;
-    private bool isMaleCheck, isFemaleCheck;
+    
     private MessageModal modal;
+    private bool isMaleCheck, isFemaleCheck;
     private en.confirm_record confirmrecord;
     private List<en.quarantine_record> qRecordList;
     private List<en.quarantine_station> qStationList;

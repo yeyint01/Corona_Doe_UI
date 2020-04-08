@@ -13,7 +13,7 @@
             <div class="col-sm-6 coll-12">
                 <div class="form-group">
                     <label for="name">Name*</label>
-                    <InputText class="form-control" id="name" @bind-Value="entryRecord.person_name" />
+                    <InputText class="form-control" id="entry-name" @bind-Value="entryRecord.person_name" />
                 </div>
                 <div class="form-group">
                     <label for="phone">Phone*</label>
@@ -30,31 +30,10 @@
                 <div class="form-group" style="padding-bottom: 4px !important;padding-top: 9px;">
                     <label>Gender</label>
                     <div>
-
-                        @if (string.IsNullOrEmpty(entryRecord.gender))
-                        {
-                            <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck("M"))" checked />
-                            <label for="radio1" class="text-color">Male</label>
-                            <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck("F"))" />
-                            <label for="radio2" class="text-color">Female</label>
-                        }
-                        else
-                        {
-                            @if (entryRecord.gender == "M")
-                            {
-                                <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck("M"))" checked />
-                                <label for="radio1" class="text-color">Male</label>
-                                <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck("F"))" />
-                                <label for="radio2" class="text-color">Female</label>
-                            }
-                            else
-                            {
-                                <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck("M"))" />
-                                <label for="radio1" class="text-color">Male</label>
-                                <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck("F"))" checked />
-                                <label for="radio2" class="text-color">Female</label>
-                            }
-                        }
+                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@isMaleCheck" />
+                        <label for="radio1" class="text-color">Male</label>
+                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@isFemaleCheck" />
+                        <label for="radio2" class="text-color">Female</label>
                     </div>
                 </div>
 
@@ -146,12 +125,12 @@
     [Parameter]
     public int EntryRecordId { get; set; }
 
-    private string msg;
-    private Modal errModal;
     private MessageModal modal;
     private en.entry_record entryRecord;
+    private bool isMaleCheck, isFemaleCheck;
     private List<en.entry_reason> reasonList;
     private List<en.entry_points> pointslist;
+
     private en.entry_points selectedPoints { get; set; }
     private en.entry_reason selectedReason { get; set; }
 
@@ -197,8 +176,10 @@
                 entryRecord = await da.entry_record.Get(EntryRecordId);
                 selectedPoints = pointslist.Find(points => points.entrypoint_id == entryRecord?.entrypoint_id);
                 selectedReason = reasonList.Find(reason => reason.reason_id == entryRecord.reason_id);
+                isMaleCheck = entryRecord.gender == en.Gender.Male;
             }
 
+            isFemaleCheck = !isMaleCheck;
             va.IsLoading = false;
         }
         catch (Exception ex)
@@ -218,25 +199,24 @@
             es.ActionResult result;
 
             if (entryRecord.id > 0)
-            {
                 result = await da.entry_record.Update(entryRecord);
-
-            }
             else
-            {
                 result = await da.entry_record.Insert(entryRecord);
-
-            }
 
             if (result.Status != es.Status.Success)
             {
                 modal.Show("Message", result.Msg);
                 return;
             }
+
             entryRecord = new en.entry_record();
-            selectedPoints = new en.entry_points();
-            selectedReason = new en.entry_reason();
-            await JsService.Toast("toastsave", "Save Success");
+            selectedPoints = null;
+            selectedReason = null;
+            isMaleCheck = true;
+            isFemaleCheck = false;
+            NavigationManager.NavigateTo("entryrecord/0");
+            await JsService.Toast("toastsave", "Save Success"); 
+            await JsService.Focus("entry-name");           
         }
         catch (Exception ex)
         {
@@ -261,10 +241,7 @@
             modal.Show("Message", ex.Message);
         }
     }
-    private void IsCheck(string gender)
-    {
-        entryRecord.gender = gender;
-    }
+
     private async Task<IEnumerable<en.entry_points>> GetPoints(string searchText)
     {
         var text = searchText?.ToLower();
@@ -277,6 +254,10 @@
         return await Task.FromResult(reasonList.FindAll(reason => reason.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
     }
 
+    private void IsCheck(string gender)
+    {
+        entryRecord.gender = gender;
+    }
     #endregion
 }
 

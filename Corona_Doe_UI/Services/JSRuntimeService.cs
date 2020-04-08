@@ -51,5 +51,9 @@ namespace Corona_Doe_UI.Services
             return (tablewidth.ToString());
         }
 
+        public async Task AutoComplete(string id, IEnumerable<string> arr)
+        {
+            await _jsRuntime.InvokeVoidAsync("CustomJsFunctions.autosuggest", id, arr);
+        }
     }
 }

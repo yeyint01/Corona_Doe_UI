@@ -1,9 +1,6 @@
 ﻿@page "/"
 
-<div class="row my-row mb-3">
-    <span class="font-24 text-color">Welcome @userAccount.full_name</span>
-
-</div>
+<h3 class="header">Welcome @userAccount.full_name</h3>
 
 <div class="row my-row mb-3">
     <span @onclick="NavigateToUserAccount" class="pointer text-color underline">Edit Profile</span>
@@ -56,7 +53,7 @@
 
     private void NavigateToUserAccount()
     {
-        NavigationManager.NavigateTo("useraccount/entry/" + userAccount.user_id);
+        NavigationManager.NavigateTo("useraccount/entry/" + userAccount.user_id + "/true");
     }
 
     private async void ConfirmModalOpen()

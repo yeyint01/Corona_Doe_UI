@@ -1,27 +1,29 @@
-﻿@page "/feature/list"
+﻿@page "/patient_history/list"
 @implements IDisposable
 
-<h4 class="header">Feature</h4>
+<h4 class="header">Patient Travelling History</h4>
 
 @if (featureResult != null)
 {
     <div class="mb-3 mt-3 d-flex">
         <button class="btn btn-info mr-3"
-                @onclick="@(() => NavigationManager.NavigateTo("feature/entry/0"))">
+                @onclick="@(() => NavigationManager.NavigateTo("patient_history/entry/0"))">
             <span>+ Add new</span>
         </button>
         <SearchBox SearchClick="HandlSearchClick" />
     </div>
 
-    <CustomGrid Entity="en.features" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="featureResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+    <CustomGrid Entity="en.patient_history" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="featureResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
                 ItemList="@featureResult.Features" GridRowClick="ShowModel" PagerClick="PagerClick" RowsCount="featureResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="name" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Place*" OnHeaderClick="OnHeaderClick" OrderBy="place" />
+            @if (!va.IsMobile)
+            {
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="From Times" OnHeaderClick="OnHeaderClick" OrderBy="fromtime" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Stay Times*" OnHeaderClick="OnHeaderClick" OrderBy="staytimes" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Comments*" OnHeaderClick="OnHeaderClick" OrderBy="comments" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Type" OnHeaderClick="OnHeaderClick" OrderBy="type" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark*" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
+            }
         </GridHeader>
         <GridRow>
             <td class="w-75-pixel">
@@ -30,18 +32,18 @@
             <td>
                 <span>@context.place</span>
             </td>
-            <td>
-                <span>@context.staytimes</span>
-            </td>
-            <td>
-                <span>@context.comments</span>
-            </td>
-            <td>
-                <span>@context.type</span>
-            </td>
-            <td>
-                <span>@context.remark</span>
-            </td>
+            @if (!va.IsMobile)
+            {
+                <td>
+                    <span>@(new DateTime(context.fromtime))</span>
+                </td>
+                <td>
+                    <span>@context.staytimes</span>
+                </td>
+                <td>
+                    <span>@context.comments</span>
+                </td>
+            }
         </GridRow>
     </CustomGrid>
 
@@ -88,12 +90,13 @@
     {
         try
         {
-            featureResult = await da.features.Get(new en.featuresParam
+            featureResult = await da.patient_history.Get(new en.featuresParam
             {
                 Name = searchText,
                 PgNo = currentPage,
                 Order = CurSortInfo.Order,
-                OrderBy = CurSortInfo.OrderBy
+                OrderBy = CurSortInfo.OrderBy,
+                IsMobile = va.IsMobile
             });
             va.IsLoading = false;
         }
@@ -114,14 +117,14 @@
 
     private Task HandleRowClick(int point_id)
     {
-        NavigationManager.NavigateTo("feature/entry/" + point_id);
+        NavigationManager.NavigateTo("patient_history/entry/" + point_id);
 
         return Task.FromResult<object>(null);
     }
 
-    private Task ShowModel(en.features obj)     // open entry modal
+    private Task ShowModel(en.patient_history obj)     // open entry modal
     {
-        NavigationManager.NavigateTo("feature/entry/" + obj.feature_id);
+        NavigationManager.NavigateTo("patient_history/entry/" + obj.id);
 
         return Task.FromResult<object>(null);
     }

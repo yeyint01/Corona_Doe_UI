@@ -14,8 +14,16 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="sidebar">
+        <div class="sidebar @NavMenuCssClass">
             <NavMenu />
+        </div>
+
+        <div id="app-header" @onclick="ToggleNavMenu">
+            <div id="menubar" class="bar">
+                <span class="pointer">
+                    <span class="fa fa-bars fa-2x" id="bars"></span>
+                </span>
+            </div>
         </div>
 
         <div class="main" style="overflow-x: hidden">
@@ -38,6 +46,13 @@
 
     int InnerHeight = 0;
     int InnerWidth = 0;
+    private bool collapseNavMenu = true;
+    private string NavMenuCssClass => collapseNavMenu ?  null : "sidebarcollapse";
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
 
     protected override void OnInitialized()
     {

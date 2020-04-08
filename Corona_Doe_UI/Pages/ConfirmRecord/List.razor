@@ -21,10 +21,10 @@
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Phone*" OnHeaderClick="OnHeaderClick" OrderBy="patient_ph" />
             @if (!va.IsMobile)
             {
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="NRC" OnHeaderClick="OnHeaderClick" OrderBy="patient_nrc" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Age" OnHeaderClick="OnHeaderClick" OrderBy="patient_age" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Gender" OnHeaderClick="OnHeaderClick" OrderBy="gender" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Home Town" OnHeaderClick="OnHeaderClick" OrderBy="hometown" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="NRC*" OnHeaderClick="OnHeaderClick" OrderBy="patient_nrc" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Age*" OnHeaderClick="OnHeaderClick" OrderBy="patient_age" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Gender*" OnHeaderClick="OnHeaderClick" OrderBy="gender" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Home Town*" OnHeaderClick="OnHeaderClick" OrderBy="hometown" />
             }
         </GridHeader>
         <GridRow>
@@ -98,7 +98,8 @@
                 Name = searchText,
                 PgNo = currentPage,
                 Order = CurSortInfo.Order,
-                OrderBy = CurSortInfo.OrderBy
+                OrderBy = CurSortInfo.OrderBy,
+                IsMobile = va.IsMobile
             });
             va.IsLoading = false;
         }

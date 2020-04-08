@@ -24,7 +24,7 @@
             {
                 <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Current Address*" OnHeaderClick="OnHeaderClick" OrderBy="current_address" />
                 <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Tavel History*" OnHeaderClick="OnHeaderClick" OrderBy="travel_history" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Entrance Date*" OnHeaderClick="OnHeaderClick" OrderBy="entrance_date" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Entrance Date" OnHeaderClick="OnHeaderClick" OrderBy="entrance_date" />
                 <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark*" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
             }
         </GridHeader>
@@ -52,7 +52,6 @@
             }
         </GridRow>
     </CustomGrid>
-
 }
 <MessageModal @ref="modal" />
 
@@ -100,7 +99,8 @@
                 Name = searchText,
                 PgNo = currentPage,
                 Order = CurSortInfo.Order,
-                OrderBy = CurSortInfo.OrderBy
+                OrderBy = CurSortInfo.OrderBy,
+                IsMobile = va.IsMobile
             });
             va.IsLoading = false;
         }

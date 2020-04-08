@@ -63,7 +63,7 @@ window.MapJsFunctions = {
 
         var center = new ol.proj.fromLonLat([currentLocation.lon, currentLocation.lat]);
 
-        if (lonCoor !== null && latCoor !== null) {
+        if ((lonCoor !== null && latCoor !== null) && (lonCoor !== 0 && latCoor !== 0)) {
             //add marker on map
             locationFeature = new ol.Feature({
                 geometry: new ol.geom.Point(new ol.proj.fromLonLat([lonCoor, latCoor]))
@@ -81,7 +81,7 @@ window.MapJsFunctions = {
 
         geolocation.on('change', function () {
             var coordinates = geolocation.getPosition();
-            if (lonCoor === null && latCoor === null) {
+            if ((lonCoor === null && latCoor === null) || (lonCoor === 0 && latCoor === 0)) {
                 currentLocation.lon = coordinates[0];
                 currentLocation.lat = coordinates[1];
 

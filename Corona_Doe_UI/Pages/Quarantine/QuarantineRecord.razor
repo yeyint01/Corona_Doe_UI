@@ -12,7 +12,7 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>Name*</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_name" />
+                    <InputText id="q-person-name" class="full form-control" @bind-Value="quarantineRecord.person_name" />
                 </div>
 
                 <div class="form-group">
@@ -71,17 +71,9 @@
                 <div class="form-group">
                     <label>Gender</label>
                     <div>
-                        @if (string.IsNullOrWhiteSpace(quarantineRecord.gender))
-                        {
-                            <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck("M"))" checked />
-                        }
-                        else
-                        {
-                            <input type="radio" name="radio-group" id="radio1" value="M" @onclick="@(()=>IsCheck("M"))" data-bind="checked: @quarantineRecord.gender" />
-                        }
-
+                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@isMaleCheck" />
                         <label for="radio1" class="text-color">Male</label>
-                        <input type="radio" name="radio-group" id="radio2" value="F" @onclick="@(()=>IsCheck("F"))" data-bind="checked: @quarantineRecord.gender" />
+                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@isFemaleCheck" />
                         <label for="radio2" class="text-color">Female</label>
                     </div>
 
@@ -186,7 +178,7 @@
             <div class="action-button">
                 <button type="submit" class="btn btn-info"><span>Save</span></button>
 
-                @if (quarantineRecord.station_id > 0)
+                @if (quarantineRecord.quarantine_id > 0)
                 {
                     <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
                 }
@@ -206,14 +198,14 @@
     [Parameter]
     public int QuarantineId { get; set; }
 
-    private List<en.quarantine_station> stationList;
-    private List<en.entry_reason> reasonList;
-    private en.quarantine_record quarantineRecord;
-    private string msg;
     private MessageModal modal;
+    private bool isMaleCheck, isFemaleCheck;
+    private en.quarantine_record quarantineRecord;
+    private List<en.entry_reason> reasonList;
+    private List<en.quarantine_station> stationList;
 
-    private en.quarantine_station selectedQuaStation { get; set; }
     private en.entry_reason selectedReason { get; set; }
+    private en.quarantine_station selectedQuaStation { get; set; }
 
     protected override void OnInitialized()
     {
@@ -258,8 +250,10 @@
                 quarantineRecord = await da.quarantine_record.Get(QuarantineId);
                 selectedQuaStation = stationList.Find(station => station.station_id == quarantineRecord?.station_id);
                 selectedReason = reasonList.Find(reason => reason.reason_id == quarantineRecord.reason_id);
+                isMaleCheck = quarantineRecord.gender == en.Gender.Male;
             }
 
+            isFemaleCheck = !isMaleCheck;
             va.IsLoading = false;
         }
         catch (Exception ex)
@@ -289,11 +283,14 @@
                 return;
             }
 
-            //NavigationManager.NavigateTo("quaratinerecord/list");
             quarantineRecord = new en.quarantine_record();
-            selectedQuaStation = new en.quarantine_station();
-            selectedReason = new en.entry_reason();
+            selectedQuaStation = null;
+            selectedReason = null;
+            isMaleCheck =  true;
+            isFemaleCheck = false;
+            NavigationManager.NavigateTo("quarantinerecord/entry/0");
             await JsService.Toast("toastsave", "Save Success");
+            await JsService.Focus("q-person-name");
         }
         catch (Exception ex)
         {

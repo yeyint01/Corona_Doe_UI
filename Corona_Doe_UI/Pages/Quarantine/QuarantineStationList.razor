@@ -19,12 +19,8 @@
         <GridHeader>
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
-
-            @if (!va.IsMobile)
-            {
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Description" OnHeaderClick="OnHeaderClick" OrderBy="description" />
-            }
-
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Description*" OnHeaderClick="OnHeaderClick" OrderBy="description" />
+            
         </GridHeader>
         <GridRow>
             <td>
@@ -33,14 +29,9 @@
             <td>
                 <span>@context.name_en</span>
             </td>
-
-            @if (!va.IsMobile)
-            {
-                <td>
-                    <span>@context.station_id</span>
-                </td>
-            }
-
+            <td>
+                <span>@context.station_id</span>
+            </td>
         </GridRow>
     </CustomGrid>
 }

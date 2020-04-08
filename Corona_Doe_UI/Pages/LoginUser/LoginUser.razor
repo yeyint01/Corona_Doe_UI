@@ -1,4 +1,5 @@
 ﻿@page "/useraccount/entry/{UserId:int}"
+@page "/useraccount/entry/{UserId:int}/{FromHome:bool}"
 
 @inject UserManager<Entity.user_account> UserManager
 
@@ -190,7 +191,7 @@
                     <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
                 }
 
-                <a href="/useraccount/list"> Cancel </a>
+                <a href="@(FromHome ? "/" : "/useraccount/list")"> Cancel </a>
             </div>
         </div>
 
@@ -218,6 +219,9 @@
     [Parameter]
     public int UserId { get; set; }
 
+    [Parameter]
+    public bool FromHome { get; set; }
+
     private List<en.entry_points> entryPointList;
     private List<en.quarantine_station> stationList;
 
@@ -229,8 +233,7 @@
     private en.entry_points selectedEntryPoints { get; set; }
     private en.quarantine_station selectedQuaStation { get; set; }
 
-    private string msg, retypePassword, customWarning;
-    private bool isConfirmModalOpen, isChangeModalOpen;
+    private string retypePassword, customWarning;
 
     protected override void OnInitialized()
     {
