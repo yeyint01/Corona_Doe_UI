@@ -172,8 +172,8 @@
 
     private void GetLatLon()
     {
-        points.lon = tempLon;
-        points.lat = tempLat;
+        points.lon = (float)tempLon;
+        points.lat = (float)tempLat;
         MapModalClose();
         StateHasChanged();
     }

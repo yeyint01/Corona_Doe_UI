@@ -1,0 +1,72 @@
+﻿@using Blazor.FileReader
+
+@inject IFileReaderService fileReader
+
+<div>
+    <div class="file-wrapper">
+        <input type="file" id="fileUpload" @ref="fileUpload" @onchange="UploadFile">
+        <div class="button"><span class="fa fa-file-excel-o font-excel"></span></div>
+    </div>
+</div>
+
+<ColMapperModal @ref="modal" />
+<MessageModal @ref="msgModal" />
+
+@code {
+    [Parameter]
+    public Dictionary<string, string> TypeColumns { get; set; }
+
+    [Parameter]
+    public EventCallback<IEnumerable<en.people_history>> OnDataResult { get; set; }
+
+    private ElementReference fileUpload;
+    private ColMapperModal modal;
+    private MessageModal msgModal;
+
+    private async Task UploadFile()
+    {
+        var files = await fileReader.CreateReference(fileUpload).EnumerateFilesAsync();
+
+        if (files.Count() == 0) return;
+
+        await using (Stream stream = await files.First().OpenReadAsync())
+        {
+            try
+            {
+                va.IsLoading = true;
+
+                var dataTable = await Helpers.ExcelHelper.ReadDataAsync(stream);
+                // to work file upload second times
+                await JSRuntime.InvokeVoidAsync("CustomJsFunctions.clearValue", "fileUpload");
+
+                var dCols = dataTable.Columns.Cast<DataColumn>().Select(x => x.ColumnName);
+                
+
+                va.IsLoading = false;
+                var mappedCols = await modal.Show(dCols, TypeColumns);
+                if (mappedCols == null)
+                {
+                    await OnDataResult.InvokeAsync(null);
+                    return;
+                }
+
+                foreach (var col in dCols)
+                {
+                    if (string.IsNullOrWhiteSpace(mappedCols[col])) continue;
+
+                    dataTable.Columns[col].ColumnName = mappedCols[col];
+                }
+
+                var result = dataTable.ToEnumerable<en.people_history>();
+
+                if (OnDataResult.HasDelegate)
+                    await OnDataResult.InvokeAsync(result);
+            }
+            catch (Exception ex)
+            {
+                va.IsLoading = false;
+                msgModal.Show("Message", ex.Message);
+            }
+        }
+    }
+}

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Corona_Doe_UI.Services;
 using Corona_Doe_UI.Extensions;
 using Corona_Doe_UI.Data;
+using Blazor.FileReader;
 
 namespace Corona_Doe_UI
 {
@@ -26,17 +27,18 @@ namespace Corona_Doe_UI
             services.AddCustomIdentity<Entity.user_account, UserStore>();
 
             services.AddRazorPages();
-            services.AddServerSideBlazor();
+            services.AddServerSideBlazor().AddHubOptions(opt =>
+            {
+                opt.MaximumReceiveMessageSize = null;
+            });
 
             services.AddScoped<BrowserResize>();
             services.AddScoped<JSRuntimeService>();
             services.AddScoped<ScopeVariables>();
             services.AddScoped<Functions>();
-            
-            services.AddSignalR(hubOptions =>
-            {
-                hubOptions.MaximumReceiveMessageSize = null;
-            });
+            services.AddFileReaderService();
+
+            OfficeOpenXml.ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

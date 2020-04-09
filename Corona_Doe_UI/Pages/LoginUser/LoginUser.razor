@@ -336,9 +336,9 @@
 
         try
         {
-            await da.quarantine_station.Delete(UserId);
+            await da.user_account.Delete(UserId);
 
-            NavigationManager.NavigateTo("quaratinestation/list");
+            NavigationManager.NavigateTo("useraccount/list");
         }
         catch (Exception ex)
         {

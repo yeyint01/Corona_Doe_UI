@@ -1,0 +1,245 @@
+﻿@page "/people_history/entry"
+@page "/people_history/entry/{MId}/{MHash}/{DId}/{DHash}"
+
+<h4 class="header">People Travelling History Form</h4>
+
+@if (peopleHistory != null)
+{
+    <EditForm Model="@peopleHistory" OnValidSubmit="HandleValidSubmit" autocomplete="off">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="autocomplete">
+                        <label>Mobile Id</label>
+                        <InputText id="people-mid" name="mid" placeholder="Mobile Id"
+                                   class="full form-control" @bind-Value="peopleHistory.mid" autocomplete="off" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="autocomplete">
+                        <label>Mobile Hash</label>
+                        <InputText id="mhash" name="mhash" placeholder="Mobile Hash"
+                                   class="full form-control" @bind-Value="peopleHistory.mhash" autocomplete="off" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="autocomplete">
+                        <label>Device Id</label>
+                        <InputText id="did" name="did" placeholder="Device Id"
+                                   class="full form-control" @bind-Value="peopleHistory.did" autocomplete="off" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="autocomplete">
+                        <label>Device Hash</label>
+                        <InputText id="dhash" name="dhash" placeholder="Device Hash"
+                                   class="full form-control" @bind-Value="peopleHistory.dhash" autocomplete="off" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Timestamp*</label>
+                    <input type="datetime-local" class="full form-control disabel" @bind="peopleHistory.timestamp" @bind:format="@va.datetimeformat" />
+                </div>
+
+                <div class="form-group">
+                    <label>Duration</label>
+                    <input type="number" class="full form-control" @bind="peopleHistory.duration" step="any" />
+                </div>
+
+            </div>
+
+            <div class="col-sm-6">
+
+                <div class="form-group">
+                    <label>Source</label>
+                    <InputText id="sourceid" name="sourceid"
+                               class="full form-control" @bind-Value="peopleHistory.source" autocomplete="off" />
+
+                </div>
+
+                <div class="form-group">
+                    <label>Event Name</label>
+                    <InputText id="eventname" name="eventname"
+                               class="full form-control" @bind-Value="peopleHistory.eventname" autocomplete="off" />
+
+                </div>
+
+                <div class="form-group">
+                    <label>Location</label>
+                    <InputText id="location" name="location"
+                               class="full form-control" @bind-Value="peopleHistory.location" autocomplete="off" />
+
+                </div>
+
+                <div class="form-group">
+                    <label>Contact</label>
+                    <InputText id="contact" name="contact"
+                               class="full form-control" @bind-Value="peopleHistory.contact" autocomplete="off" />
+
+                </div>
+
+                <div class="form-group">
+                    <label>Contact Type</label>
+                    <InputText id="contacttype" name="contacttype"
+                               class="full form-control" @bind-Value="peopleHistory.contacttype" autocomplete="off" />
+
+                </div>
+
+                <div class="form-group">
+                    <label>Remark</label>
+                    <InputText id="remark" name="remark"
+                               class="full form-control" @bind-Value="peopleHistory.remark" autocomplete="off" />
+
+                </div>
+
+            </div>
+
+        </div>
+        <div style="height: @(va.IsMobile ? "250px": "285px");">
+            <OpenStreetMap LonValue="@peopleHistory.lng" LatValue="@peopleHistory.lat" AllowClickOnMap="true" ChangedLocation="ChangedPointLocation"></OpenStreetMap>
+        </div>
+        <div class="row my-row">
+            <div class="action-button">
+                <button type="submit" class="btn btn-info"><span>Save</span></button>
+
+                @if (!string.IsNullOrWhiteSpace(MId) || !string.IsNullOrWhiteSpace(MHash) || !string.IsNullOrWhiteSpace(DId) || !string.IsNullOrWhiteSpace(DHash))
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
+                }
+
+                <a href="people_history/list"> Cancel </a>
+            </div>
+        </div>
+    </EditForm>    
+}
+
+<MessageModal @ref="modal" />
+
+
+@code {
+
+    [Parameter]
+    public string MId { get; set; }
+    [Parameter]
+    public string MHash { get; set; }
+    [Parameter]
+    public string DId { get; set; }
+    [Parameter]
+    public string DHash { get; set; }
+
+    private MessageModal modal;
+    private en.people_history peopleHistory;
+
+    protected override void OnInitialized()
+    {
+        va.IsLoading = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            StateHasChanged();
+        }
+    }
+
+    #region Functions
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(MId) || !string.IsNullOrWhiteSpace(MHash) || !string.IsNullOrWhiteSpace(DId) || !string.IsNullOrWhiteSpace(DHash))
+            {
+                peopleHistory = await da.people_history.Get(new en.people_historyQueryInfo
+                {
+                    mid = MId,
+                    mhash = MHash,
+                    did = DId,
+                    dhash = DHash
+                });
+            }
+            else
+            {
+                peopleHistory = new en.people_history();
+                peopleHistory.timestamp = DateTime.Now;
+                peopleHistory.duration = 0;
+            }
+
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+           
+           var result = await da.people_history.Save(peopleHistory);
+
+            if (result.Status != es.Status.Success)
+            {
+                modal.Show("Message", result.Msg);
+                return;
+            }
+
+            peopleHistory = new en.people_history();
+            peopleHistory.timestamp = DateTime.Now;
+            peopleHistory.duration = 0;
+            
+            await JsService.Toast("toastsave", "Save Success");
+            StateHasChanged();
+            await JsService.Focus("people-mid");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
+
+        try
+        {
+            await da.people_history.Delete(new en.people_historyQueryInfo
+            {
+                mid = MId,
+                mhash = MHash,
+                did = DId,
+                dhash = DHash
+            });
+
+            NavigationManager.NavigateTo("people_history/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private void ChangedPointLocation(double lon, double lat)
+    {
+        peopleHistory.lng = (float)lon;
+        peopleHistory.lat = (float)lat;
+    }
+
+    #endregion Functions
+
+}

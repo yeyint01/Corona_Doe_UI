@@ -1,0 +1,177 @@
+﻿@page "/people_history/list"
+
+<h4 class="header">People Travelling History</h4>
+
+<div class="mb-3 mt-3 d-flex">
+    <button class="btn btn-info mr-3"
+            @onclick="@(() => NavigationManager.NavigateTo("people_history/entry"))">
+        <span>+ Add new</span>
+    </button>
+
+    <SearchBox SearchClick="HandlSearchClick" />
+    <ExcelImport TypeColumns = "@TypeColumns" OnDataResult = "@SaveExcelData"/>
+</div>
+@if (peopleHistoryResult != null)
+{
+    <CustomGrid Entity="en.people_history" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="@peopleHistoryResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                ItemList="@peopleHistoryResult.People_Histories" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="@peopleHistoryResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
+        <GridHeader>
+            @if (va.IsMobile)
+            {
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Mobile*" OnHeaderClick="OnHeaderClick" OrderBy="mid" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Device*" OnHeaderClick="OnHeaderClick" OrderBy="did" />
+            }
+            else
+            {
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Mobile*" OnHeaderClick="OnHeaderClick" OrderBy="mid" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Mobile Hash*" OnHeaderClick="OnHeaderClick" OrderBy="mhash" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Device*" OnHeaderClick="OnHeaderClick" OrderBy="did" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Device Hash*" OnHeaderClick="OnHeaderClick" OrderBy="dhash" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Timestamp*" OnHeaderClick="OnHeaderClick" OrderBy="timestamp" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Duration*" OnHeaderClick="OnHeaderClick" OrderBy="duration" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Location*" OnHeaderClick="OnHeaderClick" OrderBy="location" />
+            }
+        </GridHeader>
+        <GridRow>
+            @if (va.IsMobile)
+            {
+                <td>
+                    <span class="full">@context.mid</span>
+                    <span class="full">@context.mhash</span>
+                </td>
+                <td class="w-75-pixel">
+                    <span class="full">@context.did</span>
+                    <span class="full">@context.dhash</span>
+                </td>
+            }
+            else
+            {
+                <td>
+                    <span>@context.mid</span>
+                </td>
+                <td>
+                    <span>@context.mhash</span>
+                </td>
+
+                <td>
+                    <span>@context.did</span>
+                </td>
+                <td>
+                    <span>@context.dhash</span>
+                </td>
+                <td>
+                    <span>@context.timestamp</span>
+                </td>
+                <td>
+                    <span>@context.duration</span>
+                </td>
+                <td>
+                    <span>@context.location</span>
+                </td>
+            }
+        </GridRow>
+    </CustomGrid>
+}
+
+<MessageModal @ref="modal" />
+
+@code {
+
+    private MessageModal modal;
+    private en.people_historyResult peopleHistoryResult;
+    private bool isCustomPagingNone;
+    private int currentPage;    // paging current click page
+    private string searchText;
+    private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
+    public Dictionary<string, string> TypeColumns { get; set; }
+   
+    protected override void OnInitialized()
+    {
+        va.IsLoading = true;
+        currentPage = 1;
+        peopleHistoryResult = new en.people_historyResult();
+        TypeColumns = new Dictionary<string, string>()
+                {
+                    { "mid", "Mobile Id" },
+                    { "mhash", "Mobile Hash" },
+                    { "did", "Device Id" },
+                    { "dhash", "Device Hash" },
+                    { "timestamp", "Timestamp" },
+                    { "duration", "Duration" },
+                    { "source", "Source" },
+                    { "eventname", "Event Name" },
+                    { "location", "Location" },
+                    { "contact", "Contact" },
+                    { "contacttype", "Contact Type" },
+                    { "remark", "Remark" },
+                };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            StateHasChanged();
+        }
+    }
+
+    #region Functions
+
+    private async void SaveExcelData(IEnumerable<en.people_history> historylist)
+    {   
+        if(historylist != null)
+        await da.people_history.InsertMany(historylist);
+    }
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            peopleHistoryResult = await da.people_history.Get(new en.people_historyParam
+            {
+                Name = searchText,
+                PgNo = currentPage,
+                Order = CurSortInfo.Order,
+                OrderBy = CurSortInfo.OrderBy
+            });
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandlSearchClick(string text)
+    {
+        searchText = text;
+        currentPage = 1;
+        await GetData();
+    }
+
+    private async Task OnHeaderClick(string orderBy)
+    {
+        CurSortInfo = fn.CurrentSortInfo(orderBy);
+        isCustomPagingNone = true;
+        await GetData();
+        isCustomPagingNone = false;
+    }
+
+    private Task HandleRowClick(en.people_history obj)
+    {
+        //var visited_at = obj.source.ToString("yyyy-MM-dd HH:mm:ss");
+        NavigationManager.NavigateTo("people_history/entry/" + obj.mid + "/" + obj.mhash + "/" + obj.did + "/" + obj.dhash);
+
+        return Task.FromResult<object>(null);
+    }
+
+    private async Task PagerClick(int curpage)
+    {
+        currentPage = curpage;
+        await GetData();
+    }
+
+    #endregion
+}

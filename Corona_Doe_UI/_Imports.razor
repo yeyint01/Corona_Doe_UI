@@ -8,23 +8,22 @@
 @using Microsoft.AspNetCore.Identity
 @using Corona_Doe_UI
 @using Corona_Doe_UI.Shared
+@using Corona_Doe_UI.Services
 @using Corona_Doe_UI.Components
 @using Corona_Doe_UI.Extensions
-@using en = Entity
-@using da = DataAccess
-@using es = Entity.shared
-
-@using Corona_Doe_UI.Services
-
 @using Newtonsoft.Json
 @using Newtonsoft.Json.Linq;
 @using LoreSoft.Blazor.Controls
 @using System
+@using System.Data
 @using System.IO
+@using System.Linq
 @using System.Linq.Expressions
+@using en = Entity
+@using da = DataAccess
+@using es = Entity.shared
 
 @inject IJSRuntime JSRuntime
-
 @inject ScopeVariables va
 @inject BrowserResize Resize
 @inject JSRuntimeService JsService

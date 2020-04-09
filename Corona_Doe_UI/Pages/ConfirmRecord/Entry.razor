@@ -222,10 +222,10 @@
                 selectedQuaRecord = qRecordList.Find(qr => qr.quarantine_id == confirmrecord?.quarantine_id);
                 selectedQuaStation = qStationList.Find(qs => qs.station_id == confirmrecord.station_id);
                 selectedReson = eReasonList.Find(r => r.reason_id == confirmrecord.reason_id);
-                isMaleCheck = confirmrecord.gender == en.Gender.Male;
+                isFemaleCheck = confirmrecord.gender == en.Gender.Female;
             }
 
-            isFemaleCheck = !isMaleCheck;
+            isMaleCheck = !isFemaleCheck;
 
             va.IsLoading = false;
         }

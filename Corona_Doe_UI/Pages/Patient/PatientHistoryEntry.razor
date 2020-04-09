@@ -1,0 +1,182 @@
+﻿@page "/patient_history/entry/{FeatureId:int}"
+
+    <h4 class="header">Patient Travelling History Form</h4>
+
+@if (patientHistory != null)
+{
+    <EditForm Model="@patientHistory" OnValidSubmit="HandleValidSubmit" autocomplete="off">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="autocomplete">
+                        <label>Name*</label>
+                        <InputText id="patientH_name" name="featname" placeholder="Name"
+                                   class="full form-control" @bind-Value="patientHistory.name" autocomplete="off" />
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <div class="autocomplete">
+                        <label>Place</label>
+                        <InputText id="feature_place" name="featureplace" placeholder="Place"
+                                   class="full form-control" @bind-Value="patientHistory.place" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Comments</label>
+                    <InputText class="full form-control" @bind-Value="patientHistory.comments" placeholder="Comments" />
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>From Time</label>
+                    <input type="datetime-local" class="full form-control disabel" @bind="@fromtime" @bind:format="@va.datetimeformat" />
+                </div>    
+                <div class="form-group">
+                    <label>Stay Time</label>
+                    <input type="number" class="full form-control" @bind="staytime" step="any" />
+                </div>
+            </div> 
+        </div>
+        <div style="height: @(va.IsMobile ? "250px": "285px");">
+            <OpenStreetMap LonValue="@patientHistory.coordinatesx" LatValue="@patientHistory.coordinatesy" AllowClickOnMap="true" ChangedLocation="ChangedPointLocation"></OpenStreetMap>
+        </div>
+        <div class="row my-row">
+            <div class="action-button">
+                <button type="submit" class="btn btn-info"><span>Save</span></button>
+
+                @if (patientHistory.id > 0)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
+                }
+
+                <a href="patient_history/list"> Cancel </a>
+            </div>
+        </div>
+    </EditForm>
+}
+
+<MessageModal @ref="modal" />
+
+@code {
+    [Parameter]
+    public int FeatureId { get; set; }
+    private DateTime fromtime;
+    private double staytime;
+    private MessageModal modal;
+    private en.patient_history patientHistory;
+    private IEnumerable<string> featureName, featurePlace;
+
+    protected override void OnInitialized()
+    {
+        va.IsLoading = true;
+        patientHistory = new en.patient_history();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            StateHasChanged();
+        }
+        // auto suggest box       
+        await JsService.AutoComplete("patientH_name", featureName);
+        await JsService.AutoComplete("feature_place", featurePlace);
+    }
+
+    #region Functions
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            if (FeatureId > 0)
+            {
+                patientHistory = await da.patient_history.Get(FeatureId);
+                fromtime = new DateTime(patientHistory.fromtime);
+                staytime = TimeSpan.Parse(patientHistory.staytimes).TotalHours;
+            }
+            else
+                fromtime = DateTime.Now;
+
+            featureName = await da.patient_history.GetName();
+            featurePlace = await da.patient_history.GetPlace();
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            patientHistory.sourceoid = 1;
+            patientHistory.geometrytype = "Point";
+            patientHistory.type = "Feature";
+            patientHistory.objectid = patientHistory.id;
+            patientHistory.pointx = 0;
+            patientHistory.pointy = 0;
+            patientHistory.fromtime = fromtime.Ticks;
+            patientHistory.staytimes = TimeSpan.FromHours(staytime).ToString("hh\\:mm");
+            patientHistory.totime = fromtime.AddHours(staytime).Ticks;
+
+            es.ActionResult result;
+            if (patientHistory.id > 0)
+                result = await da.patient_history.Update(patientHistory);
+            else
+                result = await da.patient_history.Insert(patientHistory);
+
+            if (result.Status != es.Status.Success)
+            {
+                modal.Show("Message", result.Msg);
+                return;
+            }
+            patientHistory = new en.patient_history();
+            fromtime = DateTime.Now;
+            staytime = 0;
+            NavigationManager.NavigateTo("patient_history/entry/0");
+            await JsService.Toast("toastsave", "Save Success");
+            StateHasChanged();
+            await JsService.Focus("patientH_name");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task HandleDelete()
+    {
+        bool confirm = await modal.Show("Message", "Are you sure want to delete ?", "Yes", "No");
+        if (!confirm)
+            return;
+
+        try
+        {
+            await da.patient_history.Delete(FeatureId);
+
+            NavigationManager.NavigateTo("patient_history/list");
+        }
+        catch (Exception ex)
+        {
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private void ChangedPointLocation(double lon, double lat)
+    {
+        patientHistory.coordinatesx = (float)lon;
+        patientHistory.coordinatesy = (float)lat;
+    }
+
+    #endregion
+}
+

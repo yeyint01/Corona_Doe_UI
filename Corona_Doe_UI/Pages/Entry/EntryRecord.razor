@@ -21,7 +21,86 @@
                 </div>
                 <div class="form-group">
                     <label for="nrc">NRC</label>
-                    <InputText class="form-control" id="nrc" @bind-Value="entryRecord.person_nrc" />
+                    @*<InputText class="form-control" id="nrc" @bind-Value="entryRecord.person_nrc" />*@
+                    <div class="row">
+                        <div class="col-sm-2 pad-right-0">
+                            @if (stateNumberList != null && stateNumberList?.Count() > 0)
+                            {
+                                @*<Typeahead SearchMethod="GetNrcNo"
+                                               Placeholder="Search..."
+                                               Items="nrcNoList"
+                                               @bind-Value="selectedNrcNo">
+                                        <SelectedTemplate Context="nrcno">
+                                            @nrcno
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="nrcno">
+                                            @nrcno
+                                        </ResultTemplate>
+                                    </Typeahead>*@
+
+                                <select @bind="selectedStateNumber" class="form-control" >
+                                    @foreach (var nrcno in stateNumberList)
+                                    {
+                                        <option value="@nrcno">@nrcno</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+
+                        <div class="col-sm-4 pad-right-0 pad-left-3">
+                            @if (districtList != null && districtList?.Count() > 0)
+                            {
+                                @*<Typeahead SearchMethod="GetNrcCard"
+                                               Placeholder="Search..."
+                                               Items="nrcCardList"
+                                               @bind-Value="selectedNrcCard">
+                                        <SelectedTemplate Context="card">
+                                            @car
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="card">
+                                            @card
+                                        </ResultTemplate>
+                                    </Typeahead>*@
+
+                                <select @bind="@selectedDistrict" class="form-control">
+                                    @foreach (var card in districtList)
+                                    {
+                                        <option value="@card">@card</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+
+                        <div class="col-sm-2 pad-right-0 pad-left-3">
+                            @if (naList != null && naList?.Count() > 0)
+                            {
+                                @*<Typeahead SearchMethod="GetNrc"
+                                               Placeholder="Search..."
+                                               Items="nrcList"
+                                               @bind-Value="selectedNrc">
+                                        <SelectedTemplate Context="nrc">
+                                            @nrc
+                                        </SelectedTemplate>
+                                        <ResultTemplate Context="nrc">
+                                            @nrc
+                                        </ResultTemplate>
+                                    </Typeahead>*@
+
+                                <select @bind="@selectedNa" class="form-control">
+                                    @foreach (var nc in naList)
+                                    {
+                                        <option value="@nc">@nc</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+
+                        <div class="col-sm-4 pad-left-3">
+                            <InputText class="form-control" id="regno" @bind-Value="nrcRegisterNo" />
+                        </div>
+
+
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="age">Age</label>
@@ -30,9 +109,9 @@
                 <div class="form-group" style="padding-bottom: 4px !important;padding-top: 9px;">
                     <label>Gender</label>
                     <div>
-                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@isMaleCheck" />
+                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@(entryRecord.gender?.Equals(en.Gender.Male))" />
                         <label for="radio1" class="text-color">Male</label>
-                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@isFemaleCheck" />
+                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@(entryRecord.gender?.Equals(en.Gender.Female))" />
                         <label for="radio2" class="text-color">Female</label>
                     </div>
                 </div>
@@ -49,7 +128,21 @@
             <div class="col-sm-6 col-12">
                 <div class="form-group">
                     <label for="hometown">HomeTown</label>
-                    <InputText class="form-control" id="hometown" @bind-Value="entryRecord.hometown" />
+                    @*<InputText class="form-control" id="hometown" @bind-Value="entryRecord.hometown" />*@
+                    @if (homeTownList != null && homeTownList?.Count() > 0)
+                    {
+                        <Typeahead SearchMethod="GetHomeTown"
+                                   Placeholder="Search..."
+                                   Items="homeTownList"
+                                   @bind-Value="entryRecord.hometown">
+                            <SelectedTemplate Context="hometown">
+                                @hometown
+                            </SelectedTemplate>
+                            <ResultTemplate Context="hometown">
+                                @hometown
+                            </ResultTemplate>
+                        </Typeahead>
+                    }
                 </div>
                 <div class="form-group">
                     <label for="history">Travel History</label>
@@ -127,12 +220,21 @@
 
     private MessageModal modal;
     private en.entry_record entryRecord;
-    private bool isMaleCheck, isFemaleCheck;
     private List<en.entry_reason> reasonList;
     private List<en.entry_points> pointslist;
+    private List<string> stateNumberList;
+    private List<string> naList;
+    private List<string> districtList;
+    private List<string> homeTownList;
 
     private en.entry_points selectedPoints { get; set; }
     private en.entry_reason selectedReason { get; set; }
+
+    private string selectedStateNumber { get; set; }
+    private string selectedNa { get; set; }
+    private string selectedDistrict { get; set; }
+
+    private string nrcRegisterNo;
 
     protected override void OnInitialized()
     {
@@ -140,6 +242,10 @@
         entryRecord ??= new en.entry_record();
         reasonList = new List<en.entry_reason>();
         pointslist = new List<en.entry_points>();
+        stateNumberList = new List<string>();
+        naList = new List<string>();
+        districtList = new List<string>();
+        homeTownList = new List<string>();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -171,15 +277,30 @@
                 reasonList.AddRange(reasons);
             }
 
+            stateNumberList = fn.NRCStateNumbers().ToList();
+            naList = fn.NRCNaing().ToList();
+            districtList = fn.NRCDistricts().ToList();
+            homeTownList = fn.Township().ToList();
+
             if (EntryRecordId > 0)
             {
                 entryRecord = await da.entry_record.Get(EntryRecordId);
                 selectedPoints = pointslist.Find(points => points.entrypoint_id == entryRecord?.entrypoint_id);
                 selectedReason = reasonList.Find(reason => reason.reason_id == entryRecord.reason_id);
-                isMaleCheck = entryRecord.gender == en.Gender.Male;
+
+                var returnData =await JSRuntime.InvokeAsync<object>("CustomJsFunctions.splitNrc", entryRecord.person_nrc);
+                var nrcData = JObject.Parse(returnData.ToString());
+
+                selectedStateNumber = (string)nrcData["sno"];
+                selectedDistrict = (string)nrcData["dis"];
+                selectedNa = (string)nrcData["na"];
+                nrcRegisterNo = (string)nrcData["regno"];
+            }
+            else
+            {
+                entryRecord.entrance_date = DateTime.Now;
             }
 
-            isFemaleCheck = !isMaleCheck;
             va.IsLoading = false;
         }
         catch (Exception ex)
@@ -195,6 +316,7 @@
         {
             entryRecord.entrypoint_id = selectedPoints?.entrypoint_id;
             entryRecord.reason_id = selectedReason?.reason_id;
+            entryRecord.person_nrc = selectedStateNumber + selectedDistrict + selectedNa + nrcRegisterNo;
 
             es.ActionResult result;
 
@@ -209,14 +331,17 @@
                 return;
             }
 
+            var previousEntryRec = entryRecord;
+
             entryRecord = new en.entry_record();
-            selectedPoints = null;
+            entryRecord.traveled_from = previousEntryRec?.traveled_from; //set previous record
+            selectedPoints = pointslist.Find(points => points.entrypoint_id == previousEntryRec?.entrypoint_id);//set previous record
             selectedReason = null;
-            isMaleCheck = true;
-            isFemaleCheck = false;
+            entryRecord.entrance_date = DateTime.Now;
             NavigationManager.NavigateTo("entryrecord/0");
-            await JsService.Toast("toastsave", "Save Success"); 
-            await JsService.Focus("entry-name");           
+            await JsService.Toast("toastsave", "Save Success");
+            StateHasChanged();
+            await JsService.Focus("entry-name");
         }
         catch (Exception ex)
         {
@@ -252,6 +377,30 @@
     {
         var text = searchText?.ToLower();
         return await Task.FromResult(reasonList.FindAll(reason => reason.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
+    }
+
+    //private async Task<IEnumerable<string>> GetNrcNo(string searchText)
+    //{
+    //    var text = searchText?.ToLower();
+    //    return await Task.FromResult(nrcNoList.FindAll(nrcno => nrcno.ToLower().Contains(text)).OrderBy(o => o));
+    //}
+
+    //private async Task<IEnumerable<string>> GetNrc(string searchText)
+    //{
+    //    var text = searchText?.ToLower();
+    //    return await Task.FromResult(nrcList.FindAll(nrc => nrc.ToLower().Contains(text)).OrderBy(o => o));
+    //}
+
+    //private async Task<IEnumerable<string>> GetNrcCard(string searchText)
+    //{
+    //    var text = searchText?.ToLower();
+    //    return await Task.FromResult(nrcCardList.FindAll(card => card.ToLower().Contains(text)).OrderBy(o => o));
+    //}
+
+    private async Task<IEnumerable<string>> GetHomeTown(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(homeTownList.FindAll(town => town.ToLower().Contains(text)).OrderBy(o => o));
     }
 
     private void IsCheck(string gender)

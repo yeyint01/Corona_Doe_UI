@@ -217,4 +217,16 @@ window.CustomJsFunctions = {
             closeAllLists(e.target);
         });
     },
+
+    clearValue: function (id) {
+        document.getElementById(id).value = '';
+    },
+    splitNrc: function (nrcValue) {
+        var stateNo = nrcValue.slice(0, nrcValue.indexOf("/") + 1);
+        var district = nrcValue.slice(nrcValue.indexOf("/") + 1, nrcValue.indexOf("("));
+        var naing = nrcValue.slice(nrcValue.indexOf("("), nrcValue.indexOf(")") + 1);
+        var registerNo = nrcValue.slice(nrcValue.indexOf(")") + 1, nrcValue.length);
+
+        return { sno: stateNo, dis: district, na: naing, regno: registerNo };
+    }
 };

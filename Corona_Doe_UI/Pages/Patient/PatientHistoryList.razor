@@ -1,0 +1,153 @@
+﻿@page "/patient_history/list"
+@implements IDisposable
+
+<h4 class="header">Patient Travelling History</h4>
+
+@if (featureResult != null)
+{
+    <div class="mb-3 mt-3 d-flex">
+        <button class="btn btn-info mr-3"
+                @onclick="@(() => NavigationManager.NavigateTo("patient_history/entry/0"))">
+            <span>+ Add new</span>
+        </button>
+        <SearchBox SearchClick="HandlSearchClick" />
+    </div>
+
+    <CustomGrid Entity="en.patient_history" PagerSize="@(va.IsMobile ? 3 : 5)" PagesCount="featureResult.PgCount" IsPagingNone="@isCustomPagingNone" TableLayout="table-layout"
+                ItemList="@featureResult.Features" GridRowClick="ShowModel" PagerClick="PagerClick" RowsCount="featureResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
+        <GridHeader>
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="name" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Place*" OnHeaderClick="OnHeaderClick" OrderBy="place" />
+            @if (!va.IsMobile)
+            {
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="From Times" OnHeaderClick="OnHeaderClick" OrderBy="fromtime" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Stay Times*" OnHeaderClick="OnHeaderClick" OrderBy="staytimes" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Comments*" OnHeaderClick="OnHeaderClick" OrderBy="comments" />
+            }
+        </GridHeader>
+        <GridRow>
+            <td class="w-75-pixel">
+                <span>@context.name</span>
+            </td>
+            <td>
+                <span>@context.place</span>
+            </td>
+            @if (!va.IsMobile)
+            {
+                <td>
+                    <span>@(new DateTime(context.fromtime))</span>
+                </td>
+                <td>
+                    <span>@context.staytimes</span>
+                </td>
+                <td>
+                    <span>@context.comments</span>
+                </td>
+            }
+        </GridRow>
+    </CustomGrid>
+
+}
+
+<MessageModal @ref="modal" />
+
+@code {
+    private en.featuresResult featureResult;
+    private int currentPage;
+    private string searchText;
+    private int gridHeight;
+    private string elementID = Guid.NewGuid() + "featurelist";
+    private MessageModal modal;
+    private (string OrderBy, es.SortOrder Order) CurSortInfo;
+
+    private bool isCustomPagingNone;
+
+    protected override void OnInitialized()
+    {
+        va.IsLoading = true;
+        currentPage = 1;
+        featureResult = new en.featuresResult();
+        BrowserResize.OnResize += BrowserHasResized;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        BrowserResize.OnResize -= BrowserHasResized;
+    }
+
+    #region Functions
+
+    private async Task GetData()
+    {
+        try
+        {
+            featureResult = await da.patient_history.Get(new en.featuresParam
+            {
+                Name = searchText,
+                PgNo = currentPage,
+                Order = CurSortInfo.Order,
+                OrderBy = CurSortInfo.OrderBy,
+                IsMobile = va.IsMobile
+            });
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+
+    }
+    private async Task HandlSearchClick(string text)
+    {
+        searchText = text;
+        currentPage = 1;
+        await GetData();
+    }
+
+
+    private Task HandleRowClick(int point_id)
+    {
+        NavigationManager.NavigateTo("patient_history/entry/" + point_id);
+
+        return Task.FromResult<object>(null);
+    }
+
+    private Task ShowModel(en.patient_history obj)     // open entry modal
+    {
+        NavigationManager.NavigateTo("patient_history/entry/" + obj.id);
+
+        return Task.FromResult<object>(null);
+    }
+
+    private async Task PagerClick(int curpage)      // paging clicked event
+    {
+        currentPage = curpage;
+        await GetData();
+    }
+    private async Task OnHeaderClick(string orderBy)
+    {
+        CurSortInfo = fn.CurrentSortInfo(orderBy);
+        isCustomPagingNone = true;
+        await GetData();
+        isCustomPagingNone = false;
+    }
+
+    private async Task BrowserHasResized()
+    {
+        gridHeight = await JSRuntime.InvokeAsync<int>("CustomJsFunctions.setGridHeight", elementID);
+        StateHasChanged();
+    }
+
+    #endregion Functions
+
+}

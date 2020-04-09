@@ -250,10 +250,10 @@
                 quarantineRecord = await da.quarantine_record.Get(QuarantineId);
                 selectedQuaStation = stationList.Find(station => station.station_id == quarantineRecord?.station_id);
                 selectedReason = reasonList.Find(reason => reason.reason_id == quarantineRecord.reason_id);
-                isMaleCheck = quarantineRecord.gender == en.Gender.Male;
+                isFemaleCheck = quarantineRecord.gender == en.Gender.Female;
             }
 
-            isFemaleCheck = !isMaleCheck;
+            isMaleCheck = !isFemaleCheck;
             va.IsLoading = false;
         }
         catch (Exception ex)
@@ -290,6 +290,7 @@
             isFemaleCheck = false;
             NavigationManager.NavigateTo("quarantinerecord/entry/0");
             await JsService.Toast("toastsave", "Save Success");
+            StateHasChanged();
             await JsService.Focus("q-person-name");
         }
         catch (Exception ex)

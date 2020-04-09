@@ -225,6 +225,10 @@ a, .btn-link {
     padding-right: 0px !important;
 }
 
+.pad-left-3 {
+    padding-left: 3px !important;
+}
+
 .pad-left-5 {
     padding-left: 5px;
 }
@@ -829,15 +833,41 @@ tbody td span{
 
 /*End*/
 
-/*@media (min-width: 576px) and (max-width: 992px) {
-    .table tbody td {
-        padding-top: 12px !important;
-        padding-bottom: 12px !important;
-    }
-}*/
 
-@media screen and (min-width: 576px) {
-    .modal-dialog-entry {
+/*Excel Import*/
+.file-wrapper {
+    cursor: pointer;
+    display: inline-block;
+    overflow: hidden;
+    position: absolute;
+}
+
+.file-wrapper input {
+    cursor: pointer;
+    filter: alpha(opacity=1);
+    opacity: .01;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.file-wrapper .button {
+    background: #1D6F42;
+    border-radius: 3px;
+    color: #fff;
+    cursor: pointer;
+    width: 38px;
+    height: 37px;
+    text-align: center;
+}
+
+.file-wrapper .font-excel {
+    font-size: 21px;
+    margin-top: 8px;
+}
+
+    @media screen and (min-width: 576px) {
+        .modal-dialog-entry {
         max-width: 891px !important;
         margin: 1.75rem auto;
     }

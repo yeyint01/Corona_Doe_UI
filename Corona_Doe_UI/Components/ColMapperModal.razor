@@ -1,0 +1,78 @@
+﻿<Modal Title="Excel Column Mapper" @ref="modal">
+    <ModalBody>
+        <div class="container">
+            <div class="row">
+                @foreach (var col in dataColumns)
+                {
+                    <div class="col-6 form-group">
+                        <label>@col</label>
+                        <select value="" class="form-control" @onchange="((e) => HandleOnChange(col, e.Value?.ToString()))">
+                            @foreach (var map in typeColumns)
+                            {
+                                <option value="@map.Key">@map.Value</option>
+                            }
+                        </select>
+                    </div>
+                }
+            </div>
+        </div>
+        
+    </ModalBody>
+    <ModalFooter>
+        <button class="btn btn-info" @onclick="HandlPostiveClick"><span>Ok</span></button>
+        <button class="btn btn-dark" @onclick="HandlNegativeClick"><span>Cancel</span></button>
+    </ModalFooter>
+</Modal>
+
+@code {
+    private Modal modal;
+    private TaskCompletionSource<Dictionary<string, string>> tcs;
+    private IEnumerable<string> dataColumns;
+    private Dictionary<string, string> typeColumns;
+    private Dictionary<string, string> colMappers;
+
+    protected override void OnInitialized()
+    {
+        dataColumns = new string[0];
+        typeColumns = new Dictionary<string, string>();
+        colMappers = new Dictionary<string, string>();
+    }
+
+    public Task<Dictionary<string, string>> Show(IEnumerable<string> dataColumns, Dictionary<string, string> typeColumns)
+    {
+        tcs = new TaskCompletionSource<Dictionary<string, string>>();
+
+        this.dataColumns = dataColumns ?? new string[0];
+        this.typeColumns = typeColumns ?? new Dictionary<string, string>();
+
+        colMappers = dataColumns?.ToDictionary(c => c, c => "")
+            ?? new Dictionary<string, string>();
+
+        modal.Open();
+
+        StateHasChanged();
+
+        return tcs.Task;
+    }
+
+    private void HandleOnChange(string dCol, string tCol)
+    {
+        if (string.IsNullOrWhiteSpace(tCol)) return;
+
+        colMappers[dCol] = tCol;
+    }
+
+    private async Task HandlPostiveClick()
+    {
+        tcs?.TrySetResult(colMappers);
+
+        await modal.Close();
+    }
+
+    private async Task HandlNegativeClick()
+    {
+        tcs?.TrySetResult(null);
+
+        await modal.Close();
+    }
+}
