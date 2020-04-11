@@ -1,8 +1,6 @@
-﻿@page "/people_history/entry"
-@*@page "/people_history/entry/{MId}/{MHash}/{DId}/{DHash}"*@
+﻿@page "/people_history/entry/{IsNew:bool}"
 
 @using Microsoft.AspNetCore.WebUtilities
-@using System.Reflection
 
 <h4 class="header">People Travelling History Form</h4>
 
@@ -13,11 +11,12 @@
         <ValidationSummary />
 
         <div class="row">
+
             <div class="col-sm-6">
                 <div class="form-group">
                     <div class="autocomplete">
-                        <label>Mobile Id</label>
-                        <InputText id="people-mid" name="mid" placeholder="Mobile Id"
+                        <label>Mobile ID</label>
+                        <InputText id="people-mid" name="mid" placeholder="Mobile ID"
                                    class="full form-control" @bind-Value="peopleHistory.mid" autocomplete="off" />
                     </div>
                 </div>
@@ -32,8 +31,8 @@
 
                 <div class="form-group">
                     <div class="autocomplete">
-                        <label>Device Id</label>
-                        <InputText id="did" name="did" placeholder="Device Id"
+                        <label>Device ID</label>
+                        <InputText id="did" name="did" placeholder="Device ID"
                                    class="full form-control" @bind-Value="peopleHistory.did" autocomplete="off" />
                     </div>
                 </div>
@@ -48,12 +47,12 @@
 
                 <div class="form-group">
                     <label>Timestamp*</label>
-                    <input type="datetime-local" class="full form-control disabel" @bind="peopleHistory.timestamp" @bind:format="@va.datetimeformat" required/>
+                    <input type="datetime-local" class="full form-control disabel" @bind="peopleHistory.timestamp" @bind:format="@va.datetimeformat" required />
                 </div>
 
                 <div class="form-group">
                     <label>Duration</label>
-                    <input type="number" class="full form-control" @bind="peopleHistory.duration" step="any" min="0" />
+                    <input type="number" class="full form-control" @bind="peopleHistory.duration" step="any" min="0" placeholder="Duration" />
                 </div>
 
             </div>
@@ -62,44 +61,41 @@
 
                 <div class="form-group">
                     <label>Source</label>
-                    <InputText id="sourceid" name="sourceid"
+                    <InputText id="sourceid" name="sourceid" placeholder="Source"
                                class="full form-control" @bind-Value="peopleHistory.source" autocomplete="off" />
-
                 </div>
 
                 <div class="form-group">
                     <label>Event Name</label>
-                    <InputText id="eventname" name="eventname"
+                    <InputText id="eventname" name="eventname" placeholder="Event Name"
                                class="full form-control" @bind-Value="peopleHistory.eventname" autocomplete="off" />
-
                 </div>
 
                 <div class="form-group">
                     <label>Location</label>
-                    <InputText id="location" name="location"
-                               class="full form-control" @bind-Value="peopleHistory.location" autocomplete="off" />
-
+                    <InputText id="location" name="location" placeholder="Location"
+                               class="full form-control" @bind-Value="peopleHistory.location"
+                               autocomplete="off" />
                 </div>
 
                 <div class="form-group">
                     <label>Contact</label>
-                    <InputText id="contact" name="contact"
-                               class="full form-control" @bind-Value="peopleHistory.contact" autocomplete="off" />
-
+                    <InputText id="contact" name="contact" placeholder="Contact"
+                               class="full form-control" @bind-Value="peopleHistory.contact"
+                               autocomplete="off" />
                 </div>
 
                 <div class="form-group">
                     <label>Contact Type</label>
-                    <InputText id="contacttype" name="contacttype"
-                               class="full form-control" @bind-Value="peopleHistory.contacttype" autocomplete="off" />
-
+                    <InputText id="contacttype" name="contacttype" placeholder="Contact Type"
+                               class="full form-control" @bind-Value="peopleHistory.contacttype"
+                               autocomplete="off" />
                 </div>
 
                 <div class="form-group">
                     <label>Remark</label>
-                    <InputText id="remark" name="remark"
+                    <InputText id="remark" name="remark" placeholder="Remark"
                                class="full form-control" @bind-Value="peopleHistory.remark" autocomplete="off" />
-
                 </div>
 
             </div>
@@ -112,7 +108,7 @@
             <div class="action-button">
                 <button type="submit" class="btn btn-info"><span>Save</span></button>
 
-                @if (peopleParam != null)
+                @if (!IsNew)
                 {
                     <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
                 }
@@ -120,13 +116,15 @@
                 <a href="people_history/list"> Cancel </a>
             </div>
         </div>
-    </EditForm>    
+    </EditForm>
 }
 
 <MessageModal @ref="modal" />
 
-
 @code {
+
+    [Parameter]
+    public bool IsNew { get; set; }
 
     private MessageModal modal;
     private en.people_history peopleHistory;
@@ -138,13 +136,9 @@
         NavParam();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        if (firstRender)
-        {
-            await GetData();
-            StateHasChanged();
-        }
+        await GetData();
     }
 
     #region Functions
@@ -153,10 +147,8 @@
     {
         try
         {
-            if (peopleParam != null)
-            {
+            if (!IsNew)
                 peopleHistory = await da.people_history.Get(peopleParam);
-            }
             else
             {
                 peopleHistory = new en.people_history();
@@ -173,33 +165,26 @@
         }
     }
 
-    private void NavParam()
+    private void NavParam() // Route parameters
     {
         var query = new string[] { "mid", "mhash", "did", "dhash" };
 
         var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
 
-        if (uri.Query.Length <= 0)
-            return;
+        if (IsNew) return;
 
         peopleParam = new en.people_historyQueryInfo();
 
-        string value = "";
         foreach (var key in query)
         {
             if (QueryHelpers.ParseQuery(uri.Query).TryGetValue(key, out var param))
             {
-                if (string.IsNullOrWhiteSpace(param))
-                    value = null;
-                else
-                    value = param;
-
                 switch (key)
                 {
-                    case "mid": peopleParam.mid = value; break;
-                    case "mhash": peopleParam.mhash = value; break;
-                    case "did": peopleParam.did = value; break;
-                    case "dhash": peopleParam.dhash = value; break;
+                    case "mid": peopleParam.mid = param; break;
+                    case "mhash": peopleParam.mhash = param; break;
+                    case "did": peopleParam.did = param; break;
+                    case "dhash": peopleParam.dhash = param; break;
                 }
             }
         }

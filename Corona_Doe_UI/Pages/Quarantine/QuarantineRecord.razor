@@ -12,22 +12,25 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>Name*</label>
-                    <InputText id="q-person-name" class="full form-control" @bind-Value="quarantineRecord.person_name" />
+                    <InputText id="q-person-name" class="full form-control" placeholder="Name" @bind-Value="quarantineRecord.person_name" />
                 </div>
 
                 <div class="form-group">
-                    <label>NRC</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_nrc" />
+                    <label>Phone Number*</label>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_ph" placeholder="Phone Number" />
                 </div>
 
                 <div class="form-group">
-                    <label>Phone*</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_ph" />
+                    <div class="custom-control custom-checkbox pb-2">
+                        <input class="custom-control-input" type="checkbox" id="nrc" value="@isNRCchk" @bind="@isNRCchk" @oninput="OnChangeNRC">
+                        <label class="custom-control-label" for="nrc">NRC</label>
+                    </div>
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_nrc" placeholder="NRC"  disabled="@(!(isNRCchk))"/>
                 </div>
 
                 <div class="form-group">
                     <label>Age</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_age" />
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_age" placeholder="Age" />
                 </div>
 
                 <div class="form-group">
@@ -65,24 +68,41 @@
 
                 <div class="form-group">
                     <label>Home Town</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.hometown" />
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.hometown" placeholder="Home Town" />
                 </div>
 
                 <div class="form-group">
                     <label>Gender</label>
+                    @*<div>
+                            <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@isMaleCheck" />
+                            <label for="radio1" class="text-color">Male</label>
+                            <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@isFemaleCheck" />
+                            <label for="radio2" class="text-color">Female</label>
+                        </div>*@
                     <div>
-                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@isMaleCheck" />
-                        <label for="radio1" class="text-color">Male</label>
-                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@isFemaleCheck" />
-                        <label for="radio2" class="text-color">Female</label>
+                        <div class="custom-control custom-radio custom-control-inline pl-0">
+                            <input type="radio" class="custom-control-input" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@(quarantineRecord.gender?.Equals(en.Gender.Male))">
+                            <label class="custom-control-label" for="radio1">Male</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline pl-0">
+                            <input type="radio" class="custom-control-input" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@(quarantineRecord.gender?.Equals(en.Gender.Female))">
+                            <label class="custom-control-label" for="radio2">Female</label>
+                        </div>
                     </div>
 
                 </div>
 
+                @*<div class="form-group">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="labtesting" value="@quarantineRecord.lab_testing" @bind="quarantineRecord.lab_testing" @oninput="OnChangeLabTesting">
+                            <label class="form-check-label" for="labtesting">Lab Testing</label>
+                        </div>
+                    </div>*@
+
                 <div class="form-group">
-                    <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="labtesting" value="@quarantineRecord.lab_testing" @bind="quarantineRecord.lab_testing">
-                        <label class="form-check-label" for="labtesting">Lab Testing</label>
+                    <div class="custom-control custom-checkbox">
+                        <input class="custom-control-input" type="checkbox" id="labtesting" value="@quarantineRecord.lab_testing" @bind="@quarantineRecord.lab_testing" @oninput="OnChangeLabTesting">
+                        <label class="custom-control-label" for="labtesting">Checked Out</label>
                     </div>
                 </div>
 
@@ -118,37 +138,37 @@
 
                 <div class="form-group">
                     <label>Travel History</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.travel_history" />
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.travel_history" placeholder="Travel History" />
                 </div>
 
                 <div class="form-group">
                     <label>Residence Address</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.residence_address" />
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.residence_address" placeholder="Residence Address" />
                 </div>
 
                 <div class="form-group">
                     <label>Current Address</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.current_address" />
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.current_address" placeholder="Current Address" />
                 </div>
 
                 <div class="form-group">
                     <label>Traveled From</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.traveled_from" />
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.traveled_from" placeholder="Traveled From" />
                 </div>
 
                 <div class="form-group">
                     <label>Fever History</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.fever_history" />
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.fever_history" placeholder="Fever History" />
                 </div>
 
                 <div class="form-group">
                     <label>Remark</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.remark" />
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.remark" placeholder="Remark" />
                 </div>
 
                 <div class="form-group">
                     <label>Result</label>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.result" />
+                    <InputText class="full form-control" @bind-Value="quarantineRecord.result" placeholder="Result" />
                 </div>
 
                 <div class="form-group">
@@ -156,10 +176,17 @@
                     <input type="datetime-local" @bind="quarantineRecord.result_date" @bind:format="@va.datetimeformat" class="full form-control" />
                 </div>
 
+                @*<div class="form-group">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="checkedout" value="@quarantineRecord.checkedout" @bind="quarantineRecord.checkedout" @oninput="OnChangeCheckOut">
+                            <label class="form-check-label" for="checkedout">Checked Out</label>
+                        </div>
+                    </div>*@
+
                 <div class="form-group">
-                    <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="checkedout" value="@quarantineRecord.checkedout" @bind="quarantineRecord.checkedout">
-                        <label class="form-check-label" for="checkedout">Checked Out</label>
+                    <div class="custom-control custom-checkbox">
+                        <input class="custom-control-input" type="checkbox" id="checkedout" value="@quarantineRecord.checkedout" @bind="@quarantineRecord.checkedout" @oninput="OnChangeCheckOut">
+                        <label class="custom-control-label" for="checkedout">Checked Out</label>
                     </div>
                 </div>
 
@@ -199,13 +226,13 @@
     public int QuarantineId { get; set; }
 
     private MessageModal modal;
-    private bool isMaleCheck, isFemaleCheck;
     private en.quarantine_record quarantineRecord;
     private List<en.entry_reason> reasonList;
     private List<en.quarantine_station> stationList;
 
     private en.entry_reason selectedReason { get; set; }
     private en.quarantine_station selectedQuaStation { get; set; }
+    private bool isNRCchk;
 
     protected override void OnInitialized()
     {
@@ -250,10 +277,8 @@
                 quarantineRecord = await da.quarantine_record.Get(QuarantineId);
                 selectedQuaStation = stationList.Find(station => station.station_id == quarantineRecord?.station_id);
                 selectedReason = reasonList.Find(reason => reason.reason_id == quarantineRecord.reason_id);
-                isFemaleCheck = quarantineRecord.gender == en.Gender.Female;
             }
 
-            isMaleCheck = !isFemaleCheck;
             va.IsLoading = false;
         }
         catch (Exception ex)
@@ -286,8 +311,6 @@
             quarantineRecord = new en.quarantine_record();
             selectedQuaStation = null;
             selectedReason = null;
-            isMaleCheck =  true;
-            isFemaleCheck = false;
             NavigationManager.NavigateTo("quarantinerecord/entry/0");
             await JsService.Toast("toastsave", "Save Success");
             StateHasChanged();
@@ -335,5 +358,28 @@
         return await Task.FromResult(reasonList.FindAll(reason => reason.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
     }
 
+    private void OnChangeLabTesting()
+    {
+        if (!(bool)quarantineRecord.lab_testing)
+        {
+            quarantineRecord.lab_testing_date = null;
+        }
+    }
+
+    private void OnChangeCheckOut()
+    {
+        if (quarantineRecord.checkedout == null) return;
+        if (!(bool)quarantineRecord.checkedout)
+        {
+            quarantineRecord.checkout_date = null;
+        }
+    }
+    private void OnChangeNRC()
+    {
+        if(isNRCchk)
+        {
+            quarantineRecord.person_nrc = string.Empty;
+        }
+    }
     #endregion
 }

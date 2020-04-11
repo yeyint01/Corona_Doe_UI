@@ -43,7 +43,10 @@
                     <span>@context.patient_age</span>
                 </td>
                 <td>
+                    @if (!string.IsNullOrEmpty(context.gender))
+                    {
                     <span>@(context.gender == en.Gender.Male ? en.Gender.Male : en.Gender.Female)</span>
+                    }
                 </td>
                 <td>
                     <span>@context.hometown</span>

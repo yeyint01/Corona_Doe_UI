@@ -53,20 +53,23 @@
                     }
                 </div>
                 <div class="form-group">
-                    <label>Name*</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_name" autocomplete="off" />
+                    <label>Patient Name*</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_name" autocomplete="off" placeholder="Patient Name" />
                 </div>
                 <div class="form-group">
-                    <label>NRC</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_nrc" autocomplete="off" />
+                    <label>Phone Number*</label>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_ph" autocomplete="off" placeholder="Phone Number" />
                 </div>
                 <div class="form-group">
-                    <label>Phone*</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_ph" autocomplete="off" />
+                    <div class="custom-control custom-checkbox pb-2">
+                        <input class="custom-control-input" type="checkbox" id="nrc" value="@isNRCchk" @bind="@isNRCchk" @oninput="OnChangeNRC">
+                        <label class="custom-control-label" for="nrc">NRC</label>
+                    </div>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_nrc" autocomplete="off" placeholder="NRC"  disabled="@(!(isNRCchk))"/>
                 </div>
                 <div class="form-group">
                     <label>Age</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_age" autocomplete="off" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_age" autocomplete="off" placeholder="Age" />
                 </div>
                 <div class="form-group">
                     <label>Date of Birth</label>
@@ -74,17 +77,26 @@
                 </div>
                 <div class="form-group">
                     <label>Gender</label>
+                    @*<div>
+                <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@isMaleCheck" />
+                <label for="radio1" class="text-color">Male</label>
+                <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@isFemaleCheck" />
+                <label for="radio2" class="text-color">Female</label>
+            </div>*@
                     <div>
-                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@isMaleCheck" />
-                        <label for="radio1" class="text-color">Male</label>
-                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@isFemaleCheck" />
-                        <label for="radio2" class="text-color">Female</label>
+                        <div class="custom-control custom-radio custom-control-inline pl-0">
+                            <input type="radio" class="custom-control-input" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@(confirmrecord.gender?.Equals(en.Gender.Male))">
+                            <label class="custom-control-label" for="radio1">Male</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline pl-0">
+                            <input type="radio" class="custom-control-input" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@(confirmrecord.gender?.Equals(en.Gender.Female))">
+                            <label class="custom-control-label" for="radio2">Female</label>
+                        </div>
                     </div>
-
                 </div>
                 <div class="form-group">
                     <label>Home Town</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.hometown" autocomplete="off" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.hometown" autocomplete="off" placeholder="Home Town" />
                 </div>
                 <div class="form-group">
                     <label>Reason</label>
@@ -113,27 +125,27 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>Travel History</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.travel_history" autocomplete="off" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.travel_history" autocomplete="off" placeholder="Travel Hisotry"/>
                 </div>
                 <div class="form-group">
                     <label>Residence Address</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.residence_address" autocomplete="off" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.residence_address" autocomplete="off" placeholder="Residence Address"/>
                 </div>
                 <div class="form-group">
                     <label>Current Address</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.current_address" autocomplete="off" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.current_address" autocomplete="off" placeholder="Current Address" />
                 </div>
                 <div class="form-group">
                     <label>Traveled From</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.traveled_from" autocomplete="off" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.traveled_from" autocomplete="off" placeholder="Traveled From"/>
                 </div>
                 <div class="form-group">
                     <label>Fever History</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.fever_history" autocomplete="off" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.fever_history" autocomplete="off" placeholder="Fever History" />
                 </div>
                 <div class="form-group">
                     <label>Remark</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.remark" autocomplete="off" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.remark" autocomplete="off" placeholder="Remark" />
                 </div>
                 <div class="form-group">
                     <label>Check Out Date</label>
@@ -141,7 +153,7 @@
                 </div>
                 <div class="form-group">
                     <label>Result</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.result" autocomplete="off" />
+                    <InputText class="full form-control" @bind-Value="confirmrecord.result" autocomplete="off" placeholder="Result" />
                 </div>
             </div>
         </div>
@@ -169,7 +181,7 @@
     public int PatientId { get; set; }
     
     private MessageModal modal;
-    private bool isMaleCheck, isFemaleCheck;
+    //private bool isMaleCheck, isFemaleCheck;
     private en.confirm_record confirmrecord;
     private List<en.quarantine_record> qRecordList;
     private List<en.quarantine_station> qStationList;
@@ -178,7 +190,7 @@
     private en.quarantine_record selectedQuaRecord { get; set; }
     private en.quarantine_station selectedQuaStation { get; set; }
     private en.entry_reason selectedReson { get; set; }
-
+    private bool isNRCchk;
     protected override void OnInitialized()
     {
         va.IsLoading = true;
@@ -222,10 +234,10 @@
                 selectedQuaRecord = qRecordList.Find(qr => qr.quarantine_id == confirmrecord?.quarantine_id);
                 selectedQuaStation = qStationList.Find(qs => qs.station_id == confirmrecord.station_id);
                 selectedReson = eReasonList.Find(r => r.reason_id == confirmrecord.reason_id);
-                isFemaleCheck = confirmrecord.gender == en.Gender.Female;
+               // isFemaleCheck = confirmrecord.gender == en.Gender.Female;
             }
 
-            isMaleCheck = !isFemaleCheck;
+            //isMaleCheck = !isFemaleCheck;
 
             va.IsLoading = false;
         }
@@ -309,6 +321,12 @@
     {
         confirmrecord.gender = gender;
     }
-
+    private void OnChangeNRC()
+    {
+        if(isNRCchk)
+        {
+            confirmrecord.patient_nrc = string.Empty;
+        }
+    }
     #endregion
 }

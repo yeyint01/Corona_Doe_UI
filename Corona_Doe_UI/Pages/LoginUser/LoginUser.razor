@@ -8,193 +8,193 @@
 
 @if (userAccount != null)
 {
-<EditForm Model="@userAccount" OnValidSubmit="HandleValidSubmit" autocomplete="off">
-    <DataAnnotationsValidator />
-    <ValidationSummary /> 
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="form-group">
-                <label>User Name*</label>
-                <InputText class="full form-control" @bind-Value="userAccount.user_name" />
-            </div>
-
-            @if (userAccount.user_id == 0)
-            {
+    <EditForm Model="@userAccount" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="row">
+            <div class="col-sm-6">
                 <div class="form-group">
-                    <label>Password*</label>
-                    <div class="position-relative">
-                        <InputText type="password" id="login-pwd" @bind-Value="userAccount.password" class="full form-control"/>
-                        <span id="eye-icon" class="fa fa-eye eye-icon" @onclick="@(()=>JSRuntime.InvokeVoidAsync("CustomJsFunctions.ShowPassword", "login-pwd","eye-icon"))"></span>
+                    <label>User Name*</label>
+                    <InputText class="full form-control" @bind-Value="userAccount.user_name" autocomplete="new-password" placeholder="User Name" />
+                </div>
+
+                @if (userAccount.user_id == 0)
+                {
+                    <div class="form-group">
+                        <label>Password*</label>
+                        <div class="position-relative">
+                            <InputText type="password" id="login-pwd1" @bind-Value="userAccount.password" class="full form-control" autocomplete="new-password" placeholder ="Password"/>
+                            <span id="eye-icon" class="fa fa-eye eye-icon" @onclick="@(()=>JSRuntime.InvokeVoidAsync("CustomJsFunctions.ShowPassword", "login-pwd1","eye-icon"))"></span>
+                        </div>
                     </div>
+
+                    <div class="form-group">
+                        <label>Retype Password*</label>
+                        <div class="position-relative">
+                            <input type="password" id="login-pwd2" placeholder="Retype Password"
+                                   @bind="retypePassword" @onfocusout="ChangeRetypePassword"
+                                   errorborder="@(customWarning != null ? "err" : "" )"
+                                   class="full form-control pad-right-25" />
+                            <span id="eye-icon2" class="fa fa-eye eye-icon" @onclick="@(()=>JSRuntime.InvokeVoidAsync("CustomJsFunctions.ShowPassword", "login-pwd2","eye-icon2"))"></span>
+                            @if (!string.IsNullOrWhiteSpace(customWarning))
+                            {
+                                <label for="errconfirmPwd" style="color: red;">@customWarning</label>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="form-group">
+                    <label>Full Name*</label>
+                    <InputText class="full form-control" @bind-Value="userAccount.full_name" placeholder ="Full Name" />
                 </div>
 
                 <div class="form-group">
-                    <label>Retype Password*</label>
-                    <div class="position-relative">
-                        <input type="password" id="login-pwd2"
-                               @bind="retypePassword" @onfocusout="ChangeRetypePassword"
-                               errorborder="@(customWarning != null ? "err" : "" )"
-                               class="full form-control pad-right-25" />
-                        <span id="eye-icon2" class="fa fa-eye eye-icon" @onclick="@(()=>JSRuntime.InvokeVoidAsync("CustomJsFunctions.ShowPassword", "login-pwd2","eye-icon2"))"></span>
-                        @if (!string.IsNullOrWhiteSpace(customWarning))
+                    <label>Phone Number*</label>
+                    <InputText class="full form-control" @bind-Value="userAccount.phone_no" placeholder ="Phone Number"/>
+                </div>
+
+                @*<div class="form-group">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="pointuser" value="@userAccount.entrypoint_user" @bind="userAccount.entrypoint_user">
+                            <label class="form-check-label" for="pointuser">Entry Point User</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="dashboarduser" value="@userAccount.dashboard_user" @bind="userAccount.dashboard_user">
+                            <label class="form-check-label" for="dashboarduser">Dashboard User</label>
+                        </div>
+                    </div>*@
+
+                <div class="form-group row my-row">
+                    <div class="col-6 p-0">
+                        <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" id="pointuser" value="@userAccount.entrypoint_user" @bind="userAccount.entrypoint_user">
+                            <label class="custom-control-label" for="pointuser">Entry Point User</label>
+                        </div>
+                    </div>
+                    <div class="col-6 p-0">
+                        <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" id="dashboarduser" value="@userAccount.dashboard_user" @bind="userAccount.dashboard_user">
+                            <label class="custom-control-label" for="dashboarduser">Dashboard User</label>
+                        </div>
+                    </div>
+                </div>
+
+                @if (userAccount.entrypoint_user)
+                {
+                    <div class="form-group">
+                        <label>Entry Point</label>
+
+                        @if (entryPointList != null && entryPointList?.Count() > 0)
                         {
-                            <label for="errconfirmPwd" style="color: red;">@customWarning</label>
+                            <Typeahead SearchMethod="GetEntryPoints"
+                                       Placeholder="Search..."
+                                       Items="entryPointList"
+                                       @bind-Value="selectedEntryPoints">
+                                <SelectedTemplate Context="point">
+                                    @point.name_en
+                                </SelectedTemplate>
+                                <ResultTemplate Context="point">
+                                    @point.name_en
+                                </ResultTemplate>
+                            </Typeahead>
                         }
                     </div>
+                }
+
+                @if (userAccount.user_id > 0)
+                {
+                    <div class="form-group">
+                        <span class="text-color pointer" @onclick="@(()=>ConfirmModalOpen())">Change Password</span>
+                    </div>
+                }
+
+
+            </div>
+
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>Remark</label>
+                    <InputText class="full form-control" @bind-Value="userAccount.remark" placeholder ="Remark" />
                 </div>
-            }
 
-            <div class="form-group">
-                <label>Full Name*</label>
-                <InputText class="full form-control" @bind-Value="userAccount.full_name" />
-            </div>
+                @*<div class="form-group">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="pointright" value="@userAccount.point_admin_right" @bind="userAccount.point_admin_right">
+                            <label class="form-check-label" for="pointright">Point Admin Right</label>
+                        </div>
+                    </div>
 
-            <div class="form-group">
-                <label>Phone*</label>
-                <InputText class="full form-control" @bind-Value="userAccount.phone_no" />
-            </div>
+                    <div class="form-group">
+                        <div class="mycheck form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="active" value="@userAccount.active" @bind="userAccount.active">
+                            <label class="form-check-label" for="active">Active</label>
+                        </div>
+                    </div>*@
 
-            @*<div class="form-group">
-                    <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="pointuser" value="@userAccount.entrypoint_user" @bind="userAccount.entrypoint_user">
-                        <label class="form-check-label" for="pointuser">Entry Point User</label>
+                <div class="form-group row my-row">
+                    <div class="col-6 p-0">
+                        <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" id="pointright" value="@userAccount.point_admin_right" @bind="userAccount.point_admin_right">
+                            <label class="custom-control-label" for="pointright">Point Admin Right</label>
+                        </div>
+                    </div>
+                    <div class="col-6 p-0">
+                        <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" id="active" value="@userAccount.active" @bind="userAccount.active">
+                            <label class="custom-control-label" for="active">Active</label>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="dashboarduser" value="@userAccount.dashboard_user" @bind="userAccount.dashboard_user">
-                        <label class="form-check-label" for="dashboarduser">Dashboard User</label>
+                    <div class="custom-control custom-checkbox">
+                        <input class="custom-control-input" type="checkbox" id="quarantineuser" value="@userAccount.quarantine_user" @bind="userAccount.quarantine_user">
+                        <label class="custom-control-label" for="quarantineuser">Quarantine User</label>
                     </div>
-                </div>*@
+                </div>
 
-            <div class="form-group row my-row">
-                <div class="col-sm-6 col-6 p-0">
-                    <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="pointuser" value="@userAccount.entrypoint_user" @bind="userAccount.entrypoint_user">
-                        <label class="form-check-label" for="pointuser">Entry Point User</label>
+                @if (userAccount.quarantine_user)
+                {
+                    <div class="form-group">
+                        <label>Station</label>
+                        @if (stationList != null && stationList?.Count() > 0)
+                        {
+                            <Typeahead SearchMethod="GetQuaStation"
+                                       Placeholder="Search..."
+                                       Items="stationList"
+                                       @bind-Value="selectedQuaStation">
+                                <SelectedTemplate Context="station">
+                                    @station.name_en
+                                </SelectedTemplate>
+                                <ResultTemplate Context="station">
+                                    @station.name_en
+                                </ResultTemplate>
+                            </Typeahead>
+                        }
                     </div>
-                </div>
-                <div class="col-sm-6 col-6 p-0">
-                    <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="dashboarduser" value="@userAccount.dashboard_user" @bind="userAccount.dashboard_user">
-                        <label class="form-check-label" for="dashboarduser">Dashboard User</label>
-                    </div>
-                </div>
+                }
+
             </div>
-
-            @if (userAccount.entrypoint_user)
-            {
-                <div class="form-group">
-                    <label>Entry Point</label>
-
-                    @if (entryPointList != null && entryPointList?.Count() > 0)
-                    {
-                        <Typeahead SearchMethod="GetEntryPoints"
-                                   Placeholder="Search..."
-                                   Items="entryPointList"
-                                   @bind-Value="selectedEntryPoints">
-                            <SelectedTemplate Context="point">
-                                @point.name_en
-                            </SelectedTemplate>
-                            <ResultTemplate Context="point">
-                                @point.name_en
-                            </ResultTemplate>
-                        </Typeahead>
-                    }
-                </div>
-            }
-
-            @if (userAccount.user_id > 0)
-            {
-                <div class="form-group">
-                    <span class="text-color pointer" @onclick="@(()=>ConfirmModalOpen())">Change Password</span>
-                </div>
-            }
-
-
         </div>
 
-        <div class="col-sm-6">
-            <div class="form-group">
-                <label>Remark</label>
-                <InputText class="full form-control" @bind-Value="userAccount.remark" />
+        <div class="row my-row">
+            <div class="action-button">
+                <button type="submit" class="btn btn-info"><span>Save</span></button>
+
+                @if (userAccount.user_id > 0)
+                {
+                    <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
+                }
+
+                <a href="@(FromHome ? "/" : "/useraccount/list")"> Cancel </a>
             </div>
-
-            @*<div class="form-group">
-                    <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="pointright" value="@userAccount.point_admin_right" @bind="userAccount.point_admin_right">
-                        <label class="form-check-label" for="pointright">Point Admin Right</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="active" value="@userAccount.active" @bind="userAccount.active">
-                        <label class="form-check-label" for="active">Active</label>
-                    </div>
-                </div>*@
-
-            <div class="form-group row my-row">
-                <div class="col-sm-6 col-6 p-0">
-                    <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="pointright" value="@userAccount.point_admin_right" @bind="userAccount.point_admin_right">
-                        <label class="form-check-label" for="pointright">Point Admin Right</label>
-                    </div>
-                </div>
-                <div class="col-sm-6 col-6 p-0">
-                    <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="active" value="@userAccount.active" @bind="userAccount.active">
-                        <label class="form-check-label" for="active">Active</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <div class="mycheck form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="quarantineuser" value="@userAccount.quarantine_user" @bind="userAccount.quarantine_user">
-                    <label class="form-check-label" for="quarantineuser">Quarantine User</label>
-                </div>
-            </div>
-
-            @if (userAccount.quarantine_user)
-            {
-                <div class="form-group">
-                    <label>Station</label>
-                    @if (stationList != null && stationList?.Count() > 0)
-                    {
-                        <Typeahead SearchMethod="GetQuaStation"
-                                   Placeholder="Search..."
-                                   Items="stationList"
-                                   @bind-Value="selectedQuaStation">
-                            <SelectedTemplate Context="station">
-                                @station.name_en
-                            </SelectedTemplate>
-                            <ResultTemplate Context="station">
-                                @station.name_en
-                            </ResultTemplate>
-                        </Typeahead>
-                    }
-                </div>
-            }
-
         </div>
-    </div>
 
-    <div class="row my-row">
-        <div class="action-button">
-            <button type="submit" class="btn btn-info"><span>Save</span></button>
-
-            @if (userAccount.user_id > 0)
-            {
-                <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
-            }
-
-            <a href="@(FromHome ? "/" : "/useraccount/list")"> Cancel </a>
-        </div>
-    </div>
-
-</EditForm>
+    </EditForm>
 }
 
 @*@if (isConfirmModalOpen)

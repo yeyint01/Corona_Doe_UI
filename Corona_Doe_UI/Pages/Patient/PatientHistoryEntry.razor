@@ -76,14 +76,20 @@
         patientHistory = new en.patient_history();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    if (firstRender)
+    //    {
+    //        await GetData();
+    //        StateHasChanged();
+    //    }
+    //    // auto suggest box       
+    //    await JsService.AutoComplete("patientH_name", featureName);
+    //    await JsService.AutoComplete("feature_place", featurePlace);
+    //}
+    protected override async Task OnParametersSetAsync()
     {
-        if (firstRender)
-        {
-            await GetData();
-            StateHasChanged();
-        }
-        // auto suggest box       
+        await GetData();
         await JsService.AutoComplete("patientH_name", featureName);
         await JsService.AutoComplete("feature_place", featurePlace);
     }
@@ -110,7 +116,11 @@
                 }
             }
             else
+            {
+                patientHistory = new en.patient_history();
                 fromtime = DateTime.Now;
+                staytime = 0;
+            }
 
             featureName = await da.patient_history.GetName();
             featurePlace = await da.patient_history.GetPlace();

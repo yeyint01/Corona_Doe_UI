@@ -12,15 +12,15 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>Myanmar Name*</label>
-                    <InputText class="full form-control" @bind-Value="quarantineStation.name_mm" />
+                    <InputText class="full form-control" @bind-Value="quarantineStation.name_mm" placeholder ="Myanmar Name" />
                 </div>
                 <div class="form-group">
                     <label>English Name*</label>
-                    <InputText class="full form-control" @bind-Value="quarantineStation.name_en" />
+                    <InputText class="full form-control" @bind-Value="quarantineStation.name_en" placeholder ="English Name" />
                 </div>
                 <div class="form-group">
                     <label>Description</label>
-                    <InputText class="full form-control" @bind-Value="quarantineStation.description" />
+                    <InputText class="full form-control" @bind-Value="quarantineStation.description" placeholder ="Description" />
                 </div>
                 <div class="form-group">
                     <label>Location</label>
@@ -50,7 +50,7 @@
                 </div>
                 <div class="form-group">
                     <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="checkedout" value="@quarantineStation.discontinued" @bind="quarantineStation.discontinued">
+                        <input class="form-check-input" type="checkbox" id="checkedout" value="@quarantineStation.discontinued" @bind="quarantineStation.discontinued" @oninput="OnChangeDiscontinued">
                         <label class="form-check-label" for="checkedout">Discontinued</label>
                     </div>
                 </div>
@@ -190,5 +190,13 @@
         return await Task.FromResult(locationList.FindAll(location => location.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
     }
 
+    private void OnChangeDiscontinued()
+    {
+        if (quarantineStation.discontinued == null) return;
+        if (!(bool)quarantineStation.discontinued)
+        {
+            quarantineStation.discontinued_date = null;
+        }
+    }
     #endregion
 }

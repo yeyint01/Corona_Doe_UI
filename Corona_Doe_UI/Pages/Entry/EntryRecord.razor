@@ -14,32 +14,23 @@
             <div class="col-sm-6 coll-12">
                 <div class="form-group">
                     <label for="name">Name*</label>
-                    <InputText class="form-control" id="entry-name" @bind-Value="entryRecord.person_name" />
+                    <InputText class="form-control" id="entry-name" @bind-Value="entryRecord.person_name" autocomplete="off" placeholder="Name" />
                 </div>
                 <div class="form-group">
-                    <label for="phone">Phone*</label>
-                    <InputText class="form-control" id="phone" @bind-Value="entryRecord.person_ph" />
+                    <label for="phone">Phone Number*</label>
+                    <InputText class="form-control" id="phone" @bind-Value="entryRecord.person_ph"
+                               autocomplete="off" placeholder="Phone Number" />
                 </div>
                 <div class="form-group">
-                    <label for="nrc">NRC</label>
-                    @*<InputText class="form-control" id="nrc" @bind-Value="entryRecord.person_nrc" />*@
+                    <div class="custom-control custom-checkbox pb-2">
+                        <input class="custom-control-input" type="checkbox" id="nrc" value="@isNRCchk" @bind="@isNRCchk" @oninput="OnChangeNRC">
+                        <label class="custom-control-label" for="nrc">NRC</label>
+                    </div>
                     <div class="row">
                         <div class="col-sm-2 pad-right-0">
                             @if (stateNumberList != null && stateNumberList?.Count() > 0)
                             {
-                                @*<Typeahead SearchMethod="GetNrcNo"
-                                               Placeholder="Search..."
-                                               Items="nrcNoList"
-                                               @bind-Value="selectedNrcNo">
-                                        <SelectedTemplate Context="nrcno">
-                                            @nrcno
-                                        </SelectedTemplate>
-                                        <ResultTemplate Context="nrcno">
-                                            @nrcno
-                                        </ResultTemplate>
-                                    </Typeahead>*@
-
-                                <select @bind="selectedStateNumber" class="form-control" >
+                                <select @bind="selectedStateNumber" class="form-control" disabled="@(!(isNRCchk))">
                                     @foreach (var nrcno in stateNumberList)
                                     {
                                         <option value="@nrcno">@nrcno</option>
@@ -51,19 +42,7 @@
                         <div class="col-sm-4 pad-right-0 pad-left-3">
                             @if (districtList != null && districtList?.Count() > 0)
                             {
-                                @*<Typeahead SearchMethod="GetNrcCard"
-                                               Placeholder="Search..."
-                                               Items="nrcCardList"
-                                               @bind-Value="selectedNrcCard">
-                                        <SelectedTemplate Context="card">
-                                            @car
-                                        </SelectedTemplate>
-                                        <ResultTemplate Context="card">
-                                            @card
-                                        </ResultTemplate>
-                                    </Typeahead>*@
-
-                                <select @bind="@selectedDistrict" class="form-control">
+                                <select @bind="@selectedDistrict" class="form-control" disabled="@(!(isNRCchk))">
                                     @foreach (var card in districtList)
                                     {
                                         <option value="@card">@card</option>
@@ -75,19 +54,7 @@
                         <div class="col-sm-2 pad-right-0 pad-left-3">
                             @if (naList != null && naList?.Count() > 0)
                             {
-                                @*<Typeahead SearchMethod="GetNrc"
-                                               Placeholder="Search..."
-                                               Items="nrcList"
-                                               @bind-Value="selectedNrc">
-                                        <SelectedTemplate Context="nrc">
-                                            @nrc
-                                        </SelectedTemplate>
-                                        <ResultTemplate Context="nrc">
-                                            @nrc
-                                        </ResultTemplate>
-                                    </Typeahead>*@
-
-                                <select @bind="@selectedNa" class="form-control">
+                                <select @bind="@selectedNa" class="form-control" disabled="@(!(isNRCchk))">
                                     @foreach (var nc in naList)
                                     {
                                         <option value="@nc">@nc</option>
@@ -97,7 +64,7 @@
                         </div>
 
                         <div class="col-sm-4 pad-left-3">
-                            <InputText pattern="\d*" class="form-control" id="regno" minlength="6" maxlength="6" placeholder="000000" @bind-Value="nrcRegisterNo" />
+                            <InputText pattern="\d*" class="form-control" id="regno" minlength="6" maxlength="6" placeholder="000000" @bind-Value="nrcRegisterNo" disabled="@(!(isNRCchk))" />
                         </div>
 
 
@@ -105,7 +72,8 @@
                 </div>
                 <div class="form-group">
                     <label for="age">Age</label>
-                    <InputText class="form-control" id="age" @bind-Value="entryRecord.person_age" />
+                    <InputText class="form-control" id="age" @bind-Value="entryRecord.person_age"
+                               autocomplete="off" placeholder="Age" />
                 </div>
                 <div class="form-group">
                     <label>Gender</label>
@@ -119,63 +87,52 @@
                             <label class="custom-control-label" for="radio2">Female</label>
                         </div>
                     </div>
-                    
+
                     @*<div>
-                        <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@(entryRecord.gender?.Equals(en.Gender.Male))" />
-                        <label for="radio1" class="text-color">Male</label>
-                        <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@(entryRecord.gender?.Equals(en.Gender.Female))" />
-                        <label for="radio2" class="text-color">Female</label>
-                    </div>*@
+                            <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@(entryRecord.gender?.Equals(en.Gender.Male))" />
+                            <label for="radio1" class="text-color">Male</label>
+                            <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@(entryRecord.gender?.Equals(en.Gender.Female))" />
+                            <label for="radio2" class="text-color">Female</label>
+                        </div>*@
                 </div>
 
                 <div class="form-group">
                     <label for="curraddress">Current Address</label>
-                    <InputText class="form-control" id="curraddress" @bind-Value="entryRecord.current_address" />
+                    <InputText class="form-control" id="curraddress" @bind-Value="entryRecord.current_address" autocomplete="off" placeholder="Current Address" />
                 </div>
                 <div class="form-group">
                     <label for="residenceaddr">Residence Address</label>
-                    <InputText class="form-control" id="residenceaddr" @bind-Value="entryRecord.residence_address" />
+                    <InputText class="form-control" id="residenceaddr" @bind-Value="entryRecord.residence_address"
+                               autocomplete="off" placeholder="Residence Address" />
                 </div>
 
-                <!--Personal-->
                 <div class="form-group">
-                    <label for="personal">Personal</label>
-
-                    <select @bind="@selectedPersonal" class="form-control">
-                        @foreach (var name in personalName)
-                        {
-                            <option value="@name">@name</option>
-                        }
-                    </select>
+                    <label for="personal">Personal ID</label>
+                    <InputText class="form-control" id="personal" @bind-Value="entryRecord.personal_id"
+                               autocomplete="off" placeholder="Personal ID" />
                 </div>
             </div>
 
             <div class="col-sm-6 col-12">
-                <div class="form-group">
-                    <label for="hometown">HomeTown</label>
-                    @*<InputText class="form-control" id="hometown" @bind-Value="entryRecord.hometown" />*@
-                    @if (homeTownList != null && homeTownList?.Count() > 0)
-                    {
-                        <Typeahead SearchMethod="GetHomeTown"
-                                   Placeholder="Search..."
-                                   Items="homeTownList"
-                                   @bind-Value="entryRecord.hometown">
-                            <SelectedTemplate Context="hometown">
-                                @hometown
-                            </SelectedTemplate>
-                            <ResultTemplate Context="hometown">
-                                @hometown
-                            </ResultTemplate>
-                        </Typeahead>
-                    }
-                </div>
+
                 <div class="form-group">
                     <label for="history">Travel History</label>
-                    <InputText class="form-control" id="history" @bind-Value="entryRecord.travel_history" />
+                    <InputText class="form-control" id="history" @bind-Value="entryRecord.travel_history"
+                               autocomplete="off" placeholder="Travel History" />
                 </div>
                 <div class="form-group">
                     <label for="travelfrom">Travel From</label>
-                    <InputText class="form-control" id="travelfrom" @bind-Value="entryRecord.traveled_from" />
+                    <InputText class="form-control" id="travelfrom" @bind-Value="entryRecord.traveled_from"
+                               autocomplete="off" placeholder="Travel From" />
+                </div>
+                <div class="form-group">
+                    <label for="feverhistory">Fever History</label>
+                    <InputText class="form-control" id="feverhistory" @bind-Value="entryRecord.fever_history"
+                               autocomplete="off" placeholder="Fever History" />
+                </div>
+                <div class="form-group">
+                    <label for="endate">Entrance Date</label>
+                    <input type="datetime-local" @bind="entryRecord.entrance_date" @bind:format="yyyy-MM-ddTHH:mm" class="full form-control" />
                 </div>
                 <div class="form-group">
                     <label>Entry Point</label>
@@ -196,10 +153,6 @@
                     }
                 </div>
                 <div class="form-group">
-                    <label for="endate">Entrance Date</label>
-                    <input type="datetime-local" @bind="entryRecord.entrance_date" @bind:format="yyyy-MM-ddTHH:mm" class="full form-control" />
-                </div>
-                <div class="form-group">
                     <label>Entry Reason</label>
                     @if (reasonList != null && reasonList?.Count() > 0)
                     {
@@ -217,7 +170,7 @@
                     }
                 </div>
                 <div class="form-group">
-                    <label for="location">Location</label>                
+                    <label for="location">Location</label>
                     @if (locations != null && locations?.Count() > 0)
                     {
                         <Typeahead SearchMethod="GetLocation"
@@ -235,7 +188,8 @@
                 </div>
                 <div class="form-group">
                     <label for="remark">Remark</label>
-                    <InputText class="form-control" id="remark" @bind-Value="entryRecord.remark" />
+                    <InputText class="form-control" id="remark" @bind-Value="entryRecord.remark"
+                               autocomplete="off" placeholder="Remark" />
                 </div>
             </div>
 
@@ -262,36 +216,33 @@
 
     private MessageModal modal;
     private en.entry_record entryRecord;
+
+    private IEnumerable<string> naList;
+    private IEnumerable<string> districtList;
+    private IEnumerable<string> stateNumberList;
+
+    private List<en.location> locations;
     private List<en.entry_reason> reasonList;
     private List<en.entry_points> pointslist;
-    private List<string> stateNumberList;
-    private List<string> naList;
-    private List<string> districtList;
-    private List<string> homeTownList;
-    private List<string> personalName;
-    private List<en.location> locations;
+
+    private string selectedNa { get; set; }
+    private string selectedDistrict { get; set; }
+    private string selectedStateNumber { get; set; }
 
     private en.entry_points selectedPoints { get; set; }
     private en.entry_reason selectedReason { get; set; }
     private en.location selectedLocation { get; set; }
 
-    private string selectedNa { get; set; }
-    private string selectedDistrict { get; set; }
-    private string selectedStateNumber { get; set; }
-    private string selectedPersonal { get; set; }
-
     private string nrcRegisterNo;
+    private bool isNRCchk;
 
     protected override void OnInitialized()
     {
+        va.IsLoading = true;
+
+        locations = new List<en.location>();
         reasonList = new List<en.entry_reason>();
         pointslist = new List<en.entry_points>();
-        stateNumberList = new List<string>();
-        naList = new List<string>();
-        districtList = new List<string>();
-        homeTownList = new List<string>();
-        personalName = new List<string>();
-        locations = new List<en.location>();
     }
 
     protected override async Task OnParametersSetAsync()
@@ -319,10 +270,9 @@
             if (location != null)
                 locations.AddRange(location);
 
-            stateNumberList = fn.NRCStateNumbers().ToList();
-            naList = fn.NRCNaing().ToList();
-            districtList = fn.NRCDistricts().ToList();
-            homeTownList = fn.Township().ToList();
+            naList = fn.NRCNaing();
+            districtList = fn.NRCDistricts();
+            stateNumberList = fn.NRCStateNumbers();
 
             if (EntryRecordId > 0)
             {
@@ -331,19 +281,24 @@
                 selectedReason = reasonList.Find(reason => reason.reason_id == entryRecord.reason_id);
                 selectedLocation = locations.Find(loc => loc.location_id == entryRecord.location_id);
 
-                var returnData =await JSRuntime.InvokeAsync<object>("CustomJsFunctions.splitNrc", entryRecord.person_nrc);
-                var nrcData = JObject.Parse(returnData.ToString());
+                if (!string.IsNullOrWhiteSpace(entryRecord.person_nrc))
+                {
+                    var data = fn.SplitNrc(entryRecord.person_nrc);
+                    selectedStateNumber = data[0] + '/';
+                    selectedDistrict = data[1];
+                    selectedNa = '(' + data[2] + ')';
+                    nrcRegisterNo = data[3];
+                }
+                //var returnData = await JSRuntime.InvokeAsync<object>("CustomJsFunctions.splitNrc", entryRecord.person_nrc);
+                //var nrcData = JObject.Parse(returnData.ToString());
 
-                selectedStateNumber = (string)nrcData["sno"];
-                selectedDistrict = (string)nrcData["dis"];
-                selectedNa = (string)nrcData["na"];
-                nrcRegisterNo = (string)nrcData["regno"];
+                //selectedStateNumber = (string)nrcData["sno"];
+                //selectedDistrict = (string)nrcData["dis"];
+                //selectedNa = (string)nrcData["na"];
+                //nrcRegisterNo = (string)nrcData["regno"];
             }
             else
-            {
-                entryRecord = new en.entry_record();
-                entryRecord.entrance_date = DateTime.Now;
-            }
+                await ResetData();
 
             va.IsLoading = false;
         }
@@ -352,6 +307,27 @@
             va.IsLoading = false;
             modal.Show("Message", ex.Message);
         }
+    }
+
+    private async Task ResetData()
+    {
+
+        entryRecord = new en.entry_record();
+        entryRecord.entrance_date = DateTime.Now;
+        //entryRecord.traveled_from = previousEntryRec?.traveled_from; //set previous record
+
+        //set previous record
+        //selectedPoints = pointslist.Find(points => points.entrypoint_id == previousEntryRec?.entrypoint_id);
+        var lastData = await da.entry_record.GetLastRecord();
+        selectedPoints = pointslist.Find(p => p.entrypoint_id == lastData.entrypoint_id);
+        selectedReason = reasonList.Find(r => r.reason_id == lastData.reason_id);
+
+        //selectedReason = null;
+        selectedStateNumber = null;
+        selectedDistrict = null;
+        selectedNa = null;
+        nrcRegisterNo = null;
+        selectedLocation = null;
     }
 
     private async Task HandleValidSubmit()
@@ -376,13 +352,8 @@
                 return;
             }
 
-            var previousEntryRec = entryRecord;
+            await ResetData();
 
-            entryRecord = new en.entry_record();
-            entryRecord.traveled_from = previousEntryRec?.traveled_from; //set previous record
-            selectedPoints = pointslist.Find(points => points.entrypoint_id == previousEntryRec?.entrypoint_id);//set previous record
-            selectedReason = null;
-            entryRecord.entrance_date = DateTime.Now;
             NavigationManager.NavigateTo("entryrecord/0");
             await JsService.Toast("toastsave", "Save Success");
             StateHasChanged();
@@ -403,7 +374,6 @@
         try
         {
             await da.entry_record.Delete(EntryRecordId);
-
             navMgr.NavigateTo("entryrecord/list");
         }
         catch (Exception ex)
@@ -424,6 +394,29 @@
         return await Task.FromResult(reasonList.FindAll(reason => reason.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
     }
 
+    private async Task<IEnumerable<en.location>> GetLocation(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(locations.FindAll(loc => loc.name_en.ToLower().Contains(text))
+         .OrderBy(o => o.name_en));
+    }
+
+    private void IsCheck(string gender)
+    {
+        entryRecord.gender = gender;
+    }
+
+    private void OnChangeNRC()
+    {
+        if (isNRCchk)
+        {
+            selectedDistrict = string.Empty;
+            selectedStateNumber = string.Empty;
+            selectedNa = string.Empty;
+            nrcRegisterNo = string.Empty;
+        }
+    }
+
     //private async Task<IEnumerable<string>> GetNrcNo(string searchText)
     //{
     //    var text = searchText?.ToLower();
@@ -442,22 +435,6 @@
     //    return await Task.FromResult(nrcCardList.FindAll(card => card.ToLower().Contains(text)).OrderBy(o => o));
     //}
 
-    private async Task<IEnumerable<string>> GetHomeTown(string searchText)
-    {
-        var text = searchText?.ToLower();
-        return await Task.FromResult(homeTownList.FindAll(town => town.ToLower().Contains(text)).OrderBy(o => o));
-    }
-    private async Task<IEnumerable<en.location>> GetLocation(string searchText)
-    {
-        var text = searchText?.ToLower();
-        return await Task.FromResult(locations.FindAll(loc => loc.name_en.ToLower().Contains(text))
-         .OrderBy(o => o.name_en));
-    }
-
-    private void IsCheck(string gender)
-    {
-        entryRecord.gender = gender;
-    }
     #endregion
 }
 

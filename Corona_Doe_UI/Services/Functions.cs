@@ -87,7 +87,7 @@ namespace Corona_Doe_UI.Services
         public IEnumerable<string> NRCNaing()
         {
             IEnumerable<string> nrcchar = new List<string> { "(N)", "(E)",
-                        "(P)", "(A)","F","TH","G" };
+                        "(P)", "(A)","(F)","(TH)","(G)" };
             return nrcchar;
         }
 
@@ -101,6 +101,12 @@ namespace Corona_Doe_UI.Services
                 ,"YAKANA","MALANA","MAMANA","MANYANA","NAMANA","PANADA","PATAAH","PAWANA","SABATA","SADANA","SALANA","SAPABA","TANANA","WAMANA"
             }
             .OrderBy(d => d);
+        }
+
+        public string[] SplitNrc(string nrc)
+        {
+            return nrc.Split(new string[] { "/", "(", ")" }, 
+                StringSplitOptions.RemoveEmptyEntries);
         }
 
         public string ValidatePassword(string password)
