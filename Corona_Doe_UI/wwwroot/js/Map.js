@@ -33,12 +33,12 @@ window.MapJsFunctions = {
             })
         });
 
-        var mapbutton = document.getElementById("mapchangebtn");
-        var mapspan = document.getElementById("mapchangespan");
+        //var mapbutton = document.getElementById("mapchangebtn");
+        //var mapspan = document.getElementById("mapchangespan");
 
-        if (mapbutton !== null) {
-            mapbutton.style.display = "none";
-        }
+        //if (mapbutton !== null) {
+        //    mapbutton.style.display = "none";
+        //}
 
         var sourceFeatures = new ol.source.Vector();
         var layerFeatures = new ol.layer.Vector({
@@ -117,9 +117,9 @@ window.MapJsFunctions = {
                 DotNet.invokeMethodAsync('Corona_Doe_UI', 'GetLonLat', lonlatobj);
             });
 
-            if (mapbutton !== null) {
-                mapbutton.style.display = "block";
-            }
+            //if (mapbutton !== null) {
+            //    mapbutton.style.display = "block";
+            //}
         }
 
         function createUrl(tpl, layerDesc) {
@@ -131,23 +131,23 @@ window.MapJsFunctions = {
                 .replace('{app_code}', layerDesc.app_code);
         }
 
-        function onChange() {
-            var osmvisible = osmLayer.getVisible();
-            var stlvisible = satelliteLayer.getVisible();
+        //function onChange() {
+        //    var osmvisible = osmLayer.getVisible();
+        //    var stlvisible = satelliteLayer.getVisible();
 
-            osmLayer.setVisible(!osmvisible);
-            satelliteLayer.setVisible(!stlvisible);
+        //    osmLayer.setVisible(!osmvisible);
+        //    satelliteLayer.setVisible(!stlvisible);
 
-            if (mapbutton !== null) {
-                mapbutton.style.backgroundImage = !osmvisible ? "url(image/satellitemap.png)" : "url(image/streetmap.jpg)";
-            }
+        //    if (mapbutton !== null) {
+        //        mapbutton.style.backgroundImage = !osmvisible ? "url(image/satellitemap.png)" : "url(image/streetmap.jpg)";
+        //    }
 
-            if (mapspan !== null) {
-                mapspan.innerHTML = !osmvisible ? "Satellite" : "Street";
-            }
-        }
+        //    if (mapspan !== null) {
+        //        mapspan.innerHTML = !osmvisible ? "Satellite" : "Street";
+        //    }
+        //}
 
-        mapbutton.addEventListener("click", onChange);
+        //mapbutton.addEventListener("click", onChange);
     }
 };
 

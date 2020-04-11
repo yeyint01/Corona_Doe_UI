@@ -285,7 +285,6 @@ a, .btn-link {
     padding: 1.1rem;
     top: 0;
     position: absolute;
-    z-index: 4001;
     display: none;
 }
 
@@ -837,9 +836,8 @@ tbody td span{
 /*Excel Import*/
 .file-wrapper {
     cursor: pointer;
-    display: inline-block;
     overflow: hidden;
-    position: absolute;
+    position: relative;
 }
 
 .file-wrapper input {
@@ -866,8 +864,9 @@ tbody td span{
     margin-top: 8px;
 }
 
-    @media screen and (min-width: 576px) {
-        .modal-dialog-entry {
+
+@media screen and (min-width: 576px) {
+    .modal-dialog-entry {
         max-width: 891px !important;
         margin: 1.75rem auto;
     }

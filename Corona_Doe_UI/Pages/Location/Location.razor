@@ -4,85 +4,54 @@
 
 @if (location != null)
 {
-    <EditForm Model="@location" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+<EditForm Model="@location" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <label for="myanname">Myanmar Name*</label>
-                    <InputText class="form-control" id="name_mm" @bind-Value="location.name_mm" autocomplete="off" />
-                </div>
+    <div class="form-group">
+        <label for="myanname">Myanmar Name*</label>
+        <InputText class="form-control" id="name_mm" @bind-Value="location.name_mm" autocomplete="off" />
+    </div>
 
-                <div class="form-group">
-                    <label for="engname">English Name*</label>
-                    <InputText class="form-control" id="name_en" @bind-Value="location.name_en" autocomplete="off" />
-                </div>
-            </div>
+    <div class="form-group">
+        <label for="engname">English Name*</label>
+        <InputText class="form-control" id="name_en" @bind-Value="location.name_en" autocomplete="off" />
+    </div>
+    <div class="form-group">
+        <label>Location Type</label>
+        @if (locationTypeList != null && locationTypeList?.Count() > 0)
+        {
+            <Typeahead SearchMethod="GetLocationType"
+                       Placeholder="Search..."
+                       Items="locationTypeList"
+                       @bind-Value="selectedLoctype">
+                <SelectedTemplate Context="locationtype">
+                    @locationtype.name_en
+                </SelectedTemplate>
+                <ResultTemplate Context="locationtype">
+                    @locationtype.name_en
+                </ResultTemplate>
+            </Typeahead>
+        }
+        else
+        {
+            <div class="full form-control h-35-pixel"></div>
+        }
+    </div>
+    <div class="row my-row">
+        <div class="action-button">
 
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <label>Region</label>
-                    @if (regionList != null && regionList?.Count() > 0)
-                    {
-                        <Typeahead SearchMethod="GetRegion"
-                                   Placeholder="Search..."
-                                   Items="regionList"
-                                   @bind-Value="selectedRegion">
-                            <SelectedTemplate Context="region">
-                                @region.name_en
-                            </SelectedTemplate>
-                            <ResultTemplate Context="region">
-                                @region.name_en
-                            </ResultTemplate>
-                        </Typeahead>
-                    }
-                    else
-                    {
-                        <div class="full form-control h-35-pixel"></div>
-                    }
-                </div>
+            <button type="submit" class="btn btn-info"><span>Save</span></button>
+            @if (location.location_id > 0)
+            {
+                <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
+            }
 
-                <div class="form-group">
-                    <label>Location Type</label>
-                    @if (locationTypeList != null && locationTypeList?.Count() > 0)
-                    {
-                        <Typeahead SearchMethod="GetLocationType"
-                                   Placeholder="Search..."
-                                   Items="locationTypeList"
-                                   @bind-Value="selectedLoctype">
-                            <SelectedTemplate Context="locationtype">
-                                @locationtype.name_en
-                            </SelectedTemplate>
-                            <ResultTemplate Context="locationtype">
-                                @locationtype.name_en
-                            </ResultTemplate>
-                        </Typeahead>
-                    }
-                    else
-                    {
-                        <div class="full form-control h-35-pixel"></div>
-                    }
-                </div>
-            </div>
-
+            <a href="location/list"> Cancel </a>
         </div>
+    </div>
 
-        <div class="row my-row">
-            <div class="action-button">
-
-                <button type="submit" class="btn btn-info"><span>Save</span></button>
-                @if (location.location_id > 0)
-                {
-                    <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
-                }
-
-                <a href="location/list"> Cancel </a>
-            </div>
-        </div>
-
-    </EditForm>
+</EditForm>
 }
 
 <MessageModal @ref="modal" />
@@ -94,16 +63,13 @@
 
     en.location location;
     private MessageModal modal;
-    private List<en.region> regionList;
     private List<en.location_type> locationTypeList;
 
-    private en.region selectedRegion { get; set; }
-    private en.location_type selectedLoctype { get; set; }
+     private en.location_type selectedLoctype { get; set; }
 
     protected override void OnInitialized()
     {
         va.IsLoading = true;
-        regionList = new List<en.region>();
         locationTypeList = new List<en.location_type>();
     }
 
@@ -122,10 +88,6 @@
     {
         try
         {
-            var regions = await da.region.Get();
-            if (regions != null)
-                regionList.AddRange(regions);
-
             var loctypes = await da.location_type.Get();
             if (loctypes != null)
                 locationTypeList.AddRange(loctypes);
@@ -133,7 +95,6 @@
             if (LocationId > 0)
             {
                 location = await da.location.Get(LocationId);
-                selectedRegion = regionList.Find(r => r.region_id == location?.region_id);
                 selectedLoctype = locationTypeList.Find(l => l.locationtype_id == location.locationtype_id);
             }
 
@@ -152,8 +113,6 @@
         try
         {
             es.ActionResult result;
-
-            location.region_id = selectedRegion?.region_id;
 
             location.locationtype_id = selectedLoctype?.locationtype_id;
 
@@ -194,13 +153,6 @@
             modal.Show("Message", ex.Message);
         }
     }
-
-    private async Task<IEnumerable<en.region>> GetRegion(string searchText)
-    {
-        var text = searchText?.ToLower();
-        return await Task.FromResult(regionList.FindAll(r => r.name_en.ToLower().Contains(text)).OrderBy(o => o.name_en));
-    }
-
     private async Task<IEnumerable<en.location_type>> GetLocationType(string searchText)
     {
         var text = searchText?.ToLower();

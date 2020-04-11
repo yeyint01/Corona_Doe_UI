@@ -20,7 +20,7 @@
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Place*" OnHeaderClick="OnHeaderClick" OrderBy="place" />
             @if (!va.IsMobile)
             {
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="From Times" OnHeaderClick="OnHeaderClick" OrderBy="fromtime" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="From Time" OnHeaderClick="OnHeaderClick" OrderBy="fromtime" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Stay Times*" OnHeaderClick="OnHeaderClick" OrderBy="staytimes" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Comments*" OnHeaderClick="OnHeaderClick" OrderBy="comments" />
             }
@@ -35,7 +35,7 @@
             @if (!va.IsMobile)
             {
                 <td>
-                    <span>@(new DateTime(context.fromtime))</span>
+                    <span>@(fn.MillisecondsToDate(context.fromtime))</span>
                 </td>
                 <td>
                     <span>@context.staytimes</span>

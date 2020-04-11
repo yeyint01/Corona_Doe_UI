@@ -33,11 +33,11 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>From Time</label>
-                    <input type="datetime-local" class="full form-control disabel" @bind="@fromtime" @bind:format="@va.datetimeformat" />
+                    <input type="datetime-local" class="full form-control disabel" @bind="@fromtime" @bind:format="@va.datetimeformat" required/>
                 </div>    
                 <div class="form-group">
                     <label>Stay Time</label>
-                    <input type="number" class="full form-control" @bind="staytime" step="any" />
+                    <input type="number" class="full form-control" @bind="staytime" step="any" min="0" />
                 </div>
             </div> 
         </div>
@@ -97,8 +97,17 @@
             if (FeatureId > 0)
             {
                 patientHistory = await da.patient_history.Get(FeatureId);
-                fromtime = new DateTime(patientHistory.fromtime);
-                staytime = TimeSpan.Parse(patientHistory.staytimes).TotalHours;
+                //fromtime = new DateTime(patientHistory.fromtime);
+                fromtime = fn.MillisecondsToDate(patientHistory.fromtime);
+
+                var times = patientHistory.staytimes?.Split(":");
+                if (times?.Length == 2)
+                {
+                    var hours = Convert.ToInt32(times[0]);
+                    var minutes = TimeSpan.FromMinutes(Convert.ToDouble(times[1])).TotalHours;
+
+                    staytime = hours + minutes;
+                }
             }
             else
                 fromtime = DateTime.Now;
@@ -124,9 +133,16 @@
             patientHistory.objectid = patientHistory.id;
             patientHistory.pointx = 0;
             patientHistory.pointy = 0;
-            patientHistory.fromtime = fromtime.Ticks;
-            patientHistory.staytimes = TimeSpan.FromHours(staytime).ToString("hh\\:mm");
-            patientHistory.totime = fromtime.AddHours(staytime).Ticks;
+            //patientHistory.fromtime = fromtime.Ticks;
+            patientHistory.fromtime = fn.DateToMilliseconds(fromtime);
+
+            var time = TimeSpan.FromHours(staytime);
+            int hours = (int)time.TotalHours;
+            int minutes = time.Minutes;
+            patientHistory.staytimes = hours + ":" + minutes;
+
+            //patientHistory.totime = fromtime.AddHours(staytime).Ticks;
+            patientHistory.totime = fn.DateToMilliseconds(fromtime.AddHours(staytime));
 
             es.ActionResult result;
             if (patientHistory.id > 0)

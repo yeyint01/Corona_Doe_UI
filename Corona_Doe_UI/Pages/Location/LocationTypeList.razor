@@ -19,6 +19,11 @@
         <GridHeader>
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Myanmar Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_mm" />
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
+            @if (!va.IsMobile)
+            {
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Region" OnHeaderClick="OnHeaderClick" OrderBy="region_id" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Township Code" OnHeaderClick="OnHeaderClick" OrderBy="tcode" />
+            }
         </GridHeader>
         <GridRow>
             <td class="w-75-pixel">
@@ -27,6 +32,18 @@
             <td>
                 <span>@context.name_en</span>
             </td>
+            @if (!va.IsMobile)
+            {
+                <td>
+                    @if (regions != null)
+                    {
+                        <span>@regions.FirstOrDefault(l => l.region_id == context.region_id)?.name_en</span>
+                    }
+                </td>
+                <td>
+                    <span>@context.tcode</span>
+                </td>
+            }
         </GridRow>
     </CustomGrid>
 }
@@ -40,6 +57,7 @@
     private bool isCustomPagingNone;
     private int currentPage, gridHeight;
     private en.location_typeResult locationTypeResult;
+    private IEnumerable<en.region> regions;
     private string elementID = Guid.NewGuid() + "locationtypelist";
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
 
@@ -78,6 +96,7 @@
                 Order = CurSortInfo.Order,
                 OrderBy = CurSortInfo.OrderBy
             });
+             regions = await da.region.Get();
             va.IsLoading = false;
         }
         catch (Exception ex)

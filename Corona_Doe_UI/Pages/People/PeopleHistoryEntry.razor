@@ -1,5 +1,8 @@
 ﻿@page "/people_history/entry"
-@page "/people_history/entry/{MId}/{MHash}/{DId}/{DHash}"
+@*@page "/people_history/entry/{MId}/{MHash}/{DId}/{DHash}"*@
+
+@using Microsoft.AspNetCore.WebUtilities
+@using System.Reflection
 
 <h4 class="header">People Travelling History Form</h4>
 
@@ -45,12 +48,12 @@
 
                 <div class="form-group">
                     <label>Timestamp*</label>
-                    <input type="datetime-local" class="full form-control disabel" @bind="peopleHistory.timestamp" @bind:format="@va.datetimeformat" />
+                    <input type="datetime-local" class="full form-control disabel" @bind="peopleHistory.timestamp" @bind:format="@va.datetimeformat" required/>
                 </div>
 
                 <div class="form-group">
                     <label>Duration</label>
-                    <input type="number" class="full form-control" @bind="peopleHistory.duration" step="any" />
+                    <input type="number" class="full form-control" @bind="peopleHistory.duration" step="any" min="0" />
                 </div>
 
             </div>
@@ -109,7 +112,7 @@
             <div class="action-button">
                 <button type="submit" class="btn btn-info"><span>Save</span></button>
 
-                @if (!string.IsNullOrWhiteSpace(MId) || !string.IsNullOrWhiteSpace(MHash) || !string.IsNullOrWhiteSpace(DId) || !string.IsNullOrWhiteSpace(DHash))
+                @if (peopleParam != null)
                 {
                     <button type="button" class="btn btn-danger" @onclick="HandleDelete"><span>Delete</span></button>
                 }
@@ -125,21 +128,14 @@
 
 @code {
 
-    [Parameter]
-    public string MId { get; set; }
-    [Parameter]
-    public string MHash { get; set; }
-    [Parameter]
-    public string DId { get; set; }
-    [Parameter]
-    public string DHash { get; set; }
-
     private MessageModal modal;
     private en.people_history peopleHistory;
+    private en.people_historyQueryInfo peopleParam;
 
     protected override void OnInitialized()
     {
         va.IsLoading = true;
+        NavParam();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -153,19 +149,13 @@
 
     #region Functions
 
-    private async Task GetData()    // get data from server
+    private async Task GetData()
     {
         try
         {
-            if (!string.IsNullOrWhiteSpace(MId) || !string.IsNullOrWhiteSpace(MHash) || !string.IsNullOrWhiteSpace(DId) || !string.IsNullOrWhiteSpace(DHash))
+            if (peopleParam != null)
             {
-                peopleHistory = await da.people_history.Get(new en.people_historyQueryInfo
-                {
-                    mid = MId,
-                    mhash = MHash,
-                    did = DId,
-                    dhash = DHash
-                });
+                peopleHistory = await da.people_history.Get(peopleParam);
             }
             else
             {
@@ -183,12 +173,43 @@
         }
     }
 
+    private void NavParam()
+    {
+        var query = new string[] { "mid", "mhash", "did", "dhash" };
+
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+
+        if (uri.Query.Length <= 0)
+            return;
+
+        peopleParam = new en.people_historyQueryInfo();
+
+        string value = "";
+        foreach (var key in query)
+        {
+            if (QueryHelpers.ParseQuery(uri.Query).TryGetValue(key, out var param))
+            {
+                if (string.IsNullOrWhiteSpace(param))
+                    value = null;
+                else
+                    value = param;
+
+                switch (key)
+                {
+                    case "mid": peopleParam.mid = value; break;
+                    case "mhash": peopleParam.mhash = value; break;
+                    case "did": peopleParam.did = value; break;
+                    case "dhash": peopleParam.dhash = value; break;
+                }
+            }
+        }
+    }
+
     private async Task HandleValidSubmit()
     {
         try
         {
-           
-           var result = await da.people_history.Save(peopleHistory);
+            var result = await da.people_history.Save(peopleHistory);
 
             if (result.Status != es.Status.Success)
             {
@@ -199,7 +220,7 @@
             peopleHistory = new en.people_history();
             peopleHistory.timestamp = DateTime.Now;
             peopleHistory.duration = 0;
-            
+
             await JsService.Toast("toastsave", "Save Success");
             StateHasChanged();
             await JsService.Focus("people-mid");
@@ -218,13 +239,7 @@
 
         try
         {
-            await da.people_history.Delete(new en.people_historyQueryInfo
-            {
-                mid = MId,
-                mhash = MHash,
-                did = DId,
-                dhash = DHash
-            });
+            await da.people_history.Delete(peopleParam);
 
             NavigationManager.NavigateTo("people_history/list");
         }

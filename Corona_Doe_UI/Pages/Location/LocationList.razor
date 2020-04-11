@@ -20,8 +20,7 @@
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="English Name*" OnHeaderClick="OnHeaderClick" OrderBy="name_en" />
             @if (!va.IsMobile)
             {
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Region" OnHeaderClick="OnHeaderClick" OrderBy="region_id" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Location Type" OnHeaderClick="OnHeaderClick" OrderBy="locationtype_id" />
+                 <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Location Type" OnHeaderClick="OnHeaderClick" OrderBy="locationtype_id" />
             }
         </GridHeader>
         <GridRow>
@@ -33,14 +32,7 @@
             </td>
 
             @if (!va.IsMobile)
-            {
-                <td>
-                    @if (regions != null)
-                    {
-                        <span>@regions.FirstOrDefault(r => r.region_id == context.region_id)?.name_en</span>
-                    }
-
-                </td>
+            { 
                 <td>
                     @if (locatypes != null)
                     {
@@ -61,8 +53,7 @@
     private bool isCustomPagingNone;
     private int currentPage, gridHeight;
     private en.locationResult locationsResult;
-
-    private IEnumerable<en.region> regions;
+     
     private IEnumerable<en.location_type> locatypes;
     private string elementID = Guid.NewGuid() + "locationlist";
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
@@ -79,7 +70,6 @@
     {
         if (firstRender)
         {
-            await GetRegionAndLocType();
             await GetData();
             StateHasChanged();
         }
@@ -103,6 +93,7 @@
                 Order = CurSortInfo.Order,
                 OrderBy = CurSortInfo.OrderBy
             });
+             locatypes = await da.location_type.Get();
             va.IsLoading = false;
         }
         catch (Exception ex)
@@ -111,13 +102,6 @@
             modal.Show("Message", ex.Message);
         }
     }
-
-    private async Task GetRegionAndLocType()
-    {
-        regions = await da.region.Get();
-        locatypes = await da.location_type.Get();
-    }
-
     private async Task HandlSearchClick(string text)
     {
         searchText = text;

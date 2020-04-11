@@ -10,6 +10,7 @@
         <DataAnnotationsValidator />
         <ValidationSummary />
         <div class="row">
+
             <div class="col-sm-6 coll-12">
                 <div class="form-group">
                     <label for="name">Name*</label>
@@ -96,7 +97,7 @@
                         </div>
 
                         <div class="col-sm-4 pad-left-3">
-                            <InputText class="form-control" id="regno" @bind-Value="nrcRegisterNo" />
+                            <InputText pattern="\d*" class="form-control" id="regno" minlength="6" maxlength="6" placeholder="000000" @bind-Value="nrcRegisterNo" />
                         </div>
 
 
@@ -106,14 +107,25 @@
                     <label for="age">Age</label>
                     <InputText class="form-control" id="age" @bind-Value="entryRecord.person_age" />
                 </div>
-                <div class="form-group" style="padding-bottom: 4px !important;padding-top: 9px;">
+                <div class="form-group">
                     <label>Gender</label>
                     <div>
+                        <div class="custom-control custom-radio custom-control-inline pl-0">
+                            <input type="radio" class="custom-control-input" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@(entryRecord.gender?.Equals(en.Gender.Male))">
+                            <label class="custom-control-label" for="radio1">Male</label>
+                        </div>
+                        <div class="custom-control custom-radio custom-control-inline pl-0">
+                            <input type="radio" class="custom-control-input" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@(entryRecord.gender?.Equals(en.Gender.Female))">
+                            <label class="custom-control-label" for="radio2">Female</label>
+                        </div>
+                    </div>
+                    
+                    @*<div>
                         <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@(entryRecord.gender?.Equals(en.Gender.Male))" />
                         <label for="radio1" class="text-color">Male</label>
                         <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@(entryRecord.gender?.Equals(en.Gender.Female))" />
                         <label for="radio2" class="text-color">Female</label>
-                    </div>
+                    </div>*@
                 </div>
 
                 <div class="form-group">
@@ -124,7 +136,20 @@
                     <label for="residenceaddr">Residence Address</label>
                     <InputText class="form-control" id="residenceaddr" @bind-Value="entryRecord.residence_address" />
                 </div>
+
+                <!--Personal-->
+                <div class="form-group">
+                    <label for="personal">Personal</label>
+
+                    <select @bind="@selectedPersonal" class="form-control">
+                        @foreach (var name in personalName)
+                        {
+                            <option value="@name">@name</option>
+                        }
+                    </select>
+                </div>
             </div>
+
             <div class="col-sm-6 col-12">
                 <div class="form-group">
                     <label for="hometown">HomeTown</label>
@@ -176,7 +201,6 @@
                 </div>
                 <div class="form-group">
                     <label>Entry Reason</label>
-
                     @if (reasonList != null && reasonList?.Count() > 0)
                     {
                         <Typeahead SearchMethod="GetReason"
@@ -193,10 +217,28 @@
                     }
                 </div>
                 <div class="form-group">
+                    <label for="location">Location</label>                
+                    @if (locations != null && locations?.Count() > 0)
+                    {
+                        <Typeahead SearchMethod="GetLocation"
+                                   Placeholder="Search..."
+                                   Items="locations"
+                                   @bind-Value="selectedLocation">
+                            <SelectedTemplate Context="location">
+                                @location.name_en
+                            </SelectedTemplate>
+                            <ResultTemplate Context="location">
+                                @location.name_en
+                            </ResultTemplate>
+                        </Typeahead>
+                    }
+                </div>
+                <div class="form-group">
                     <label for="remark">Remark</label>
                     <InputText class="form-control" id="remark" @bind-Value="entryRecord.remark" />
                 </div>
             </div>
+
         </div>
         <div class="row my-row">
             <div class="action-button">
@@ -226,35 +268,35 @@
     private List<string> naList;
     private List<string> districtList;
     private List<string> homeTownList;
+    private List<string> personalName;
+    private List<en.location> locations;
 
     private en.entry_points selectedPoints { get; set; }
     private en.entry_reason selectedReason { get; set; }
+    private en.location selectedLocation { get; set; }
 
-    private string selectedStateNumber { get; set; }
     private string selectedNa { get; set; }
     private string selectedDistrict { get; set; }
+    private string selectedStateNumber { get; set; }
+    private string selectedPersonal { get; set; }
 
     private string nrcRegisterNo;
 
     protected override void OnInitialized()
     {
-        va.IsLoading = true;
-        entryRecord ??= new en.entry_record();
         reasonList = new List<en.entry_reason>();
         pointslist = new List<en.entry_points>();
         stateNumberList = new List<string>();
         naList = new List<string>();
         districtList = new List<string>();
         homeTownList = new List<string>();
+        personalName = new List<string>();
+        locations = new List<en.location>();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        if (firstRender)
-        {
-            await GetData();
-            StateHasChanged();
-        }
+        await GetData();
     }
 
     #region Functions
@@ -263,19 +305,19 @@
     {
         try
         {
+            va.IsLoading = true;
+
             var points = await da.entry_points.Get();
             if (points != null)
-            {
-                pointslist.Clear();
                 pointslist.AddRange(points);
-            }
 
             var reasons = await da.entry_reason.Get();
             if (reasons != null)
-            {
-                reasonList.Clear();
                 reasonList.AddRange(reasons);
-            }
+
+            var location = await da.location.Get();
+            if (location != null)
+                locations.AddRange(location);
 
             stateNumberList = fn.NRCStateNumbers().ToList();
             naList = fn.NRCNaing().ToList();
@@ -287,6 +329,7 @@
                 entryRecord = await da.entry_record.Get(EntryRecordId);
                 selectedPoints = pointslist.Find(points => points.entrypoint_id == entryRecord?.entrypoint_id);
                 selectedReason = reasonList.Find(reason => reason.reason_id == entryRecord.reason_id);
+                selectedLocation = locations.Find(loc => loc.location_id == entryRecord.location_id);
 
                 var returnData =await JSRuntime.InvokeAsync<object>("CustomJsFunctions.splitNrc", entryRecord.person_nrc);
                 var nrcData = JObject.Parse(returnData.ToString());
@@ -298,6 +341,7 @@
             }
             else
             {
+                entryRecord = new en.entry_record();
                 entryRecord.entrance_date = DateTime.Now;
             }
 
@@ -316,6 +360,7 @@
         {
             entryRecord.entrypoint_id = selectedPoints?.entrypoint_id;
             entryRecord.reason_id = selectedReason?.reason_id;
+            entryRecord.location_id = selectedLocation?.location_id;
             entryRecord.person_nrc = selectedStateNumber + selectedDistrict + selectedNa + nrcRegisterNo;
 
             es.ActionResult result;
@@ -401,6 +446,12 @@
     {
         var text = searchText?.ToLower();
         return await Task.FromResult(homeTownList.FindAll(town => town.ToLower().Contains(text)).OrderBy(o => o));
+    }
+    private async Task<IEnumerable<en.location>> GetLocation(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(locations.FindAll(loc => loc.name_en.ToLower().Contains(text))
+         .OrderBy(o => o.name_en));
     }
 
     private void IsCheck(string gender)

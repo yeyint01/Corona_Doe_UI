@@ -18,11 +18,11 @@
                 ItemList="@userAccountResult.User_Accounts" GridRowClick="HandleRowClick" PagerClick="PagerClick" RowsCount="userAccountResult.RCount" TablePaging="@(va.IsMobile? "true": "false")">
         <GridHeader>
             <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Name*" OnHeaderClick="OnHeaderClick" OrderBy="user_name" />
-            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Full Name*" OnHeaderClick="OnHeaderClick" OrderBy="user_name" />
+            <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Full Name*" OnHeaderClick="OnHeaderClick" OrderBy="full_name" />
             @if (!va.IsMobile)
             {
                 <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Phone*" OnHeaderClick="OnHeaderClick" OrderBy="phone_no" />
-                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
+                <SortableHeader CurOrder="CurSortInfo.Order" CurOrderBy="@CurSortInfo.OrderBy" Label="Remark*" OnHeaderClick="OnHeaderClick" OrderBy="remark" />
             }
 
         </GridHeader>

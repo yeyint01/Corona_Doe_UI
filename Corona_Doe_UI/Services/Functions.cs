@@ -93,11 +93,14 @@ namespace Corona_Doe_UI.Services
 
         public IEnumerable<string> NRCDistricts()
         {
-            IEnumerable<string> nrcchar = new List<string> { "AHGAYA", "BAMANA", "DAPHAYA","HAPANA"
-            ,"KAMANA","KAMATA","KAPATA","KHABADA","KHAPHANA","LAGANA","MAKANA","MAKATA","MAKHABA","MALANA"
-            ,"MANYAMA","MASANA","NAMANA","PANADA","PATAAH","PAWANA","SABATA","SADANA","SALANA","SAPABA","TANANA","WAMANA","YABAYA"
-            ,"YAKANA","MALANA","MAMANA","MANYANA","NAMANA","PANADA","PATAAH","PAWANA","SABATA","SADANA","SALANA","SAPABA","TANANA","WAMANA"};
-            return nrcchar;
+            return new string[] 
+            { 
+                "AHGAYA", "BAMANA", "DAPHAYA","HAPANA"
+                ,"KAMANA","KAMATA","KAPATA","KHABADA","KHAPHANA","LAGANA","MAKANA","MAKATA","MAKHABA","MALANA"
+                ,"MANYAMA","MASANA","NAMANA","PANADA","PATAAH","PAWANA","SABATA","SADANA","SALANA","SAPABA","TANANA","WAMANA","YABAYA"
+                ,"YAKANA","MALANA","MAMANA","MANYANA","NAMANA","PANADA","PATAAH","PAWANA","SABATA","SADANA","SALANA","SAPABA","TANANA","WAMANA"
+            }
+            .OrderBy(d => d);
         }
 
         public string ValidatePassword(string password)
@@ -129,14 +132,29 @@ namespace Corona_Doe_UI.Services
         }
         public IEnumerable<string> Township()
         {
-            IEnumerable<string> townships = new List<string>{
+            return new string[]
+            {
                      "Yangon","Mandalay","Naypyidaw", "Taunggyi", "Mawlamyine",
                      "Bago","Myitkyina", "Monywa","Pathein","Pyay","Myeik",
                      "Meiktila", "Pakokku", "Taungoo","Sittwe", "Magway","Myingyan",
                      "Thanlyin","Hinthada","Sagaing","Dawei", "Mogok","Shwebo","Nyaunglebin",
                      "Bhamo", "Aunglan","Yenangyaung","Bogale" ,"Hlegu" ,"Minbu" ,"Tharrawaddy",
-                     "Hakha" , "Thayet"};
-            return townships;
+                     "Hakha" , "Thayet"
+            }
+            .OrderBy(d => d);
+        }
+
+        public long DateToMilliseconds(DateTime dt)
+        {
+            return (long)dt.Subtract(new DateTime(1970, 1, 1)).TotalMilliseconds;
+        }
+
+        public DateTime MillisecondsToDate(long ms)
+        {
+            TimeSpan time = TimeSpan.FromMilliseconds(ms);
+            DateTime startdate = new DateTime(1970, 1, 1) + time;
+
+            return startdate;
         }
 
     }

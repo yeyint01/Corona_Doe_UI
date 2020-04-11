@@ -2,7 +2,7 @@
 
 @inject IFileReaderService fileReader
 
-<div>
+<div class="@CssClass">
     <div class="file-wrapper">
         <input type="file" id="fileUpload" @ref="fileUpload" @onchange="UploadFile">
         <div class="button"><span class="fa fa-file-excel-o font-excel"></span></div>
@@ -18,6 +18,9 @@
 
     [Parameter]
     public EventCallback<IEnumerable<en.people_history>> OnDataResult { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; }
 
     private ElementReference fileUpload;
     private ColMapperModal modal;
@@ -40,7 +43,7 @@
                 await JSRuntime.InvokeVoidAsync("CustomJsFunctions.clearValue", "fileUpload");
 
                 var dCols = dataTable.Columns.Cast<DataColumn>().Select(x => x.ColumnName);
-                
+
 
                 va.IsLoading = false;
                 var mappedCols = await modal.Show(dCols, TypeColumns);

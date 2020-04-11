@@ -1,15 +1,19 @@
 ﻿@page "/people_history/list"
 
+@using Microsoft.AspNetCore.WebUtilities
+
 <h4 class="header">People Travelling History</h4>
 
 <div class="mb-3 mt-3 d-flex">
-    <button class="btn btn-info mr-3"
+    <button class="btn btn-info mr-2"
             @onclick="@(() => NavigationManager.NavigateTo("people_history/entry"))">
         <span>+ Add new</span>
     </button>
 
-    <SearchBox SearchClick="HandlSearchClick" />
-    <ExcelImport TypeColumns = "@TypeColumns" OnDataResult = "@SaveExcelData"/>
+
+    <ExcelImport CssClass="mr-2" TypeColumns="@typeColumns" OnDataResult="@HandleExcelDataResult" />
+
+    <SearchBox  SearchClick="HandlSearchClick" />
 </div>
 @if (peopleHistoryResult != null)
 {
@@ -83,28 +87,30 @@
     private int currentPage;    // paging current click page
     private string searchText;
     private (string OrderBy, en.shared.SortOrder Order) CurSortInfo;
-    public Dictionary<string, string> TypeColumns { get; set; }
-   
+    private Dictionary<string, string> typeColumns { get; set; }
+
     protected override void OnInitialized()
     {
         va.IsLoading = true;
         currentPage = 1;
         peopleHistoryResult = new en.people_historyResult();
-        TypeColumns = new Dictionary<string, string>()
-                {
-                    { "mid", "Mobile Id" },
-                    { "mhash", "Mobile Hash" },
-                    { "did", "Device Id" },
-                    { "dhash", "Device Hash" },
-                    { "timestamp", "Timestamp" },
-                    { "duration", "Duration" },
-                    { "source", "Source" },
-                    { "eventname", "Event Name" },
-                    { "location", "Location" },
-                    { "contact", "Contact" },
-                    { "contacttype", "Contact Type" },
-                    { "remark", "Remark" },
-                };
+        typeColumns = new Dictionary<string, string>()
+        {
+            { "mid", "Mobile Id" },
+            { "mhash", "Mobile Hash" },
+            { "did", "Device Id" },
+            { "dhash", "Device Hash" },
+            { "timestamp", "Timestamp" },
+            { "duration", "Duration" },
+            { "source", "Source" },
+            { "eventname", "Event Name" },
+            { "location", "Location" },
+            { "lat", "Latitude" },
+            { "lon", "Longitude" },
+            { "contact", "Contact" },
+            { "contacttype", "Contact Type" },
+            { "remark", "Remark" }
+        };
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -118,12 +124,6 @@
 
     #region Functions
 
-    private async void SaveExcelData(IEnumerable<en.people_history> historylist)
-    {   
-        if(historylist != null)
-        await da.people_history.InsertMany(historylist);
-    }
-
     private async Task GetData()    // get data from server
     {
         try
@@ -135,6 +135,26 @@
                 Order = CurSortInfo.Order,
                 OrderBy = CurSortInfo.OrderBy
             });
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async void HandleExcelDataResult(IEnumerable<en.people_history> result)
+    {
+        if (result == null)
+            return;
+
+        try
+        {
+            va.IsLoading = true;
+
+            await da.people_history.InsertMany(result);
+
             va.IsLoading = false;
         }
         catch (Exception ex)
@@ -161,8 +181,15 @@
 
     private Task HandleRowClick(en.people_history obj)
     {
-        //var visited_at = obj.source.ToString("yyyy-MM-dd HH:mm:ss");
-        NavigationManager.NavigateTo("people_history/entry/" + obj.mid + "/" + obj.mhash + "/" + obj.did + "/" + obj.dhash);
+        var query = new Dictionary<string, string> {
+            { "mid", obj.mid ??= "" },
+             { "mhash", obj.mhash ??= "" },
+             { "did", obj.did ??= ""},
+             { "dhash", obj.dhash ??= ""}
+        };
+
+        NavigationManager.NavigateTo(QueryHelpers.AddQueryString("people_history/entry", query));
+        //NavigationManager.NavigateTo("people_history/entry/" + obj.mid + "/" + obj.mhash + "/" + obj.did + "/" + obj.dhash);
 
         return Task.FromResult<object>(null);
     }

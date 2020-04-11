@@ -1,4 +1,4 @@
-﻿<div class="search-container">
+﻿<div class="search-container @CssClass">
     <input type="search" placeholder="Search..." class="search" @bind-value="@searchText" @bind-value:event="oninput" @onkeypress="HandleKeyPress"/>
     <span @onclick="HandleClick"> <i class="fa fa-search search-icon" aria-hidden="true"></i> </span>
 </div>
@@ -6,6 +6,9 @@
 @code {
     [Parameter]
     public EventCallback<string> SearchClick { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; }
 
     private string searchText { get; set; }
 
