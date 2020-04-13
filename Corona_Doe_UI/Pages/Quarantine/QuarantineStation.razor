@@ -12,15 +12,15 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>Myanmar Name*</label>
-                    <InputText class="full form-control" @bind-Value="quarantineStation.name_mm" placeholder ="Myanmar Name" />
+                    <InputText class="full form-control" @bind-Value="quarantineStation.name_mm" placeholder="Myanmar Name" />
                 </div>
                 <div class="form-group">
                     <label>English Name*</label>
-                    <InputText class="full form-control" @bind-Value="quarantineStation.name_en" placeholder ="English Name" />
+                    <InputText class="full form-control" @bind-Value="quarantineStation.name_en" placeholder="English Name" />
                 </div>
                 <div class="form-group">
                     <label>Description</label>
-                    <InputText class="full form-control" @bind-Value="quarantineStation.description" placeholder ="Description" />
+                    <InputText class="full form-control" @bind-Value="quarantineStation.description" placeholder="Description" />
                 </div>
                 <div class="form-group">
                     <label>Location</label>
@@ -49,9 +49,9 @@
                     <input type="number" class="full form-control" @bind-value="quarantineStation.capacity" />
                 </div>
                 <div class="form-group">
-                    <div class="mycheck form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="checkedout" value="@quarantineStation.discontinued" @bind="quarantineStation.discontinued" @oninput="OnChangeDiscontinued">
-                        <label class="form-check-label" for="checkedout">Discontinued</label>
+                    <div class="custom-control custom-checkbox">
+                        <input class="custom-control-input" type="checkbox" id="checkedout" value="@quarantineStation.discontinued" @bind="quarantineStation.discontinued" @oninput="OnChangeDiscontinued">
+                        <label class="custom-control-label" for="checkedout">Discontinued</label>
                     </div>
                 </div>
                 @if (quarantineStation.discontinued == true)

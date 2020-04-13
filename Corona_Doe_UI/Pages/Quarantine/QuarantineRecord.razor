@@ -25,7 +25,53 @@
                         <input class="custom-control-input" type="checkbox" id="nrc" value="@isNRCchk" @bind="@isNRCchk" @oninput="OnChangeNRC">
                         <label class="custom-control-label" for="nrc">NRC</label>
                     </div>
-                    <InputText class="full form-control" @bind-Value="quarantineRecord.person_nrc" placeholder="NRC"  disabled="@(!(isNRCchk))"/>
+                    @*<InputText class="full form-control" @bind-Value="quarantineRecord.person_nrc" placeholder="NRC" disabled="@(!(isNRCchk))" />*@
+                    <div class="row my-row">
+                        <div class="col-2 pad-zero">
+                            @if (stateNumberList != null && stateNumberList?.Count() > 0)
+                            {
+                                <select @bind="selectedStateNumber" class="form-control pad-zero" disabled="@(!(isNRCchk))">
+                                    @foreach (var nrcno in stateNumberList)
+                                    {
+                                        <option value="@nrcno">@nrcno</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+
+                        <div class="col-4 pad-right-0 pad-left-3">
+                            @if (districtList != null && districtList?.Count() > 0)
+                            {
+                                <select @bind="@selectedDistrict" class="form-control pad-zero" disabled="@(!(isNRCchk))">
+                                    @foreach (var card in districtList)
+                                    {
+                                        <option value="@card">@card</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+
+                        <div class="col-2 pad-right-0 pad-left-3">
+                            @if (naList != null && naList?.Count() > 0)
+                            {
+                                <select @bind="@selectedNa" class="form-control pad-zero" disabled="@(!(isNRCchk))">
+                                    @foreach (var nc in naList)
+                                    {
+                                        <option value="@nc">@nc</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+
+                        <div class="col-4 pad-left-3 pad-zero">
+                            <input type="text" pattern="\d*" class="form-control pad-5" id="regno" minlength="6" maxlength="6" placeholder="000000" @bind="nrcRegisterNo" autocomplete="off" disabled="@(!(isNRCchk))" />
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(customWarning))
+                        {
+                            <label for="errconfirmPwd" style="color: red;">@customWarning</label>
+                        }
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -102,7 +148,7 @@
                 <div class="form-group">
                     <div class="custom-control custom-checkbox">
                         <input class="custom-control-input" type="checkbox" id="labtesting" value="@quarantineRecord.lab_testing" @bind="@quarantineRecord.lab_testing" @oninput="OnChangeLabTesting">
-                        <label class="custom-control-label" for="labtesting">Checked Out</label>
+                        <label class="custom-control-label" for="labtesting">Lab Testing</label>
                     </div>
                 </div>
 
@@ -232,7 +278,16 @@
 
     private en.entry_reason selectedReason { get; set; }
     private en.quarantine_station selectedQuaStation { get; set; }
+
     private bool isNRCchk;
+    private string nrcRegisterNo, customWarning;
+    private string selectedNa { get; set; }
+    private string selectedDistrict { get; set; }
+    private string selectedStateNumber { get; set; }
+
+    private IEnumerable<string> naList;
+    private IEnumerable<string> districtList;
+    private IEnumerable<string> stateNumberList;
 
     protected override void OnInitialized()
     {
@@ -272,11 +327,32 @@
                 reasonList.AddRange(reasons);
             }
 
+            naList = fn.NRCNaing();
+            districtList = fn.NRCDistricts();
+            stateNumberList = fn.NRCStateNumbers();
+
             if (QuarantineId > 0)
             {
                 quarantineRecord = await da.quarantine_record.Get(QuarantineId);
                 selectedQuaStation = stationList.Find(station => station.station_id == quarantineRecord?.station_id);
                 selectedReason = reasonList.Find(reason => reason.reason_id == quarantineRecord.reason_id);
+
+                if (!string.IsNullOrWhiteSpace(quarantineRecord.person_nrc))
+                {
+                    var data = fn.SplitNrc(quarantineRecord.person_nrc);
+                    if (data.Length == 4)
+                    {
+                        selectedStateNumber = data[0] + '/';
+                        selectedDistrict = data[1];
+                        selectedNa = '(' + data[2] + ')';
+                        nrcRegisterNo = data[3];
+                        isNRCchk = true;
+                    }
+                }
+            }
+            else
+            {
+                ResetData();
             }
 
             va.IsLoading = false;
@@ -288,12 +364,27 @@
         }
     }
 
+    private void ResetData()
+    {
+        quarantineRecord = new en.quarantine_record();
+        selectedQuaStation = null;
+        selectedReason = null;
+
+        selectedStateNumber = "";
+        selectedDistrict = "";
+        selectedNa = "";
+        nrcRegisterNo = "";
+        isNRCchk = false;
+    }
+
     private async Task HandleValidSubmit()
     {
         try
         {
+            if (!NRCValidation()) return;
             quarantineRecord.station_id = selectedQuaStation?.station_id;
             quarantineRecord.reason_id = selectedReason?.reason_id;
+            quarantineRecord.person_nrc = selectedStateNumber + selectedDistrict + selectedNa + nrcRegisterNo;
 
             es.ActionResult result;
 
@@ -307,11 +398,11 @@
                 modal.Show("Message", result.Msg);
                 return;
             }
-
-            quarantineRecord = new en.quarantine_record();
-            selectedQuaStation = null;
-            selectedReason = null;
+            //quarantineRecord = new en.quarantine_record();
+            //selectedQuaStation = null;
+            //selectedReason = null;
             NavigationManager.NavigateTo("quarantinerecord/entry/0");
+            ResetData();
             await JsService.Toast("toastsave", "Save Success");
             StateHasChanged();
             await JsService.Focus("q-person-name");
@@ -376,10 +467,40 @@
     }
     private void OnChangeNRC()
     {
-        if(isNRCchk)
+        if (isNRCchk)
         {
-            quarantineRecord.person_nrc = string.Empty;
+            selectedStateNumber = null;
+            selectedDistrict = null;
+            selectedNa = null;
+            nrcRegisterNo = null;
+            customWarning = null;
         }
+    }
+    #endregion
+
+    #region Validation
+   private bool NRCValidation()
+    {
+        bool result = false;
+        if (isNRCchk)
+        {
+            if (string.IsNullOrEmpty(selectedDistrict) & string.IsNullOrEmpty(selectedNa) & string.IsNullOrEmpty(selectedStateNumber) & string.IsNullOrEmpty(nrcRegisterNo))
+            {
+                customWarning = "Please select NRC.";
+                result = false;
+            }
+            else
+            {
+                customWarning = null;
+                result = true;
+            }
+        }
+        else
+        {
+            customWarning = null;
+            result = true;
+        }
+        return result;
     }
     #endregion
 }

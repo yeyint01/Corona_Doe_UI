@@ -65,7 +65,52 @@
                         <input class="custom-control-input" type="checkbox" id="nrc" value="@isNRCchk" @bind="@isNRCchk" @oninput="OnChangeNRC">
                         <label class="custom-control-label" for="nrc">NRC</label>
                     </div>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.patient_nrc" autocomplete="off" placeholder="NRC"  disabled="@(!(isNRCchk))"/>
+                    @*<InputText class="full form-control" @bind-Value="confirmrecord.patient_nrc" autocomplete="off" placeholder="NRC" disabled="@(!(isNRCchk))" />*@
+                    <div class="row my-row">
+                        <div class="col-2 pad-zero">
+                            @if (stateNumberList != null && stateNumberList?.Count() > 0)
+                            {
+                                <select @bind="selectedStateNumber" class="form-control pad-zero" disabled="@(!(isNRCchk))">
+                                    @foreach (var nrcno in stateNumberList)
+                                    {
+                                        <option value="@nrcno">@nrcno</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+
+                        <div class="col-4 pad-right-0 pad-left-3">
+                            @if (districtList != null && districtList?.Count() > 0)
+                            {
+                                <select @bind="@selectedDistrict" class="form-control pad-zero" disabled="@(!(isNRCchk))">
+                                    @foreach (var card in districtList)
+                                    {
+                                        <option value="@card">@card</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+
+                        <div class="col-2 pad-right-0 pad-left-3">
+                            @if (naList != null && naList?.Count() > 0)
+                            {
+                                <select @bind="@selectedNa" class="form-control pad-zero" disabled="@(!(isNRCchk))">
+                                    @foreach (var nc in naList)
+                                    {
+                                        <option value="@nc">@nc</option>
+                                    }
+                                </select>
+                            }
+                        </div>
+
+                        <div class="col-4 pad-left-3 pad-zero">
+                            <input type="text" pattern="\d*" class="form-control pad-5" id="regno" minlength="6" maxlength="6" placeholder="000000" @bind="nrcRegisterNo" autocomplete="off" disabled="@(!(isNRCchk))" />
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(customWarning))
+                        {
+                            <label for="errconfirmPwd" style="color: red;">@customWarning</label>
+                        }
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Age</label>
@@ -78,11 +123,11 @@
                 <div class="form-group">
                     <label>Gender</label>
                     @*<div>
-                <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@isMaleCheck" />
-                <label for="radio1" class="text-color">Male</label>
-                <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@isFemaleCheck" />
-                <label for="radio2" class="text-color">Female</label>
-            </div>*@
+                            <input type="radio" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@isMaleCheck" />
+                            <label for="radio1" class="text-color">Male</label>
+                            <input type="radio" name="radio-group" id="radio2" @onclick="@(()=>IsCheck(en.Gender.Female))" checked="@isFemaleCheck" />
+                            <label for="radio2" class="text-color">Female</label>
+                        </div>*@
                     <div>
                         <div class="custom-control custom-radio custom-control-inline pl-0">
                             <input type="radio" class="custom-control-input" name="radio-group" id="radio1" @onclick="@(()=>IsCheck(en.Gender.Male))" checked="@(confirmrecord.gender?.Equals(en.Gender.Male))">
@@ -125,11 +170,11 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label>Travel History</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.travel_history" autocomplete="off" placeholder="Travel Hisotry"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.travel_history" autocomplete="off" placeholder="Travel Hisotry" />
                 </div>
                 <div class="form-group">
                     <label>Residence Address</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.residence_address" autocomplete="off" placeholder="Residence Address"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.residence_address" autocomplete="off" placeholder="Residence Address" />
                 </div>
                 <div class="form-group">
                     <label>Current Address</label>
@@ -137,7 +182,7 @@
                 </div>
                 <div class="form-group">
                     <label>Traveled From</label>
-                    <InputText class="full form-control" @bind-Value="confirmrecord.traveled_from" autocomplete="off" placeholder="Traveled From"/>
+                    <InputText class="full form-control" @bind-Value="confirmrecord.traveled_from" autocomplete="off" placeholder="Traveled From" />
                 </div>
                 <div class="form-group">
                     <label>Fever History</label>
@@ -179,7 +224,7 @@
 @code {
     [Parameter]
     public int PatientId { get; set; }
-    
+
     private MessageModal modal;
     //private bool isMaleCheck, isFemaleCheck;
     private en.confirm_record confirmrecord;
@@ -190,7 +235,16 @@
     private en.quarantine_record selectedQuaRecord { get; set; }
     private en.quarantine_station selectedQuaStation { get; set; }
     private en.entry_reason selectedReson { get; set; }
+
     private bool isNRCchk;
+    private string nrcRegisterNo, customWarning;
+    private string selectedNa { get; set; }
+    private string selectedDistrict { get; set; }
+    private string selectedStateNumber { get; set; }
+
+    private IEnumerable<string> naList;
+    private IEnumerable<string> districtList;
+    private IEnumerable<string> stateNumberList;
     protected override void OnInitialized()
     {
         va.IsLoading = true;
@@ -214,7 +268,6 @@
     {
         try
         {
-            confirmrecord ??= new en.confirm_record();
 
             var qRecords = await da.quarantine_record.Get();
             if (qRecords != null)
@@ -228,15 +281,35 @@
             if (eReasons != null)
                 eReasonList.AddRange(eReasons);
 
+            naList = fn.NRCNaing();
+            districtList = fn.NRCDistricts();
+            stateNumberList = fn.NRCStateNumbers();
+
             if (PatientId > 0)
             {
                 confirmrecord = await da.confirm_record.Get(PatientId);
                 selectedQuaRecord = qRecordList.Find(qr => qr.quarantine_id == confirmrecord?.quarantine_id);
                 selectedQuaStation = qStationList.Find(qs => qs.station_id == confirmrecord.station_id);
                 selectedReson = eReasonList.Find(r => r.reason_id == confirmrecord.reason_id);
-               // isFemaleCheck = confirmrecord.gender == en.Gender.Female;
-            }
+                // isFemaleCheck = confirmrecord.gender == en.Gender.Female;
 
+                if (!string.IsNullOrWhiteSpace(confirmrecord.patient_nrc))
+                {
+                    var data = fn.SplitNrc(confirmrecord.patient_nrc);
+                    if (data.Length == 4)
+                    {
+                        selectedStateNumber = data[0] + '/';
+                        selectedDistrict = data[1];
+                        selectedNa = '(' + data[2] + ')';
+                        nrcRegisterNo = data[3];
+                        isNRCchk = true;
+                    }
+                }
+            }
+            else
+            {
+                ResetData();
+            }
             //isMaleCheck = !isFemaleCheck;
 
             va.IsLoading = false;
@@ -247,11 +320,26 @@
             modal.Show("Message", ex.Message);
         }
     }
+    private void ResetData()
+    {
+        confirmrecord = new en.confirm_record();
+        selectedQuaRecord = null;
+        selectedQuaStation = null;
+        selectedReson = null;
+
+        selectedStateNumber = "";
+        selectedDistrict = "";
+        selectedNa = "";
+        nrcRegisterNo = "";
+        isNRCchk = false;
+    }
 
     private async Task HandleValidSubmit()
     {
         try
         {
+            if (!NRCValidation()) return;
+
             es.ActionResult result;
 
             if (selectedQuaRecord != null)
@@ -260,6 +348,7 @@
                 confirmrecord.station_id = selectedQuaStation.station_id;
             if (selectedReson != null)
                 confirmrecord.reason_id = selectedReson.reason_id;
+            confirmrecord.patient_nrc = selectedStateNumber + selectedDistrict + selectedNa + nrcRegisterNo;
 
             if (confirmrecord.patient_id > 0)
                 result = await da.confirm_record.Update(confirmrecord);
@@ -271,6 +360,8 @@
                 modal.Show("Message", result.Msg);
                 return;
             }
+
+            ResetData();
 
             NavigationManager.NavigateTo("confirmrecord/list");
             await JsService.Toast("toastsave", "Save Success");
@@ -323,10 +414,39 @@
     }
     private void OnChangeNRC()
     {
-        if(isNRCchk)
+        if (isNRCchk)
         {
-            confirmrecord.patient_nrc = string.Empty;
+            selectedStateNumber = null;
+            selectedDistrict = null;
+            selectedNa = null;
+            nrcRegisterNo = null;
+            customWarning = null;
         }
+    }
+    #endregion
+    #region Validation
+    private bool NRCValidation()
+    {
+        bool result = false;
+        if (isNRCchk)
+        {
+            if (string.IsNullOrEmpty(selectedDistrict) & string.IsNullOrEmpty(selectedNa) & string.IsNullOrEmpty(selectedStateNumber) & string.IsNullOrEmpty(nrcRegisterNo))
+            {
+                customWarning = "Please select NRC.";
+                result = false;
+            }
+            else
+            {
+                customWarning = null;
+                result = true;
+            }
+        }
+        else
+        {
+            customWarning = null;
+            result = true;
+        }
+        return result;
     }
     #endregion
 }

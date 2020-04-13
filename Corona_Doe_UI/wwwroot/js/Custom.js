@@ -38,7 +38,7 @@ window.CustomJsFunctions = {
         if (id) {
             document.getElementById(input).focus();
         }
-        
+
     },
     toast: function (id, text) {
         $('#' + id).toast('show');
@@ -123,7 +123,7 @@ window.CustomJsFunctions = {
         /*the autocomplete function takes two arguments,
         the text field element and an array of possible autocompleted values:*/
         var currentFocus;
-       
+
         var inp = document.getElementById(id);
 
         inp.addEventListener("input", function (e) {
@@ -230,3 +230,24 @@ window.CustomJsFunctions = {
         return { sno: stateNo, dis: district, na: naing, regno: registerNo };
     }
 };
+
+//$(window).click(function (e) {
+//    //var mainbody = document.getElementById("main-body");
+//    //if (mainbody) {
+//    //    console.log("e=>", mainbody.scrollHeight, window.innerHeight);
+//    //}
+//    setTimeout(function () {
+//        if ($('#main-body').scrollHeight() > $("body").scrollHeight()) {
+//            $("body").css({ "overflow": "hidden" });
+//            return;
+//        } 
+//        $("body").css({ "overflow": "auto" });
+//    }, 200);
+
+//});
+
+//(function ($) {
+//    $.fn.scrollHeight = function () {
+//        return this.get(0).scrollHeight;
+//    }
+//})(jQuery);

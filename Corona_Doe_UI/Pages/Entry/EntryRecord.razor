@@ -26,11 +26,11 @@
                         <input class="custom-control-input" type="checkbox" id="nrc" value="@isNRCchk" @bind="@isNRCchk" @oninput="OnChangeNRC">
                         <label class="custom-control-label" for="nrc">NRC</label>
                     </div>
-                    <div class="row">
-                        <div class="col-sm-2 pad-right-0">
+                    <div class="row my-row">
+                        <div class="col-2 pad-zero">
                             @if (stateNumberList != null && stateNumberList?.Count() > 0)
                             {
-                                <select @bind="selectedStateNumber" class="form-control" disabled="@(!(isNRCchk))">
+                                <select @bind="selectedStateNumber" class="form-control pad-zero" disabled="@(!(isNRCchk))">
                                     @foreach (var nrcno in stateNumberList)
                                     {
                                         <option value="@nrcno">@nrcno</option>
@@ -39,10 +39,10 @@
                             }
                         </div>
 
-                        <div class="col-sm-4 pad-right-0 pad-left-3">
+                        <div class="col-4 pad-right-0 pad-left-3">
                             @if (districtList != null && districtList?.Count() > 0)
                             {
-                                <select @bind="@selectedDistrict" class="form-control" disabled="@(!(isNRCchk))">
+                                <select @bind="@selectedDistrict" class="form-control pad-zero" disabled="@(!(isNRCchk))">
                                     @foreach (var card in districtList)
                                     {
                                         <option value="@card">@card</option>
@@ -51,10 +51,10 @@
                             }
                         </div>
 
-                        <div class="col-sm-2 pad-right-0 pad-left-3">
+                        <div class="col-2 pad-right-0 pad-left-3">
                             @if (naList != null && naList?.Count() > 0)
                             {
-                                <select @bind="@selectedNa" class="form-control" disabled="@(!(isNRCchk))">
+                                <select @bind="@selectedNa" class="form-control pad-zero" disabled="@(!(isNRCchk))">
                                     @foreach (var nc in naList)
                                     {
                                         <option value="@nc">@nc</option>
@@ -63,11 +63,14 @@
                             }
                         </div>
 
-                        <div class="col-sm-4 pad-left-3">
-                            <InputText pattern="\d*" class="form-control" id="regno" minlength="6" maxlength="6" placeholder="000000" @bind-Value="nrcRegisterNo" disabled="@(!(isNRCchk))" />
+                        <div class="col-4 pad-left-3 pad-zero">
+                            <input type="text" pattern="\d*" class="form-control pad-5" id="regno" minlength="6" maxlength="6" placeholder="000000" @bind="nrcRegisterNo" autocomplete="off" disabled="@(!(isNRCchk))" />
                         </div>
 
-
+                        @if (!string.IsNullOrWhiteSpace(customWarning))
+                        {
+                            <label for="errconfirmPwd" style="color: red;">@customWarning</label>
+                        }
                     </div>
                 </div>
                 <div class="form-group">
@@ -233,7 +236,7 @@
     private en.entry_reason selectedReason { get; set; }
     private en.location selectedLocation { get; set; }
 
-    private string nrcRegisterNo;
+    private string nrcRegisterNo, customWarning;
     private bool isNRCchk;
 
     protected override void OnInitialized()
@@ -284,11 +287,16 @@
                 if (!string.IsNullOrWhiteSpace(entryRecord.person_nrc))
                 {
                     var data = fn.SplitNrc(entryRecord.person_nrc);
-                    selectedStateNumber = data[0] + '/';
-                    selectedDistrict = data[1];
-                    selectedNa = '(' + data[2] + ')';
-                    nrcRegisterNo = data[3];
+                    if (data.Length == 4)
+                    {
+                        selectedStateNumber = data[0] + '/';
+                        selectedDistrict = data[1];
+                        selectedNa = '(' + data[2] + ')';
+                        nrcRegisterNo = data[3];
+                        isNRCchk = true;
+                    }
                 }
+
                 //var returnData = await JSRuntime.InvokeAsync<object>("CustomJsFunctions.splitNrc", entryRecord.person_nrc);
                 //var nrcData = JObject.Parse(returnData.ToString());
 
@@ -311,7 +319,6 @@
 
     private async Task ResetData()
     {
-
         entryRecord = new en.entry_record();
         entryRecord.entrance_date = DateTime.Now;
         //entryRecord.traveled_from = previousEntryRec?.traveled_from; //set previous record
@@ -323,17 +330,20 @@
         selectedReason = reasonList.Find(r => r.reason_id == lastData.reason_id);
 
         //selectedReason = null;
-        selectedStateNumber = null;
-        selectedDistrict = null;
-        selectedNa = null;
-        nrcRegisterNo = null;
+        selectedStateNumber = "";
+        selectedDistrict = "";
+        selectedNa = "";
+        nrcRegisterNo = "";
         selectedLocation = null;
+        isNRCchk = false;
     }
 
     private async Task HandleValidSubmit()
     {
         try
         {
+            if (!NRCValidation()) return;
+
             entryRecord.entrypoint_id = selectedPoints?.entrypoint_id;
             entryRecord.reason_id = selectedReason?.reason_id;
             entryRecord.location_id = selectedLocation?.location_id;
@@ -410,10 +420,11 @@
     {
         if (isNRCchk)
         {
-            selectedDistrict = string.Empty;
-            selectedStateNumber = string.Empty;
-            selectedNa = string.Empty;
-            nrcRegisterNo = string.Empty;
+            selectedDistrict = null;
+            selectedStateNumber = null;
+            selectedNa = null;
+            nrcRegisterNo = null;
+            customWarning = null;
         }
     }
 
@@ -435,6 +446,31 @@
     //    return await Task.FromResult(nrcCardList.FindAll(card => card.ToLower().Contains(text)).OrderBy(o => o));
     //}
 
+    #endregion
+    #region Validation
+   private bool NRCValidation()
+    {
+        bool result = false;
+        if (isNRCchk)
+        {
+            if (string.IsNullOrEmpty(selectedDistrict) & string.IsNullOrEmpty(selectedNa) & string.IsNullOrEmpty(selectedStateNumber) & string.IsNullOrEmpty(nrcRegisterNo))
+            {
+                customWarning = "Please select NRC.";
+                result = false;
+            }
+            else
+            {
+                customWarning = null;
+                result = true;
+            }
+        }
+        else
+        {
+            customWarning = null;
+            result = true;
+        }
+        return result;
+    }
     #endregion
 }
 

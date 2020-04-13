@@ -191,6 +191,14 @@ a, .btn-link {
     padding: 0 10px;
 }
 
+.pad-zero{
+    padding: 0;
+}
+
+.pad-5{
+    padding: 5px;
+}
+
 .pad-bot-5 {
     padding-bottom: 5px;
 }
@@ -235,6 +243,10 @@ a, .btn-link {
     padding-left: 3px !important;
 }
 
+.pad-right-5 {
+    padding-right: 5px;
+}
+
 .pad-left-5 {
     padding-left: 5px;
 }
@@ -273,6 +285,10 @@ a, .btn-link {
 
 .h-35-pixel{
     height: 35px;
+}
+
+.h-38-pixel{
+    height: 38px;
 }
 
 .h-400-pixel{
@@ -357,21 +373,25 @@ app {
     height: 19px;
 }
 
+.remove-clear .typeahead-clear-indicator{
+    display: none;
+}
+
 .main {
     flex: 1;
 }
 
-    .main .top-row {
-        background-color: #f7f7f7;
-        border-bottom: 1px solid #d6d5d5;
-        justify-content: flex-end;
-        z-index: 1000;
-    }
+.main .top-row {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #d6d5d5;
+    justify-content: flex-end;
+    z-index: 1000;
+}
 
-        .main .top-row > a, .main .top-row .btn-link {
-            white-space: nowrap;
-            margin-left: 1.5rem;
-        }
+.main .top-row > a, .main .top-row .btn-link {
+    white-space: nowrap;
+    margin-left: 1.5rem;
+}
 
 .main .top-row a:first-child {
     overflow: hidden;
@@ -389,52 +409,52 @@ app {
     background-image: linear-gradient(180deg, #191654 0%, #37b79e 70%);
 }
 
-    .sidebar .top-row {
-        background-color: rgba(0,0,0,0.4);
-    }
+.sidebar .top-row {
+    background-color: rgba(0,0,0,0.4);
+}
 
-    .sidebar .navbar-brand {
-        font-size: 1.1rem;
-    }
+.sidebar .navbar-brand {
+    font-size: 1.1rem;
+}
 
-    .sidebar .oi {
-        width: 2rem;
-        font-size: 1.1rem;
-        vertical-align: text-top;
-        top: -2px;
-    }
+.sidebar .oi {
+    width: 2rem;
+    font-size: 1.1rem;
+    vertical-align: text-top;
+    top: -2px;
+}
 
-    .sidebar .nav-item {
-        font-size: 14px;
-        padding-bottom: 0.5rem;
-    }
+.sidebar .nav-item {
+    font-size: 14px;
+    padding-bottom: 0.5rem;
+}
 
-        .sidebar .nav-item:first-of-type {
-            padding-top: 0.3rem;
-        }
+.sidebar .nav-item:first-of-type {
+    padding-top: 0.3rem;
+}
 
-        .sidebar .nav-item:last-of-type {
-            padding-bottom: 1rem;
-        }
+.sidebar .nav-item:last-of-type {
+    padding-bottom: 1rem;
+}
 
-        .sidebar .nav-item a {
-            color: #fff;
-            border-radius: 4px;
-            height: 3rem;
-            display: flex;
-            align-items: center;
-            /*line-height: 3rem;*/
-        }
+.sidebar .nav-item a {
+    color: #fff;
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    /*line-height: 3rem;*/
+}
 
-            .sidebar .nav-item a.active {
-                background-color: rgba(255,255,255,0.25);
-                color: white;
-            }
+.sidebar .nav-item a.active {
+    background-color: rgba(255,255,255,0.25);
+    color: white;
+}
 
-            .sidebar .nav-item a:hover {
-                background-color: rgba(255,255,255,0.1);
-                color: white;
-            }
+.sidebar .nav-item a:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+}
 
 .content {
     padding-top: 1.1rem;
@@ -871,6 +891,16 @@ tbody td span{
 }
 
 
+/*TypeAhead*/
+
+.typeahead-single-value{
+    font-size: 14px;
+}
+
+.typeahead-menu {
+    font-size: 14px;
+}
+/*End*/
 @media screen and (min-width: 576px) {
     .modal-dialog-entry {
         max-width: 891px !important;
@@ -1003,4 +1033,39 @@ body {
     /*when navigating through the items using the arrow keys:*/
     background-color: DodgerBlue !important;
     color: #ffffff;
+}
+
+.tapstrip {
+    background: aliceblue;
+    color: gray;
+}
+
+.tapstrip-choose {
+    background: #17a2b8;
+    color: #fff;
+}
+
+.tapstrip span , .tapstrip-choose span{
+    font-size: 13px;
+}
+
+.tapstrip:focus, .tapstrip-choose:focus {
+    box-shadow: none !important;
+}
+.tapstrip:hover {
+    color: gray !important;
+}
+.tapstrip-choose:hover {
+    color: #fff !important;
+}
+
+.tapstrip-container {
+    border-top: 4px solid #17a2b8;
+}
+
+.btn-group > .btn-group:not(:first-child) > .btn, .btn-group > .btn:not(:first-child) {
+    border-bottom-right-radius: 0;
+}
+.btn-group > .btn-group:not(:last-child) > .btn, .btn-group > .btn:not(:last-child):not(.dropdown-toggle) {
+    border-bottom-left-radius: 0;
 }

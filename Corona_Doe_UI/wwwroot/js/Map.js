@@ -1,7 +1,7 @@
 ﻿var currentLocation = { lon: 0, lat: 0 };
 var map;
 window.MapJsFunctions = {
-    showMap: function (lonCoor, latCoor, allowClickOnMap = true) {
+    showMap: function (lonCoor, latCoor, allowClickOnMap = true, routes = null) {
 
         var appId = 'p6GqkdoqlSjfnyVvdIUL';
         var appCode = '00CJe6ilEo6UAyApIR0JNA';
@@ -33,13 +33,6 @@ window.MapJsFunctions = {
             })
         });
 
-        //var mapbutton = document.getElementById("mapchangebtn");
-        //var mapspan = document.getElementById("mapchangespan");
-
-        //if (mapbutton !== null) {
-        //    mapbutton.style.display = "none";
-        //}
-
         var sourceFeatures = new ol.source.Vector();
         var layerFeatures = new ol.layer.Vector({
             source: sourceFeatures
@@ -61,6 +54,45 @@ window.MapJsFunctions = {
             })
         ];
 
+        //start polyline routes
+        var routePaths = [];
+        if (routes != null) {
+            var routeSplits = routes.split("/");
+            var routeStyle = [
+                new ol.style.Style({
+                    stroke: new ol.style.Stroke({
+                        width: 6,
+                        color: [100, 149, 237, 0.8]
+                    })
+                })];
+
+            routeSplits.map(function (l) {
+                var lon = l.slice(l.indexOf("[") + 1, l.indexOf(","));
+                var lat = l.slice(l.indexOf(",") + 1, l.length);
+                var location = [parseFloat(lon), parseFloat(lat)];
+                routePaths.push(location);
+            });
+            var route = new ol.geom.LineString(routePaths).transform('EPSG:4326', 'EPSG:3857');
+            var routeCoords = route.getCoordinates();
+
+            var routeFeature = new ol.Feature({
+                type: 'route',
+                geometry: route
+            });
+            var geoMarker = new ol.Feature({
+                type: 'geoMarker',
+                geometry: new ol.geom.Point(routeCoords[0])
+            });
+
+            routeFeature.setStyle(routeStyle);
+
+            sourceFeatures.addFeature(routeFeature);
+            sourceFeatures.addFeature(geoMarker);
+        }
+
+
+        //end polyline routes
+
         var center = new ol.proj.fromLonLat([currentLocation.lon, currentLocation.lat]);
 
         if ((lonCoor !== null && latCoor !== null) && (lonCoor !== 0 && latCoor !== 0)) {
@@ -76,20 +108,36 @@ window.MapJsFunctions = {
 
         createMap();
 
+        if (routePaths != null && routePaths.length > 0) {
+            var rpaths = routePaths[0]; 
+            map.getView().setCenter(new ol.proj.fromLonLat([rpaths[0], rpaths[1]]));
+        }
+
         var geolocation = new ol.Geolocation();
         geolocation.setTracking(true); // here the browser may ask for confirmation
 
         geolocation.on('change', function () {
             var coordinates = geolocation.getPosition();
             if ((lonCoor === null && latCoor === null) || (lonCoor === 0 && latCoor === 0)) {
-                currentLocation.lon = coordinates[0];
-                currentLocation.lat = coordinates[1];
+                if (routePaths != null && routePaths.length > 0) {
+                    var rpaths = routePaths[0]; 
+                    map.getView().setCenter(new ol.proj.fromLonLat([rpaths[0], rpaths[1]]));
+                } else {
+                    currentLocation.lon = coordinates[0];
+                    currentLocation.lat = coordinates[1];
 
-                map.getView().setCenter(new ol.proj.fromLonLat([currentLocation.lon, currentLocation.lat]));
+                    map.getView().setCenter(new ol.proj.fromLonLat([currentLocation.lon, currentLocation.lat]));
+                }
+                
             }
         });
 
         function createMap() {
+            var elem = document.getElementById("map");
+            if (elem) {
+                elem.innerHTML = "";
+            }  
+
             map = new ol.Map({
                 target: 'map',
                 layers: [osmLayer, satelliteLayer, layerFeatures],
@@ -116,10 +164,6 @@ window.MapJsFunctions = {
                 var lonlatobj = { lon: lonlat[0], lat: lonlat[1] };
                 DotNet.invokeMethodAsync('Corona_Doe_UI', 'GetLonLat', lonlatobj);
             });
-
-            //if (mapbutton !== null) {
-            //    mapbutton.style.display = "block";
-            //}
         }
 
         function createUrl(tpl, layerDesc) {
@@ -129,25 +173,7 @@ window.MapJsFunctions = {
                 .replace('{scheme}', layerDesc.scheme)
                 .replace('{app_id}', layerDesc.app_id)
                 .replace('{app_code}', layerDesc.app_code);
-        }
-
-        //function onChange() {
-        //    var osmvisible = osmLayer.getVisible();
-        //    var stlvisible = satelliteLayer.getVisible();
-
-        //    osmLayer.setVisible(!osmvisible);
-        //    satelliteLayer.setVisible(!stlvisible);
-
-        //    if (mapbutton !== null) {
-        //        mapbutton.style.backgroundImage = !osmvisible ? "url(image/satellitemap.png)" : "url(image/streetmap.jpg)";
-        //    }
-
-        //    if (mapspan !== null) {
-        //        mapspan.innerHTML = !osmvisible ? "Satellite" : "Street";
-        //    }
-        //}
-
-        //mapbutton.addEventListener("click", onChange);
+        }        
     }
 };
 

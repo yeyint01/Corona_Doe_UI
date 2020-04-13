@@ -14,6 +14,9 @@
     private static OpenStreetMap openStreetMap;
 
     [Parameter]
+    public string Routes { get; set; }
+
+    [Parameter]
     public double? LonValue { get; set; }
 
     [Parameter]
@@ -25,13 +28,35 @@
     [Parameter]
     public bool AllowClickOnMap { get; set; }
 
+    private bool refreshMap;
+    [Parameter]
+    public bool RefreshMap {
+        get { return refreshMap; }
+        set
+        {
+            if(value != refreshMap)
+            {
+                refreshMap = value;
+                if (refreshMap)
+                {
+                    Task.Run(async () =>
+                    {
+                        await JSRuntime.InvokeAsync<object>("MapJsFunctions.showMap", LonValue, LatValue, AllowClickOnMap, Routes);
+                    });
+                    RefreshMap = false;
+                }
+
+            }
+        }
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             openStreetMap = new OpenStreetMap();
             openStreetMap.ChangedLocation = ChangedLocation;
-            await JSRuntime.InvokeAsync<object>("MapJsFunctions.showMap", LonValue, LatValue, AllowClickOnMap);
+            await JSRuntime.InvokeAsync<object>("MapJsFunctions.showMap", LonValue, LatValue, AllowClickOnMap, Routes);
         }
     }
 

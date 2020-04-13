@@ -1,0 +1,240 @@
+﻿@page "/trace"
+
+<h4 class="header">Tracing Data Management</h4>
+
+<div class="row">
+    <div class="col-sm-5 col-lg-5 remove-clear row my-row">
+        <div class="col-sm-3 col-lg-3 p-0">
+            <span>Hash ID</span>
+        </div>
+        <div class="col-sm-9 col-lg-9 pad-right-0">
+            @if (mobileHashList != null && mobileHashList?.Count() > 0 && personTraceParam != null)
+            {
+                <Typeahead SearchMethod="GetMobileHash"
+                           Placeholder="Search..."
+                           Items="mobileHashList"
+                           @bind-Value="personTraceParam.mhash">
+                    <SelectedTemplate Context="mobilehash">
+                        @mobilehash
+                    </SelectedTemplate>
+                    <ResultTemplate Context="mobilehash">
+                        @mobilehash
+                    </ResultTemplate>
+                </Typeahead>
+            }
+        </div>
+    </div>
+    <div class="col-sm-4 col-lg-5 row my-row">
+        <div class="col-sm-3 col-lg-4 p-0">
+            <span>Within Days</span>
+        </div>
+        <div class="col-sm-9 col-lg-8 pad-right-0">
+            <input type="number" placeholder="within days" class="full form-control h-38-pixel" @bind-value="withinDays" />
+        </div>
+
+    </div>
+    <div class="col-sm-3 col-lg-2 pad-left-0">
+        <button class="btn btn-info" @onclick="HandleClick"><i class="fa fa-search pad-right-5" aria-hidden="true"></i><span>Explore</span></button>
+    </div>
+</div>
+
+@*<div class="btn-group pad-top-15" role="group">
+        <button type="button"
+                class="btn @(isTabFirst ? "btn-info" : "btn-secondary")"
+                @onclick=@( () => TabClick("first") )>
+            <span>@personTraceResult?.contact_people?.Count() person contacted</span>
+        </button>
+
+        <button type="button"
+                class="btn @(isTabFirst ? "btn-secondary" : "btn-info")"
+                @onclick=@( () => TabClick("second") )>
+            <span>Point on map</span>
+        </button>
+    </div>*@
+
+<div class="btn-group pad-top-15" role="group">
+    <button type="button"
+            class="btn @(isTabFirst ? "tapstrip-choose" : "tapstrip")"
+            @onclick=@( () => TabClick("first") )>
+        <span>@personTraceResult?.contact_people?.Count() person contacted</span>
+    </button>
+
+    <button type="button"
+            class="btn @(isTabFirst ? "tapstrip" : "tapstrip-choose")"
+            @onclick=@( () => TabClick("second") )>
+        <span>Point on map</span>
+    </button>
+</div>
+<div class="row my-row tapstrip-container"></div>
+
+<div class="row my-row pad-top-15">
+
+    @if (isTabFirst)
+    {
+        <div class="col-sm-4 pad-left-0">
+            <table class="table">
+                <tr>
+                    <th>Hash ID</th>
+                </tr>
+                @if (personTraceResult.contact_people != null && personTraceResult?.contact_people.Count() > 0)
+                {
+                    @foreach (var contact in personTraceResult?.contact_people)
+                    {
+                        <tr class="pointer" @onclick="@(e => OnTappedRow(contact) )">
+                            <td>(@contact.count) @contact.mhash</td>
+                        </tr>
+                    }
+                }
+
+
+            </table>
+        </div>
+
+        <div class="col-sm-8 p-0">
+            <div class="form-control text-center">
+                <span>last contacted at @selectedContactPerson?.last_contact.ToString("M/d/yyyy h:mm tt")</span>
+            </div>
+            <div class="pad-top-15">
+                <OpenStreetMap LatValue="@selectedContactPerson?.lat" LonValue="@selectedContactPerson?.lng" RefreshMap="@isRefreshContactMap" AllowClickOnMap="false"></OpenStreetMap>
+            </div>
+        </div>
+    }
+    else
+    {
+        <OpenStreetMap Routes="@personLocations" RefreshMap="@isRefreshPersonMap" AllowClickOnMap="false"></OpenStreetMap>
+    }
+
+</div>
+
+
+<MessageModal @ref="modal" />
+
+@code {
+    private List<string> mobileHashList;
+
+    private MessageModal modal;
+    private string personLocations;
+    private int withinDays;
+
+    private en.trace_param personTraceParam;
+    private en.trace_result personTraceResult;
+    private en.trace_param contactTraceParam;
+    private en.contact_person selectedContactPerson;
+
+    private bool isTabFirst = true;
+    private bool isRefreshPersonMap, isRefreshContactMap;
+
+    protected override void OnInitialized()
+    {
+        personTraceParam = new en.trace_param();
+        personTraceResult = new en.trace_result();
+        contactTraceParam = new en.trace_param();
+
+        mobileHashList = new List<string>();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetData();
+            StateHasChanged();
+        }
+    }
+
+    private async Task GetData()    // get data from server
+    {
+        try
+        {
+            va.IsLoading = true;
+
+            var mHashes = await da.people_history.GetMobileHashes();
+            if (mHashes != null)
+                mobileHashList.AddRange(mHashes);
+
+            if (mobileHashList != null && mobileHashList.Count > 0)
+            {
+                personTraceParam.mhash = mobileHashList[0];
+            }
+            //locations = "[" + string.Join(",", peopleHistories.Select(i => "[" + i.lat + "," + i.lng + "]")) + "]";
+            await HandleClick();
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private async Task<IEnumerable<string>> GetMobileHash(string searchText)
+    {
+        var text = searchText?.ToLower();
+        return await Task.FromResult(mobileHashList.FindAll(mhash => mhash.ToLower().Contains(text)).OrderBy(o => o));
+    }
+
+    private async Task HandleClick()
+    {
+        if (string.IsNullOrWhiteSpace(personTraceParam.mhash)) return;
+        try
+        {
+            va.IsLoading = true;
+
+            personTraceParam.start_date = DateTime.Now.AddDays(-withinDays);
+            personTraceParam.end_date = DateTime.Now;
+            personTraceResult = await da.trace_people.GetTraceData(personTraceParam);
+
+            this.SetPersonLocations();
+
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private void TabClick(string tabplace)
+    {
+        if (tabplace == "first")
+        {
+            isTabFirst = true;
+        }
+
+        if (tabplace == "second")
+        {
+            isTabFirst = false;
+        }
+
+        this.SetPersonLocations();
+    }
+
+    private void OnTappedRow(en.contact_person contact)
+    {
+        if (contact == null) return;
+        try
+        {
+            va.IsLoading = true;
+            selectedContactPerson = contact;
+            isRefreshContactMap = true;
+
+            va.IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            va.IsLoading = false;
+            modal.Show("Message", ex.Message);
+        }
+    }
+
+    private void SetPersonLocations()
+    {
+        personLocations = null;
+        if (personTraceResult != null && personTraceResult.target_routes != null && personTraceResult.target_routes.Count() > 0)
+        {
+            personLocations = string.Join("/", personTraceResult.target_routes?.Select(i => "[" + i.lng + "," + i.lat + "]"));
+        }
+        isRefreshPersonMap = true;
+    }
+}

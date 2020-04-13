@@ -171,6 +171,12 @@
         </li>
 
         <li class="nav-item px-1" @onclick="ToggleNavMenu">
+            <NavLink class="nav-link" href="trace" @onclick="@(()=>  subMenuOpen("trace"))">
+                <span class="fa fa-street-view" aria-hidden="true"></span>Tracing Data Management
+            </NavLink>
+        </li>
+
+        <li class="nav-item px-1" @onclick="ToggleNavMenu">
             <NavLink class="nav-link" href="useraccount/list" @onclick="@(()=>  subMenuOpen("useraccount"))">
                 <span class="fa fa-user-circle-o" aria-hidden="true"></span>User Account
             </NavLink>
